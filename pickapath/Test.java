@@ -22,10 +22,12 @@ public class Test {
 		JMenuBar bar = new JMenuBar();  //menu bar
 		JMenu file = new JMenu("File"); //file button
 		bar.add(file);
+
 		JMenuItem nproject = new JMenuItem("New Project");  //save button
 		file.add(nproject);
 		JMenuItem openp = new JMenuItem("Open Project");  //save button
 		file.add(openp);
+
 		JMenuItem save = new JMenuItem("Save");  //save button
 		file.add(save);
 		JMenu edit = new JMenu("Edit");  //edit button
