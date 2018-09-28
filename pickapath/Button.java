@@ -1,5 +1,5 @@
 package pickapath;
 
-public class box {
+public class Button {
 
 }
