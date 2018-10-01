@@ -48,7 +48,7 @@ public class Test {
 
 		JPanel numbers = new JPanel(new GridLayout(5,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
-		panel.add(new JPanel(), BorderLayout.CENTER);
+		panel.add(new Canvas(), BorderLayout.CENTER);
 		numbers.add(new JButton("Make Box")); //make box button
 		
 		JButton arrowButton = new JButton("Make Arrow");
