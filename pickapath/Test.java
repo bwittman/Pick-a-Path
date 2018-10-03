@@ -1,6 +1,20 @@
 package pickapath;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 
@@ -16,7 +30,7 @@ public class Test {
 			// handle exception
 		}
 
-
+		List<Box> boxes = new ArrayList<Box>();
 
 		JFrame frame = new JFrame("BorderLayout Example");
 		JMenuBar bar = new JMenuBar();  //menu bar
@@ -48,8 +62,32 @@ public class Test {
 
 		JPanel numbers = new JPanel(new GridLayout(5,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
-		panel.add(new Canvas(), BorderLayout.CENTER);
-		numbers.add(new JButton("Make Box")); //make box button
+		
+		Canvas canvas = new Canvas(boxes);
+		panel.add(canvas, BorderLayout.CENTER);
+		JButton makeBox = new JButton("Make Box");
+		
+		Random random = new Random();
+		
+		
+		makeBox.addActionListener(
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						// TODO Auto-generated method stub
+						Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "String");
+						boxes.add(box);
+						canvas.repaint();
+					}
+					
+				}
+				
+				);
+		
+		
+		numbers.add(makeBox); //make box button
+		//panel.add(new Button(), BorderLayout.CENTER); //trying to call button to make "make box" responsive
 		
 		JButton arrowButton = new JButton("Make Arrow");
 		arrowButton.setEnabled(false);
