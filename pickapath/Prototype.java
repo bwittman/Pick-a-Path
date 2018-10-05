@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -18,7 +17,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 
 
-public class Test {
+public class Prototype {
 	public static void main(String[] args) {
 
 		try {
