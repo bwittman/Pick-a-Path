@@ -17,7 +17,7 @@ public class Canvas extends JPanel {
 	public void paint(Graphics g) {
 		super.paint(g);
 		for (Box box: boxes) {
-			g.setColor(Color.PINK);
+			g.setColor(Color.GREEN);
 
 			g.fillRect(box.getX(), box.getY(), box.getWidth(), box.getHeight());
 
