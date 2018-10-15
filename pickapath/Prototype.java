@@ -86,10 +86,14 @@ public class Prototype {
 		
 		
 		numbers.add(makeBox); //make box button
-		//panel.add(new Button(), BorderLayout.CENTER); //trying to call button to make "make box" responsive
-		
+				
 		JButton arrowButton = new JButton("Make Arrow");
-		arrowButton.setEnabled(false);
+		if (boxes.size() < 2) {
+			arrowButton.setEnabled(false); // trying to un-gray the button when there are 2 or more boxes
+		} else {
+			arrowButton.setEnabled(true);
+		}
+		
 		
 		numbers.add(arrowButton); //make arrow button
 		numbers.add(new JButton("Delete")); // delete button (for boxes and arrows)
