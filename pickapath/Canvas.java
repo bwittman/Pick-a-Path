@@ -14,6 +14,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	
 	int mx, my;
 	boolean mouseDragged;
+	boolean selected = false;
 	
 
 	public Canvas(List<Box> boxes) {
@@ -41,6 +42,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		my = e.getY();
 		
 		mouseDragged = true;
+		
 
 	}
 
@@ -56,7 +58,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+		selected = true;
 		
 	}
 
