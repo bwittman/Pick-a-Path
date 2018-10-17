@@ -68,7 +68,8 @@ public class Prototype {
 		
 		Random random = new Random();
 		
-		
+		JButton arrowButton = new JButton("Make Arrow");
+		arrowButton.setEnabled(false);
 		makeBox.addActionListener(
 				new ActionListener() {
 
@@ -77,6 +78,11 @@ public class Prototype {
 						// TODO Auto-generated method stub
 						Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "String");
 						boxes.add(box);
+						if (boxes.size() < 2) {
+							arrowButton.setEnabled(false); // trying to un-gray the button when there are 2 or more boxes
+						} else {
+							arrowButton.setEnabled(true);
+						}
 						canvas.repaint();
 					}
 					
@@ -87,12 +93,8 @@ public class Prototype {
 		
 		numbers.add(makeBox); //make box button
 				
-		JButton arrowButton = new JButton("Make Arrow");
-		if (boxes.size() < 2) {
-			arrowButton.setEnabled(false); // trying to un-gray the button when there are 2 or more boxes
-		} else {
-			arrowButton.setEnabled(true);
-		}
+	
+	
 		
 		
 		numbers.add(arrowButton); //make arrow button
