@@ -1,5 +1,6 @@
 package pickapath;
 
-public class FileSaving {
+public class FileSaving implements java.io.Serializable {
+	
 
 }
