@@ -48,7 +48,7 @@ public class Prototype {
 		JMenuItem undo = new JMenuItem("Undo");  //undo button
 		edit.add(undo);
 
-		JFrame frame1 = new JFrame("PICK A PATH"); //title of window
+		JFrame frame1 = new JFrame("PICK A PATH"); //title of window 
 		frame1.setJMenuBar(bar);
 
 		JPanel panel = new JPanel(new BorderLayout());
@@ -100,7 +100,7 @@ public class Prototype {
 		frame1.add(panel);
 		
 		
-		panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI
+		panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI and needs to turn to text input
 		
 		
 		frame1.setSize(800,700); //size of window
