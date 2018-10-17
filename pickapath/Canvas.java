@@ -16,7 +16,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	boolean mouseDragged;
 	
 
-	public Canvas(List<Box> boxes) {
+	public Canvas(List<Box> boxess) {
 		// TODO Auto-generated constructor stub
 		this.boxes = boxes;
 	}
