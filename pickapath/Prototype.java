@@ -100,7 +100,7 @@ public class Prototype {
 		frame1.add(panel);
 		
 		
-		panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI and needs to turn to text input
+		panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI and needs to turn to text input but it wont let me commit
 		
 		
 		frame1.setSize(800,700); //size of window
