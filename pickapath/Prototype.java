@@ -48,7 +48,7 @@ public class Prototype {
 		JMenuItem undo = new JMenuItem("Undo");  //undo button
 		edit.add(undo);
 
-		JFrame frame1 = new JFrame("PIK A PATH"); //title of window
+		JFrame frame1 = new JFrame("PICK A PATH"); //title of window 
 		frame1.setJMenuBar(bar);
 
 		JPanel panel = new JPanel(new BorderLayout());
@@ -92,22 +92,24 @@ public class Prototype {
 		
 		
 		numbers.add(makeBox); //make box button
-				
-	
-	
-		
-		
 		numbers.add(arrowButton); //make arrow button
 		numbers.add(new JButton("Delete")); // delete button (for boxes and arrows)
 		numbers.add(new JButton("Add Text")); // add text button
 		numbers.add(new JButton("Delete All")); // delete all button
 		panel.add(numbers, BorderLayout.EAST); //assigns the boxes to the right container
 		frame1.add(panel);
+		
+		
+		panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI and needs to turn to text input but it wont let me commit
+		
+		
 		frame1.setSize(800,700); //size of window
 		frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //this closes the GUI
 		frame1.setVisible(true); //allows the GUI to start as visible
 		// panel.add(new JButton("South"), BorderLayout.SOUTH); We can use this to add a bottom container if we want
-		// panel.add(new JButton("West"), BorderLayout.WEST); We can use this to add a left container if we want
+
+		
+		
 	}
 
 }
