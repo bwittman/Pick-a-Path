@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener {
 	private List<Box> boxes;
+	private Box selectedBox = null;
+	
 	
 	int mx, my;
 	boolean mouseDragged;
@@ -28,10 +30,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			g.setColor(Color.GREEN);
 
 			g.fillRect(box.getX() - box.getWidth()/2, box.getY() - box.getHeight()/2, box.getWidth(), box.getHeight());
+			if (box == selectedBox) {
+				g.setColor(Color.WHITE);
+			} else {
+				g.setColor(Color.BLACK);
+			}
+			
+			g.drawRect(box.getX() - box.getWidth()/2, box.getY() - box.getHeight()/2, box.getWidth(), box.getHeight());
 
-			g.setColor(Color.BLACK);
-
-			g.drawRect(box.getX(), box.getY(), box.getWidth(), box.getHeight());
 		}
 
 
