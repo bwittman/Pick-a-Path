@@ -79,7 +79,7 @@ public class Prototype {
 						Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "String");
 						boxes.add(box);
 						if (boxes.size() < 2) {
-							arrowButton.setEnabled(false); // trying to un-gray the button when there are 2 or more boxes
+							arrowButton.setEnabled(false); // un-gray the button when there are 2 or more boxes
 						} else {
 							arrowButton.setEnabled(true);
 						}
