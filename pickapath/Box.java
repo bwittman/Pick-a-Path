@@ -47,4 +47,9 @@ public class Box {
 	}
 	public void moveBox() {
 	}
+	
+	public boolean contains(int x, int y) {
+	 return (x >= this.x-(width/2) && x <= this.x + (width/2) && y >= this.y - (height/2) && y <= this.y + (height/2));
+		
+	}
 }
