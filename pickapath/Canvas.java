@@ -12,16 +12,18 @@ import javax.swing.JPanel;
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener {
 	private List<Box> boxes;
 	private Box selectedBox = null;
-	
-	
-	int mx, my;
+	private int startXBox;
+	private int startYBox;
+	private int startXDrag;
+	private int startYDrag;
 	boolean mouseDragged;
-	boolean selected = false;
 	
 
 	public Canvas(List<Box> boxes) {
 		// TODO Auto-generated constructor stub
 		this.boxes = boxes;
+		addMouseListener(this);
+		addMouseMotionListener(this);
 	}
 
 	public void paint(Graphics g) {
@@ -44,27 +46,25 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		mx = e.getX();
-		my = e.getY();
-		
-		mouseDragged = true;
-		
-
+		if (selectedBox != null) {
+		int deltaX = e.getX()-startXDrag;
+		int deltaY = e.getY()-startYDrag;
+		selectedBox.setX(startXBox + deltaX);
+		selectedBox.setY(startYBox + deltaY);
+		repaint();
+		}
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		mx = e.getX();
-		my = e.getY();
-		
-		mouseDragged = false;
+
 		
 
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		selected = true;
+
 		
 	}
 
@@ -82,8 +82,19 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		int mouseX = arg0.getX();
+		int mouseY = arg0.getY();
+		selectedBox = null;
+		for (Box box: boxes) {
+			if (box.contains(mouseX, mouseY)) {
+				selectedBox = box;
+				startXDrag = mouseX;
+				startYDrag = mouseY;
+				startXBox = box.getX();
+				startYBox = box.getY();
+			}
+		}
+		repaint();
 	}
 
 	@Override
