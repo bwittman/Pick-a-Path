@@ -88,7 +88,20 @@ public class Prototype {
 		
 		numbers.add(makeBox); //make box button
 		numbers.add(arrowButton); //make arrow button
-		numbers.add(new JButton("Delete")); // delete button (for boxes and arrows)
+		JButton delete = new JButton("Delete");
+		numbers.add(delete); // delete button (for boxes and arrows)
+		delete.addActionListener(
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						canvas.deleteBox();
+						
+					}
+					
+				}
+				
+				);
 		numbers.add(new JButton("Add Text")); // add text button
 		numbers.add(new JButton("Delete All")); // delete all button
 		panel.add(numbers, BorderLayout.EAST); //assigns the boxes to the right container
