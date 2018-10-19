@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -42,7 +43,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 		}
 
-
+	}
+	
+	public void deleteBox() {
+		if (selectedBox != null) {
+			boxes.remove(selectedBox);
+			selectedBox = null;
+			repaint();
+		}
 	}
 	@Override
 	public void mouseDragged(MouseEvent e) {
@@ -54,18 +62,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		repaint();
 		}
 	}
+	
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-
-		
-
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-
-		
 	}
 
 	@Override
