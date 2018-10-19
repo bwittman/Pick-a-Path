@@ -14,6 +14,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
 
 
@@ -34,6 +35,7 @@ public class Prototype {
 		JFrame frame = new JFrame("BorderLayout Example");
 		JMenuBar bar = new JMenuBar();  //menu bar
 		JMenu file = new JMenu("File"); //file button
+		
 		bar.add(file);
 
 		JMenuItem nproject = new JMenuItem("New Project");  //save button
@@ -100,8 +102,15 @@ public class Prototype {
 		frame1.add(panel);
 		
 		
-		panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI and needs to turn to text input but it wont let me commit
+		//panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI 
 		
+		JLabel lblFName = new JLabel("Insert Text Here:");
+        JTextField tfFName = new JTextField(10);
+        lblFName.setLabelFor(tfFName);
+        panel.add(lblFName, BorderLayout.WEST);
+        panel.add(tfFName, BorderLayout.WEST);
+
+
 		
 		frame1.setSize(800,700); //size of window
 		frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //this closes the GUI
