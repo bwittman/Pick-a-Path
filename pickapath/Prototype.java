@@ -128,11 +128,14 @@ public class Prototype {
      //   panel.add(lblFName, BorderLayout.WEST);
       //  panel.add(tfFName, BorderLayout.WEST);
 
-		JTextArea lblFName = (new JTextArea("Insert Text Here"));
-		lblFName.setColumns(20);
-		lblFName.setLineWrap(true);
-		lblFName.setRows(5);
-		panel.add(lblFName, BorderLayout.WEST);
+		
+		JTextArea textArea = new JTextArea("Insert Text Here");
+		textArea.setColumns(20);
+		textArea.setLineWrap(true);
+		textArea.setRows(5);
+		JScrollPane scrolling = new JScrollPane(textArea);
+		panel.add(scrolling, BorderLayout.SOUTH);
+	
 		
 				
 				
