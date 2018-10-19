@@ -6,14 +6,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+
 import javax.swing.*;
 
 
@@ -104,12 +97,20 @@ public class Prototype {
 		
 		//panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI 
 		
-		JLabel lblFName = new JLabel("Insert Text Here:");
-        JTextField tfFName = new JTextField(10);
-        lblFName.setLabelFor(tfFName);
-        panel.add(lblFName, BorderLayout.WEST);
-        panel.add(tfFName, BorderLayout.WEST);
+	//	JLabel lblFName = new JLabel("Insert Text Here:");
+      //  JTextField tfFName = new JTextField(10);
+     //   lblFName.setLabelFor(tfFName);
+     //   panel.add(lblFName, BorderLayout.WEST);
+      //  panel.add(tfFName, BorderLayout.WEST);
 
+		JTextArea lblFName = (new JTextArea("Insert Text Here"));
+		lblFName.setColumns(20);
+		lblFName.setLineWrap(true);
+		lblFName.setRows(5);
+		panel.add(lblFName, BorderLayout.WEST);
+		
+				
+				
 
 		
 		frame1.setSize(800,700); //size of window
