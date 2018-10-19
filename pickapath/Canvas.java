@@ -106,4 +106,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void deleteAllBoxes() {
+			boxes.clear();
+			selectedBox = null;
+			repaint();
 }
+	}
