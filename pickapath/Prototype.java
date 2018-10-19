@@ -13,6 +13,9 @@ import javax.swing.*;
 
 
 public class Prototype {
+
+	private JTextArea textArea;
+	
 	public static void main(String[] args) {
 
 		try {
@@ -24,6 +27,12 @@ public class Prototype {
 			// handle exception
 		}
 
+		new Prototype();
+		
+	}
+	
+	public Prototype() {
+		
 		List<Box> boxes = new ArrayList<Box>();
 
 		JFrame frame = new JFrame("BorderLayout Example");
@@ -130,7 +139,7 @@ public class Prototype {
       //  panel.add(tfFName, BorderLayout.WEST);
 
 		
-		JTextArea textArea = new JTextArea("Insert Text Here");
+		textArea = new JTextArea("Insert Text Here");
 		textArea.setColumns(20);
 		textArea.setLineWrap(true);
 		textArea.setRows(5);
@@ -147,8 +156,7 @@ public class Prototype {
 		frame1.setVisible(true); //allows the GUI to start as visible
 		// panel.add(new JButton("South"), BorderLayout.SOUTH); We can use this to add a bottom container if we want
 
-		
-		
+
 	}
 
 }
