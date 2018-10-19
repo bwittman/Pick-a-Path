@@ -112,7 +112,19 @@ public class Prototype {
 				
 				);
 		numbers.add(new JButton("Add Text")); // add text button
-		numbers.add(new JButton("Delete All")); // delete all button
+		JButton deleteAll = new JButton("Delete All"); // delete all button
+		numbers.add(deleteAll);
+		deleteAll.addActionListener(
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						canvas.deleteAllBoxes();
+						
+					}
+					
+				}
+				);
 		panel.add(numbers, BorderLayout.EAST); //assigns the boxes to the right container
 		frame1.add(panel);
 		
