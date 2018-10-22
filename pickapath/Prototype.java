@@ -53,7 +53,6 @@ public class Prototype {
 		
 		
 		exit.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				frame.dispose();
