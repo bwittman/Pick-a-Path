@@ -112,4 +112,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			selectedBox = null;
 			repaint();
 }
+
+	
+	
 	}
