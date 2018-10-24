@@ -3,6 +3,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -45,9 +46,29 @@ public class Prototype {
 		file.add(nproject);
 		JMenuItem openp = new JMenuItem("Open Project");  //save button
 		file.add(openp);
+		openp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				    File selectedFile = chooser.getSelectedFile();
+				    JOptionPane.showMessageDialog(frame, "You Selected: " + selectedFile);
+				}
+			}
+		}				
+		);
 
 		JMenuItem save = new JMenuItem("Save");  //save button
 		file.add(save);
+		save.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						String filename = JOptionPane.showInputDialog("Enter a filename");
+						JOptionPane.showMessageDialog(frame, "you entered: " + filename);
+					}
+				}				
+				);
+		
+		
+		
 		JMenuItem exit = new JMenuItem("Exit");  //save button
 		
 		
