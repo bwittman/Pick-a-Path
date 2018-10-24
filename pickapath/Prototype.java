@@ -3,13 +3,29 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileFilter;
 
 
 
@@ -38,59 +54,6 @@ public class Prototype {
 		JFrame frame = new JFrame("PICK A PATH"); //title of window 
 		
 		
-		JMenuBar bar = new JMenuBar();  //menu bar
-		JMenu file = new JMenu("File"); //file button
-		
-		bar.add(file);
-
-		JMenuItem nproject = new JMenuItem("New Project");  //new project button
-		file.add(nproject);
-		nproject.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				//deleteAllBoxes();
-			}
-		});
-		
-		JMenuItem openp = new JMenuItem("Open Project");  //open project button
-		file.add(openp);
-		openp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-				    File selectedFile = chooser.getSelectedFile();
-				    JOptionPane.showMessageDialog(frame, "You Selected: " + selectedFile);
-				}
-			}
-		});
-
-		JMenuItem save = new JMenuItem("Save");  //save button
-		file.add(save);
-		save.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						String filename = JOptionPane.showInputDialog("Enter a filename");
-						JOptionPane.showMessageDialog(frame, "you entered: " + filename);
-					}
-				}				
-				);
-		
-		
-		
-		JMenuItem exit = new JMenuItem("Exit");  //save button
-		
-		
-		
-		exit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				frame.dispose();
-			}});
-		file.add(exit);
-		JMenu edit = new JMenu("Edit");  //edit button
-		bar.add(edit);
-		JMenuItem undo = new JMenuItem("Undo");  //undo button
-		edit.add(undo);
-
-		frame.setJMenuBar(bar);
 
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new JButton("North"), BorderLayout.NORTH);
@@ -184,7 +147,117 @@ public class Prototype {
 	
 		
 				
-				
+
+		JMenuBar bar = new JMenuBar();  //menu bar
+		JMenu file = new JMenu("File"); //file button
+		
+		bar.add(file);
+
+		JMenuItem nproject = new JMenuItem("New Project");  //new project button
+		file.add(nproject);
+		nproject.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//deleteAllBoxes();
+			}
+		});
+		
+		JMenuItem openp = new JMenuItem("Open Project");  //open project button
+		file.add(openp);
+		openp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				chooser.setFileFilter(new FileFilter()
+                {
+                   @Override
+                   public boolean accept(File file)
+                   {
+                      return file.getName().toLowerCase().endsWith(".pap");
+                   }
+
+                   @Override
+                   public String getDescription()
+                   {
+                      return ".pap files";
+                   }
+                });
+				if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				    File selectedFile = chooser.getSelectedFile();
+				    
+				    try {
+						ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
+						 List<Box> list = (List<Box>) in.readObject();
+						 boxes.clear();
+						 boxes.addAll(list);
+				         in.close();
+				         canvas.repaint();
+				         System.out.printf("Serialized data is read from " + selectedFile);
+					} catch (FileNotFoundException e1) {
+						
+					} catch (IOException e1) {
+						
+					} catch (ClassNotFoundException e1) {
+						
+					}
+				}
+			}
+		});
+
+		JMenuItem save = new JMenuItem("Save");  //save button
+		file.add(save);
+		save.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						JFileChooser chooser = new JFileChooser();
+						chooser.setFileFilter(new FileFilter()
+		                {
+		                   @Override
+		                   public boolean accept(File file)
+		                   {
+		                      return file.getName().toLowerCase().endsWith(".pap");
+		                   }
+
+		                   @Override
+		                   public String getDescription()
+		                   {
+		                      return ".pap files";
+		                   }
+		                });
+						if(chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+						    File selectedFile = chooser.getSelectedFile();
+						
+							try {
+								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
+								 out.writeObject(boxes);
+						         out.close();
+						         System.out.printf("Serialized data is saved in " + selectedFile);
+							} catch (FileNotFoundException e1) {
+								
+							} catch (IOException e1) {
+								
+							}
+					        
+						}
+					}
+				}				
+				);
+		
+		
+		
+		JMenuItem exit = new JMenuItem("Exit");  //save button
+		
+		
+		
+		exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				frame.dispose();
+			}});
+		file.add(exit);
+		JMenu edit = new JMenu("Edit");  //edit button
+		bar.add(edit);
+		JMenuItem undo = new JMenuItem("Undo");  //undo button
+		edit.add(undo);
+
+		frame.setJMenuBar(bar);	
 
 		
 		frame.setSize(800,700); //size of window

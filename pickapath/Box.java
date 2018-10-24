@@ -1,7 +1,10 @@
 package pickapath;
 
+import java.io.Serializable;
 
-public class Box {
+public class Box implements Serializable {
+
+	private static final long serialVersionUID = -8277069112909394633L;
 	private String text;
 	private int x;
 	private int y;
