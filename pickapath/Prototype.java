@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -157,7 +158,41 @@ public class Prototype {
 		file.add(nproject);
 		nproject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//deleteAllBoxes();
+				if (boxes != null) {
+					if (JOptionPane.showConfirmDialog(frame,"Do you want to save first?", "Save?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						JFileChooser chooser = new JFileChooser();
+						chooser.setFileFilter(new FileFilter(){
+		                   @Override
+		                   public boolean accept(File file)
+		                   {
+		                      return file.getName().toLowerCase().endsWith(".pap");
+		                   }
+
+		                   @Override
+		                   public String getDescription()
+		                   {
+		                      return ".pap files";
+		                   }
+		                });
+						if(chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+						    File selectedFile = chooser.getSelectedFile();
+						
+							try {
+								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
+								 out.writeObject(boxes);
+						         out.close();
+						         System.out.printf("Serialized data is saved in " + selectedFile);
+							} catch (FileNotFoundException e1) {
+								
+							} catch (IOException e1) {
+								
+							}
+					        
+						}
+						
+					}
+
+				}
 			}
 		});
 		
@@ -210,8 +245,7 @@ public class Prototype {
 		save.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						JFileChooser chooser = new JFileChooser();
-						chooser.setFileFilter(new FileFilter()
-		                {
+						chooser.setFileFilter(new FileFilter(){
 		                   @Override
 		                   public boolean accept(File file)
 		                   {
@@ -240,8 +274,7 @@ public class Prototype {
 					        
 						}
 					}
-				}				
-				);
+				});
 		
 		
 		
