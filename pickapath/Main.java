@@ -3,17 +3,29 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 
-public class Prototype {
+public class Main {
 
 	private JTextArea textArea;
 	
@@ -28,11 +40,11 @@ public class Prototype {
 			// handle exception
 		}
 
-		new Prototype();
+		new Main();
 		
 	}
 	
-	public Prototype() {
+	public Main() {
 		
 		List<Box> boxes = new ArrayList<Box>();
 		JFrame frame = new JFrame("PICK A PATH"); //title of window 
@@ -103,7 +115,7 @@ public class Prototype {
 		JPanel numbers = new JPanel(new GridLayout(5,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
 		
-		Canvas canvas = new Canvas(boxes);
+		Canvas canvas = new Canvas(boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
 		JButton makeBox = new JButton("Make Box");
 		
@@ -117,7 +129,7 @@ public class Prototype {
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
 						// TODO Auto-generated method stub
-						Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "String");
+						Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "");
 						boxes.add(box);
 						if (boxes.size() < 2) {
 							arrowButton.setEnabled(false); // un-gray the button when there are 2 or more boxes
@@ -179,6 +191,31 @@ public class Prototype {
 		textArea.setColumns(20);
 		textArea.setLineWrap(true);
 		textArea.setRows(5);
+		textArea.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				update();
+				
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				update();
+				
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			private void update() {
+				canvas.updateText(textArea.getText());
+			}
+			
+			
+		});
 		JScrollPane scrolling = new JScrollPane(textArea);
 		panel.add(scrolling, BorderLayout.SOUTH);
 	
@@ -193,6 +230,11 @@ public class Prototype {
 		// panel.add(new JButton("South"), BorderLayout.SOUTH); We can use this to add a bottom container if we want
 
 
+	}
+	
+	public void setText(String text) {
+		textArea.setText(text);
+		
 	}
 
 }
