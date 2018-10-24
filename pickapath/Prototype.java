@@ -42,9 +42,15 @@ public class Prototype {
 		
 		bar.add(file);
 
-		JMenuItem nproject = new JMenuItem("New Project");  //save button
+		JMenuItem nproject = new JMenuItem("New Project");  //new project button
 		file.add(nproject);
-		JMenuItem openp = new JMenuItem("Open Project");  //save button
+		nproject.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//deleteAllBoxes();
+			}
+		});
+		
+		JMenuItem openp = new JMenuItem("Open Project");  //open project button
 		file.add(openp);
 		openp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -54,8 +60,7 @@ public class Prototype {
 				    JOptionPane.showMessageDialog(frame, "You Selected: " + selectedFile);
 				}
 			}
-		}				
-		);
+		});
 
 		JMenuItem save = new JMenuItem("Save");  //save button
 		file.add(save);
