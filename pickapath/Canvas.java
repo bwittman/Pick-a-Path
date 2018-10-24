@@ -18,13 +18,15 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private int startXDrag;
 	private int startYDrag;
 	boolean mouseDragged;
+	private Main main;
 	
 
-	public Canvas(List<Box> boxes) {
+	public Canvas(List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
 		this.boxes = boxes;
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		this.main = main;
 	}
 
 	public void paint(Graphics g) {
@@ -49,6 +51,13 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		if (selectedBox != null) {
 			boxes.remove(selectedBox);
 			selectedBox = null;
+			repaint();
+		}
+	}
+	
+	public void updateText(String text) {
+		if (selectedBox != null) {
+			selectedBox.setText(text);
 			repaint();
 		}
 	}
@@ -97,6 +106,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				startXBox = box.getX();
 				startYBox = box.getY();
 			}
+		}
+		if (selectedBox != null) {
+			main.setText(selectedBox.getText());
 		}
 		repaint();
 	}
