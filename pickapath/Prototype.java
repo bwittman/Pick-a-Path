@@ -185,9 +185,12 @@ public class Prototype {
 				    
 				    try {
 						ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
-						 List<Box> list = (List<Box>) in.readObject();
+						 List<Box> listbox = (List<Box>) in.readObject();
 						 boxes.clear();
-						 boxes.addAll(list);
+						 boxes.addAll(listbox);
+						 //List<Box> listarrow = (List<Box>) in.readObject();
+						 //arrows.clear();
+						 //arrows.addAll(listarrow);
 				         in.close();
 				         canvas.repaint();
 				         System.out.printf("Serialized data is read from " + selectedFile);
