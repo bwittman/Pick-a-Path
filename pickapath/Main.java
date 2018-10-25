@@ -186,7 +186,7 @@ public class Main {
 		file.add(nproject);
 		nproject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (boxes != null) {
+				if (! boxes.isEmpty()) {
 					if (JOptionPane.showConfirmDialog(frame,"Do you want to save first?", "Save?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						JFileChooser chooser = new JFileChooser();
 						chooser.setFileFilter(new FileFilter(){
@@ -217,6 +217,9 @@ public class Main {
 							}
 					        
 						}
+					}else {
+						canvas.repaint();
+						canvas.deleteAllBoxes();
 					}
 				} 
 			}
@@ -226,44 +229,79 @@ public class Main {
 		file.add(openp);
 		openp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setFileFilter(new FileFilter()
-                {
-                   @Override
-                   public boolean accept(File file)
-                   {
-                      return file.getName().toLowerCase().endsWith(".pap");
-                   }
+				if (! boxes.isEmpty()) {
+					if (JOptionPane.showConfirmDialog(frame,"Do you want to save first?", "Save?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						JFileChooser chooser = new JFileChooser();
+						chooser.setFileFilter(new FileFilter(){
+		                   @Override
+		                   public boolean accept(File file)
+		                   {
+		                      return file.getName().toLowerCase().endsWith(".pap");
+		                   }
 
-                   @Override
-                   public String getDescription()
-                   {
-                      return ".pap files";
-                   }
-                });
-				if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-				    File selectedFile = chooser.getSelectedFile();
-				    
-				    try {
-						ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
-						 List<Box> listbox = (List<Box>) in.readObject();
-						 boxes.clear();
-						 boxes.addAll(listbox);
-						 //List<Box> listarrow = (List<Box>) in.readObject();
-						 //arrows.clear();
-						 //arrows.addAll(listarrow);
-				         in.close();
-				         canvas.repaint();
-				         System.out.printf("Serialized data is read from " + selectedFile);
-					} catch (FileNotFoundException e1) {
+		                   @Override
+		                   public String getDescription()
+		                   {
+		                      return ".pap files";
+		                   }
+		                });
+						if(chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+						    File selectedFile = chooser.getSelectedFile();
 						
-					} catch (IOException e1) {
-						
-					} catch (ClassNotFoundException e1) {
-						
+							try {
+								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
+								 out.writeObject(boxes);
+						         out.close();
+						         System.out.printf("Serialized data is saved in " + selectedFile);
+							} catch (FileNotFoundException e1) {
+								
+							} catch (IOException e1) {
+								
+							}
+						}
+						}
+					}else{
+						JFileChooser chooser = new JFileChooser();
+						chooser.setFileFilter(new FileFilter(){
+		                   @Override
+		                   public boolean accept(File file)
+		                   {
+		                      return file.getName().toLowerCase().endsWith(".pap");
+		                   }
+
+		                   @Override
+		                   public String getDescription()
+		                   {
+		                      return ".pap files";
+		                   }
+		                });
+						if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+						    File selectedFile = chooser.getSelectedFile();
+						    
+						    try {
+								ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
+								 List<Box> listbox = (List<Box>) in.readObject();
+								 boxes.clear();
+								 boxes.addAll(listbox);
+								 //List<Box> listarrow = (List<Box>) in.readObject();
+								 //arrows.clear();
+								 //arrows.addAll(listarrow);
+						         in.close();
+						         canvas.repaint();
+						         System.out.printf("Serialized data is read from " + selectedFile);
+							} catch (FileNotFoundException e1) {
+								
+							} catch (IOException e1) {
+								
+							} catch (ClassNotFoundException e1) {
+								
+							}
+						}
 					}
-				}
-			}
+				} 
+				
+				
+				
 		});
 
 		JMenuItem save = new JMenuItem("Save");  //save button
