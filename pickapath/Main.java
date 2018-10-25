@@ -202,9 +202,6 @@ public class Main {
 		                      return ".pap files";
 		                   }
 		                });
-						/*else {
-		                	   canvas.deleteAllBoxes();
-		                   };} */
 						if(chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 						    File selectedFile = chooser.getSelectedFile();
 						
@@ -220,9 +217,7 @@ public class Main {
 							}
 					        
 						}
-						
 					}
-
 				}
 			}
 		});
