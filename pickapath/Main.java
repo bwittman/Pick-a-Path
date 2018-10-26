@@ -208,6 +208,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
+								 // out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
@@ -251,6 +252,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
+								 //out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
@@ -368,6 +370,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
+								 //out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
@@ -382,18 +385,17 @@ public class Main {
 		
 		
 		
-		JMenuItem exit = new JMenuItem("Exit");  //save button
-		
-		
-		
+		JMenuItem exit = new JMenuItem("Exit");  //exit button
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				frame.dispose();
 			}});
 		file.add(exit);
+		
 		JMenu edit = new JMenu("Edit");  //edit button
 		bar.add(edit);
+		
 		JMenuItem undo = new JMenuItem("Undo");  //undo button
 		edit.add(undo);
 
