@@ -406,8 +406,8 @@ public class Main {
 		JMenuItem playerMode = new JMenuItem("Player Mode");
 		bar.add(mode);
 		
-		mode.add(playerMode);
 		mode.add(editorMode);
+		mode.add(playerMode);
 		frame.setSize(800,700); 
 		frame.getSize();//size of window
 		
