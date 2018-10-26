@@ -37,17 +37,21 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		for (Arrow arrow: arrows) {
 			Box start = arrow.getStart();
 			Box end = arrow.getEnd();
-			g.setColor(Color.BLACK);
+			if(arrow == selected) {
+				g.setColor(Color.RED);
+			} else {
+				g.setColor(Color.BLACK);
+			}
 			g.drawLine(start.getX(), start.getY(), end.getX(), end.getY());
 			double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
 			double midX = (start.getX() + end.getX())/2.0;
 			double midY = (start.getY() + end.getY())/2.0;
-			double tipX = midX - 24*Math.sin(theta-Math.PI/2);
-			double tipY = midY + 24*Math.cos(theta-Math.PI/2);
-			double leftX = midX + 18*Math.cos(theta-Math.PI/2);
-			double leftY = midY + 18*Math.sin(theta-Math.PI/2);
-			double rightX = midX - 18*Math.cos(theta-Math.PI/2);
-			double rightY = midY - 18*Math.sin(theta-Math.PI/2);
+			double tipX = midX - Arrow.HEIGHT*Math.sin(theta-Math.PI/2);
+			double tipY = midY + Arrow.HEIGHT*Math.cos(theta-Math.PI/2);
+			double leftX = midX + Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2);
+			double leftY = midY + Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
+			double rightX = midX -Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2);
+			double rightY = midY - Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
 			int[] xPoints = {(int)Math.round(leftX),(int)Math.round(tipX), (int)Math.round(rightX)};
 			int[] yPoints = {(int)Math.round(leftY),(int)Math.round(tipY), (int)Math.round(rightY)};
 			g.fillPolygon(xPoints, yPoints, 3);
@@ -169,20 +173,20 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				}
 			}
 			if (selected != null) {
-				if (selected instanceof Box) {
 					Box selectedBox = (Box) selected;
 					main.setText(selectedBox.getText());
 					if(boxes.size()>= 2) {
 						main.setMakeArrowEnabled(true);
 					
 					} 
-				}
-			
 			} else {
 				for (Arrow arrow: arrows) {
 					if (arrow.contains(mouseX, mouseY)) {
 						selected = arrow;
 					}
+				}
+				if (selected != null) {
+					main.setText(((Arrow) selected).getText());
 				}
 			}
 			repaint();
