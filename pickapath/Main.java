@@ -402,8 +402,8 @@ public class Main {
 		frame.setJMenuBar(bar);	
 		
 		JMenu mode = new JMenu("Mode"); //mode button
-		JMenuItem playerMode = new JMenuItem("Player Mode");
 		JMenuItem editorMode = new JMenuItem("Editor Mode");
+		JMenuItem playerMode = new JMenuItem("Player Mode");
 		bar.add(mode);
 		
 		mode.add(playerMode);
