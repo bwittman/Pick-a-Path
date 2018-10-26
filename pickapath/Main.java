@@ -67,7 +67,7 @@ public class Main {
 		panel.add(modes, BorderLayout.NORTH); //assigns the boxes to the north container
 		frame.add(panel);
 
-		JPanel numbers = new JPanel(new GridLayout(5,0)); //how many buttons there are on the right side, needs adjusting if adding a button
+		JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
 		
 		Canvas canvas = new Canvas(boxes, this);
@@ -115,7 +115,7 @@ public class Main {
 				}
 				
 				);
-		numbers.add(new JButton("Add Text")); // add text button
+	//	numbers.add(new JButton("Add Text")); // add text button
 		JButton deleteAll = new JButton("Delete All"); // delete all button
 		numbers.add(deleteAll);
 		deleteAll.addActionListener(

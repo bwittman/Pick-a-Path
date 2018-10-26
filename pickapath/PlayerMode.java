@@ -22,6 +22,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
@@ -38,7 +39,11 @@ public class PlayerMode {
 	      JFrame frame = new JFrame("PlayerMode");
 	      JPanel panel = new JPanel(new BorderLayout());
 	    //  panel.add(new JButton("Center"), BorderLayout.CENTER);
-	      panel.add(new JButton("South"), BorderLayout.SOUTH);
+	      //panel.add(new JButton("South"), BorderLayout.SOUTH);
+	      JRadioButton JRadioButton = new JRadioButton("Choice1");
+	      JRadioButton.setSelected(true);
+	      panel.add(JRadioButton, BorderLayout.SOUTH);
+	      
 	      
 
 
