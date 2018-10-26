@@ -38,21 +38,33 @@ public class PlayerMode {
 	
 	    public static void main(String[] args) {
 	      JFrame frame = new JFrame("PlayerMode");
-	      JPanel panel = new JPanel(new BorderLayout());
-	    //  panel.add(new JButton("Center"), BorderLayout.CENTER);
-	      //panel.add(new JButton("South"), BorderLayout.SOUTH);
+	      //JPanel panel = new JPanel(new BorderLayout());
+	      
+	   //   JPanel content = new JPanel(new GridLayout(0,1));
+	  //    JLabel label1 = new JLabel("Situation");
+	//	     content.add(label1, BorderLayout.NORTH);
+	//	     frame.add(content);
+		    
+	   
+	      JPanel panel = new JPanel(new GridLayout(3,0));
+		    JLabel label1 = new JLabel("Situation");
+		     panel.add(label1, BorderLayout.CENTER);
 	      JRadioButton JRadioButton = new JRadioButton("Choice1");
 	      JRadioButton.setSelected(true);
-	      panel.add(JRadioButton, BorderLayout.SOUTH);
+	     panel.add(JRadioButton, BorderLayout.CENTER);
+	    panel.add(new JButton("Submit"), BorderLayout.CENTER);
+
+	    frame.add(panel);
 	      
-	     JLabel label1 = new JLabel("Situation");
-	     panel.add(label1, BorderLayout.CENTER);
+	      
+
+	     
 	      
 
 
 			
-			
-	     frame.add(panel);
+	
+		     
 	     frame.setSize(800,700);
 	     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	     frame.setVisible(true);
