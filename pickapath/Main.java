@@ -65,8 +65,6 @@ public class Main {
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new JButton("North"), BorderLayout.NORTH);
 		JPanel modes = new JPanel(new GridLayout(0,2));
-		modes.add(new JButton("Editor Mode")); //Shows you are in editor mode
-		modes.add(new JButton("Player Mode")); //Puts you in player mode
 		panel.add(modes, BorderLayout.NORTH); //assigns the boxes to the north container
 		frame.add(panel);
 
@@ -399,10 +397,17 @@ public class Main {
 		
 		JMenuItem undo = new JMenuItem("Undo");  //undo button
 		edit.add(undo);
+		
 
 		frame.setJMenuBar(bar);	
 		
+		JMenu mode = new JMenu("Mode"); //mode button
+		JMenuItem editorMode = new JMenuItem("Editor Mode");
+		JMenuItem playerMode = new JMenuItem("Player Mode");
+		bar.add(mode);
 		
+		mode.add(editorMode);
+		mode.add(playerMode);
 		frame.setSize(800,700); 
 		frame.getSize();//size of window
 		
