@@ -35,8 +35,22 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public void paint(Graphics g) {
 		super.paint(g);
 		for (Arrow arrow: arrows) {
+			Box start = arrow.getStart();
+			Box end = arrow.getEnd();
 			g.setColor(Color.BLACK);
-			g.drawLine(arrow.getStart().getX(), arrow.getStart().getY(), arrow.getEnd().getX(), arrow.getEnd().getY());
+			g.drawLine(start.getX(), start.getY(), end.getX(), end.getY());
+			double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
+			double midX = (start.getX() + end.getX())/2.0;
+			double midY = (start.getY() + end.getY())/2.0;
+			double tipX = midX - 24*Math.sin(theta-Math.PI/2);
+			double tipY = midY + 24*Math.cos(theta-Math.PI/2);
+			double leftX = midX + 18*Math.cos(theta-Math.PI/2);
+			double leftY = midY + 18*Math.sin(theta-Math.PI/2);
+			double rightX = midX - 18*Math.cos(theta-Math.PI/2);
+			double rightY = midY - 18*Math.sin(theta-Math.PI/2);
+			int[] xPoints = {(int)Math.round(leftX),(int)Math.round(tipX), (int)Math.round(rightX)};
+			int[] yPoints = {(int)Math.round(leftY),(int)Math.round(tipY), (int)Math.round(rightY)};
+			g.fillPolygon(xPoints, yPoints, 3);
 		}
 		for (Box box: boxes) {
 			g.setColor(Color.GREEN);
