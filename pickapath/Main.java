@@ -208,6 +208,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
+								 // out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
@@ -251,6 +252,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
+								 //out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
@@ -262,6 +264,44 @@ public class Main {
 						}else {
 							canvas.repaint();
 							canvas.deleteAllBoxes();
+							JFileChooser chooser = new JFileChooser();
+							chooser.setFileFilter(new FileFilter(){
+			                   @Override
+			                   public boolean accept(File file)
+			                   {
+			                      return file.getName().toLowerCase().endsWith(".pap");
+			                   }
+
+			                   @Override
+			                   public String getDescription()
+			                   {
+			                      return ".pap files";
+			                   }
+			                });
+							if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+							    File selectedFile = chooser.getSelectedFile();
+							    
+							    try {
+									ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
+									 List<Box> listbox = (List<Box>) in.readObject();
+									 boxes.clear();
+									 boxes.addAll(listbox);
+									 //List<Box> listarrow = (List<Box>) in.readObject();
+									 //arrows.clear();
+									 //arrows.addAll(listarrow);
+							         in.close();
+							         canvas.repaint();
+							         System.out.printf("Serialized data is read from " + selectedFile);
+								} catch (FileNotFoundException e1) {
+									
+								} catch (IOException e1) {
+									
+								} catch (ClassNotFoundException e1) {
+									
+								}
+							}
+							canvas.deleteAllBoxes();
+							canvas.repaint();
 							JFileChooser chooser = new JFileChooser();
 							chooser.setFileFilter(new FileFilter(){
 			                   @Override
@@ -367,6 +407,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
+								 //out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
@@ -381,18 +422,17 @@ public class Main {
 		
 		
 		
-		JMenuItem exit = new JMenuItem("Exit");  //save button
-		
-		
-		
+		JMenuItem exit = new JMenuItem("Exit");  //exit button
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				frame.dispose();
 			}});
 		file.add(exit);
+		
 		JMenu edit = new JMenu("Edit");  //edit button
 		bar.add(edit);
+		
 		JMenuItem undo = new JMenuItem("Undo");  //undo button
 		edit.add(undo);
 
