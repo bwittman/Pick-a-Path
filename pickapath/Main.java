@@ -132,16 +132,6 @@ public class Main {
 		panel.add(numbers, BorderLayout.EAST); //assigns the boxes to the right container
 		frame.add(panel);
 		
-		
-		//panel.add(new JButton("Insert Text Here"), BorderLayout.WEST); //left container in GUI 
-		
-	//	JLabel lblFName = new JLabel("Insert Text Here:");
-      //  JTextField tfFName = new JTextField(10);
-     //   lblFName.setLabelFor(tfFName);
-     //   panel.add(lblFName, BorderLayout.WEST);
-      //  panel.add(tfFName, BorderLayout.WEST);
-
-		
 		textArea = new JTextArea("Insert Text Here");
 		textArea.setColumns(20);
 		textArea.setLineWrap(true);
@@ -414,6 +404,3 @@ public class Main {
 	}
 
 }
-
-
-
