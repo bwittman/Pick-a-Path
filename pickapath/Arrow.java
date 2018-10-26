@@ -2,43 +2,22 @@ package pickapath;
 
 public class Arrow {
 		private String text;
-		private int x;
-		private int y;
-		private int length;
-		private int height;
+		private Box start;
+		private Box end;
 		
-		public Arrow(int x,int y,int length,int height, String text) {
-			this.x = x;
-			this.y = y;
-			this.length = length;
-			this.height = height;
+		
+		
+		public Arrow(Box start, Box end, String text) {
+			this.start = start;
+			this.end = end;
 			this.text = text;
 }
-		public int getHeight() {
-			return height;
+
+		public Box getStart() {
+			return start;
 		}
-		public void setHeight(int height) {
-			this.height = height;
-		}
-		public int getLength() {
-			return length;
-		}
-		public void setLength(int width) {
-			this.length = width;
-		}
-		public int getY() {
-			//y = box.getY()*0.5;
-			return y;
-		}
-		public void setY(int y) {
-			this.y = y;
-		}
-		public int getX() {
-			//y = box.getX()*0.5;
-			return x;
-		}
-		public void setX(int x) {
-			this.x = x;
+		public Box getEnd() {
+			return end;
 		}
 		public String getText() {
 			return text;
