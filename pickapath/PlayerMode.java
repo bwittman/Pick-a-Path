@@ -46,12 +46,15 @@ public class PlayerMode {
 	//	     frame.add(content);
 		    
 	   
-	      JPanel panel = new JPanel(new GridLayout(3,0));
+	      JPanel panel = new JPanel(new GridLayout(4,0));
 		    JLabel label1 = new JLabel("Situation");
 		     panel.add(label1, BorderLayout.CENTER);
 	      JRadioButton JRadioButton = new JRadioButton("Choice1");
 	      JRadioButton.setSelected(true);
+	      JRadioButton JRadioButton2 = new JRadioButton("Choice2");
+	      JRadioButton2.setSelected(true);
 	     panel.add(JRadioButton, BorderLayout.CENTER);
+	     panel.add(JRadioButton2, BorderLayout.CENTER);
 	    panel.add(new JButton("Submit"), BorderLayout.CENTER);
 
 	    frame.add(panel);
