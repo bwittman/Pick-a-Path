@@ -1,6 +1,8 @@
 package pickapath;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Box implements Serializable {
 
@@ -10,8 +12,12 @@ public class Box implements Serializable {
 	private int y;
 	private int width;
 	private int height;
+	private List<Arrow>incoming;
+	private List<Arrow>outgoing;
 	
 	public Box(int x,int y,int width,int height, String text) {
+		incoming = new ArrayList<Arrow>();
+		outgoing = new ArrayList<Arrow>();
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -48,6 +54,18 @@ public class Box implements Serializable {
 	public void setText(String text) {
 		this.text = text;
 		
+	}
+	public void addIncoming(Arrow arrow) {
+		incoming.add(arrow);
+	}
+	public void addOutgoing(Arrow arrow) {
+		outgoing.add(arrow);
+	}
+	public List<Arrow> getIncoming(){
+		return incoming;
+	}
+	public List<Arrow> getOutgoing(){
+		return outgoing;
 	}
 	
 	

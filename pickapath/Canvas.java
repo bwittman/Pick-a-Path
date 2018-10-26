@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener {
 	private List<Box> boxes;
+	private List<Arrow> arrows;
 	private Box selectedBox = null;
 	private int startXBox;
 	private int startYBox;
@@ -19,11 +20,13 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private int startYDrag;
 	boolean mouseDragged;
 	private Main main;
-	
+	boolean arrowCheck;
 
-	public Canvas(List<Box> boxes, Main main) {
+
+	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
 		this.boxes = boxes;
+		this.arrows = arrows;
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		this.main = main;
@@ -31,6 +34,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	public void paint(Graphics g) {
 		super.paint(g);
+		for (Arrow arrow: arrows) {
+			g.setColor(Color.BLACK);
+			g.drawLine(arrow.getStart().getX(), arrow.getStart().getY(), arrow.getEnd().getX(), arrow.getEnd().getY());
+		}
 		for (Box box: boxes) {
 			g.setColor(Color.GREEN);
 
@@ -40,21 +47,27 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			} else {
 				g.setColor(Color.BLACK);
 			}
-			
+
 			g.drawRect(box.getX() - box.getWidth()/2, box.getY() - box.getHeight()/2, box.getWidth(), box.getHeight());
 
 		}
 
 	}
-	
+
 	public void deleteBox() {
 		if (selectedBox != null) {
 			boxes.remove(selectedBox);
+			for(Arrow arrow: selectedBox.getIncoming()) {
+				arrows.remove(arrow);
+			}
+			for(Arrow arrow: selectedBox.getOutgoing()) {
+				arrows.remove(arrow);
+			}
 			selectedBox = null;
 			repaint();
 		}
 	}
-	
+
 	public void updateText(String text) {
 		if (selectedBox != null) {
 			selectedBox.setText(text);
@@ -64,14 +77,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (selectedBox != null) {
-		int deltaX = e.getX()-startXDrag;
-		int deltaY = e.getY()-startYDrag;
-		selectedBox.setX(startXBox + deltaX);
-		selectedBox.setY(startYBox + deltaY);
-		repaint();
+			int deltaX = e.getX()-startXDrag;
+			int deltaY = e.getY()-startYDrag;
+			selectedBox.setX(startXBox + deltaX);
+			selectedBox.setY(startYBox + deltaY);
+			repaint();
 		}
 	}
-	
+
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
@@ -84,48 +97,76 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
+	}
+	public void startArrowCheck() {
+		arrowCheck = true;
 	}
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
 		int mouseX = arg0.getX();
 		int mouseY = arg0.getY();
-		selectedBox = null;
-		for (Box box: boxes) {
-			if (box.contains(mouseX, mouseY)) {
-				selectedBox = box;
-				startXDrag = mouseX;
-				startYDrag = mouseY;
-				startXBox = box.getX();
-				startYBox = box.getY();
+		if (arrowCheck) {
+			Box otherBox = null;
+			for (Box box: boxes) {
+				if (box.contains(mouseX, mouseY)) {
+					otherBox = box;
+				}
 			}
+			if(otherBox != null) {
+				Arrow arrow = new Arrow(selectedBox,otherBox,"");
+				arrows.add(arrow);
+				selectedBox.addOutgoing(arrow);
+				otherBox.addIncoming(arrow);
+			} else {
+				selectedBox = null;
+			}
+			arrowCheck = false;
+			main.setMakeArrowEnabled(false);
+			repaint();
+		} else {
+			selectedBox = null;
+			for (Box box: boxes) {
+				if (box.contains(mouseX, mouseY)) {
+					selectedBox = box;
+					startXDrag = mouseX;
+					startYDrag = mouseY;
+					startXBox = box.getX();
+					startYBox = box.getY();
+				}
+			}
+			if (selectedBox != null) {
+				main.setText(selectedBox.getText());
+				if(boxes.size()>= 2) {
+					main.setMakeArrowEnabled(true);
+				
+				}
+			}
+			repaint();
 		}
-		if (selectedBox != null) {
-			main.setText(selectedBox.getText());
-			
-		}
-		repaint();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void deleteAllBoxes() {
-			boxes.clear();
-			selectedBox = null;
-			repaint();
-}
-
-	
-	
+		boxes.clear();
+		arrows.clear();
+		selectedBox = null;
+		arrowCheck = false;
+		repaint();
 	}
+
+
+
+}
