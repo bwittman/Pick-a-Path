@@ -394,12 +394,13 @@ public class Main {
 		
 		frame.setSize(800,700); 
 		frame.getSize();//size of window
+		
 		/*InvalidationListener listener = new InvalidationListener(){
 		    @Override
 		    public void invalidated(Observable o) {
 		        redraw();       
 		    }           
-		});
+		}
 		
 		frame.widthProperty().addListener(listener);
 		frame.heightProperty().addListener(listener);
@@ -415,6 +416,11 @@ public class Main {
 		textArea.setText(text);		
 		
 	}
+	
+	public void hitEdge() {
+		
+	}
+		
 
 
 }
