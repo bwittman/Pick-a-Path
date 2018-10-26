@@ -425,7 +425,6 @@ public class Main {
 		frame.setVisible(true); //allows the GUI to start as visible
 		// panel.add(new JButton("South"), BorderLayout.SOUTH); We can use this to add a bottom container if we want
 
-
 	}
 	
 	public void setText(String text) {
@@ -435,4 +434,5 @@ public class Main {
 	public void setMakeArrowEnabled(boolean enabled) {
 		arrowButton.setEnabled(enabled);
 	}
+	
 }
