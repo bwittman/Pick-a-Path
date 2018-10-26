@@ -410,17 +410,6 @@ public class Main {
 		mode.add(playerMode);
 		frame.setSize(800,700); 
 		frame.getSize();//size of window
-		
-		/*InvalidationListener listener = new InvalidationListener(){
-		    @Override
-		    public void invalidated(Observable o) {
-		        redraw();       
-		    }           
-		}
-		
-		frame.widthProperty().addListener(listener);
-		frame.heightProperty().addListener(listener);
-		*/
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //this closes the GUI
 		frame.setVisible(true); //allows the GUI to start as visible
 		// panel.add(new JButton("South"), BorderLayout.SOUTH); We can use this to add a bottom container if we want
