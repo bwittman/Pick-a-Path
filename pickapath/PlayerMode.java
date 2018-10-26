@@ -17,6 +17,7 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -44,6 +45,8 @@ public class PlayerMode {
 	      JRadioButton.setSelected(true);
 	      panel.add(JRadioButton, BorderLayout.SOUTH);
 	      
+	     JLabel label1 = new JLabel("Situation");
+	     panel.add(label1, BorderLayout.CENTER);
 	      
 
 
