@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 public class Main {
 
 	private JTextArea textArea;
+	private JButton arrowButton;
 	
 	public static void main(String[] args) {
 		
@@ -55,6 +56,7 @@ public class Main {
 	public Main() {
 		
 		List<Box> boxes = new ArrayList<Box>();
+		List<Arrow> arrows = new ArrayList<Arrow>();
 		JFrame frame = new JFrame("PICK A PATH"); //title of window 
 		
 		
@@ -71,13 +73,26 @@ public class Main {
 		JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
 		
-		Canvas canvas = new Canvas(boxes, this);
+		Canvas canvas = new Canvas(arrows,boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
 		JButton makeBox = new JButton("Make Box");
 		
 		Random random = new Random();
 		
-		JButton arrowButton = new JButton("Make Arrow");
+		arrowButton = new JButton("Make Arrow");
+		arrowButton.addActionListener(
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						// TODO Auto-generated method stub
+						canvas.startArrowCheck();
+					}
+					
+				}
+				
+				);
+		
 		arrowButton.setEnabled(false);
 		makeBox.addActionListener(
 				new ActionListener() {
@@ -87,11 +102,7 @@ public class Main {
 						// TODO Auto-generated method stub
 						Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "");
 						boxes.add(box);
-						if (boxes.size() < 2) {
-							arrowButton.setEnabled(false); // un-gray the button when there are 2 or more boxes
-						} else {
-							arrowButton.setEnabled(true);
-						}
+						
 						canvas.repaint();
 					}
 					
@@ -416,11 +427,7 @@ public class Main {
 		textArea.setText(text);		
 		
 	}
-	
-	public void hitEdge() {
-		
+	public void setMakeArrowEnabled(boolean enabled) {
+		arrowButton.setEnabled(enabled);
 	}
-		
-
-
 }
