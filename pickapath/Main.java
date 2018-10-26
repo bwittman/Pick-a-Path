@@ -208,7 +208,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
-								 // out.writeObject(arrows);
+								 out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
@@ -252,7 +252,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
-								 //out.writeObject(arrows);
+								 out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
@@ -286,9 +286,9 @@ public class Main {
 									 List<Box> listbox = (List<Box>) in.readObject();
 									 boxes.clear();
 									 boxes.addAll(listbox);
-									 //List<Box> listarrow = (List<Box>) in.readObject();
-									 //arrows.clear();
-									 //arrows.addAll(listarrow);
+									 List<Arrow> listarrow = (List<Arrow>) in.readObject();
+									 arrows.clear();
+									 arrows.addAll(listarrow);
 							         in.close();
 							         canvas.repaint();
 							         System.out.printf("Serialized data is read from " + selectedFile);
@@ -324,9 +324,9 @@ public class Main {
 								 List<Box> listbox = (List<Box>) in.readObject();
 								 boxes.clear();
 								 boxes.addAll(listbox);
-								 //List<Box> listarrow = (List<Box>) in.readObject();
-								 //arrows.clear();
-								 //arrows.addAll(listarrow);
+								 List<Arrow> listarrow = (List<Arrow>) in.readObject();
+								 arrows.clear();
+								 arrows.addAll(listarrow);
 						         in.close();
 						         canvas.repaint();
 						         System.out.printf("Serialized data is read from " + selectedFile);
@@ -369,7 +369,7 @@ public class Main {
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								 out.writeObject(boxes);
-								 //out.writeObject(arrows);
+								 out.writeObject(arrows);
 						         out.close();
 						         System.out.printf("Serialized data is saved in " + selectedFile);
 							} catch (FileNotFoundException e1) {
