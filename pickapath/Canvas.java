@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener {
 	private List<Box> boxes;
 	private List<Arrow> arrows;
-	private Box selectedBox = null;
+	private Object selected = null;
 	private int startXBox;
 	private int startYBox;
 	private int startXDrag;
@@ -56,7 +56,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			g.setColor(Color.GREEN);
 
 			g.fillRect(box.getX() - box.getWidth()/2, box.getY() - box.getHeight()/2, box.getWidth(), box.getHeight());
-			if (box == selectedBox) {
+			if (box == selected) {
 				g.setColor(Color.WHITE);
 			} else {
 				g.setColor(Color.BLACK);
@@ -69,28 +69,37 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 	public void deleteBox() {
-		if (selectedBox != null) {
-			boxes.remove(selectedBox);
+		if (selected != null && selected instanceof Box) {
+			Box selectedBox = (Box) selected;
+			boxes.remove(selected);
 			for(Arrow arrow: selectedBox.getIncoming()) {
 				arrows.remove(arrow);
 			}
 			for(Arrow arrow: selectedBox.getOutgoing()) {
 				arrows.remove(arrow);
 			}
-			selectedBox = null;
+			selected = null;
 			repaint();
 		}
 	}
 
 	public void updateText(String text) {
-		if (selectedBox != null) {
-			selectedBox.setText(text);
+		if (selected != null) {
+			if (selected instanceof Box) {
+				Box selectedBox = (Box) selected;
+				selectedBox.setText(text);
+			} else if (selected instanceof Arrow) {
+				Arrow selectedArrow = (Arrow) selected;
+				selectedArrow.setText(text);
+			}
 			repaint();
 		}
 	}
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if (selectedBox != null) {
+		if (selected != null && selected instanceof Box) {
+			Box selectedBox = (Box) selected;
+			
 			if (e.getX() < this.getWidth() && e.getX() >= 0 && e.getY() < this.getHeight() && e.getY() >= 0) {
 				int deltaX = e.getX()-startXDrag;
 				int deltaY = e.getY()-startYDrag;
@@ -130,6 +139,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		int mouseX = arg0.getX();
 		int mouseY = arg0.getY();
 		if (arrowCheck) {
+			Box selectedBox = (Box) selected;
 			Box otherBox = null;
 			for (Box box: boxes) {
 				if (box.contains(mouseX, mouseY)) {
@@ -142,27 +152,37 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				selectedBox.addOutgoing(arrow);
 				otherBox.addIncoming(arrow);
 			} else {
-				selectedBox = null;
+				selected = null;
 			}
 			arrowCheck = false;
 			main.setMakeArrowEnabled(false);
 			repaint();
 		} else {
-			selectedBox = null;
+			selected = null;
 			for (Box box: boxes) {
 				if (box.contains(mouseX, mouseY)) {
-					selectedBox = box;
+					selected = box;
 					startXDrag = mouseX;
 					startYDrag = mouseY;
 					startXBox = box.getX();
 					startYBox = box.getY();
 				}
 			}
-			if (selectedBox != null) {
-				main.setText(selectedBox.getText());
-				if(boxes.size()>= 2) {
-					main.setMakeArrowEnabled(true);
-				
+			if (selected != null) {
+				if (selected instanceof Box) {
+					Box selectedBox = (Box) selected;
+					main.setText(selectedBox.getText());
+					if(boxes.size()>= 2) {
+						main.setMakeArrowEnabled(true);
+					
+					} 
+				}
+			
+			} else {
+				for (Arrow arrow: arrows) {
+					if (arrow.contains(mouseX, mouseY)) {
+						selected = arrow;
+					}
 				}
 			}
 			repaint();
@@ -178,7 +198,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public void deleteAllBoxes() {
 		boxes.clear();
 		arrows.clear();
-		selectedBox = null;
+		selected = null;
 		arrowCheck = false;
 		repaint();
 	}
