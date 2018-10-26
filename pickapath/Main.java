@@ -392,7 +392,8 @@ public class Main {
 		frame.setJMenuBar(bar);	
 		
 		
-		frame.setSize(800,700); //size of window
+		frame.setSize(800,700); 
+		frame.getSize();//size of window
 		/*InvalidationListener listener = new InvalidationListener(){
 		    @Override
 		    public void invalidated(Observable o) {
@@ -410,10 +411,10 @@ public class Main {
 
 	}
 	
-	/*public void setText(String text) {
+	public void setText(String text) {
 		textArea.setText(text);		
 		
 	}
-	*/
+
 
 }
