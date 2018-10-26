@@ -1,6 +1,7 @@
 package pickapath;
 
-public class Arrow {
+import java.io.Serializable;
+public class Arrow implements Serializable{
 		private String text;
 		private Box start;
 		private Box end;
