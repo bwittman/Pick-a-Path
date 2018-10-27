@@ -219,7 +219,6 @@ public class Main {
 					        
 						}
 					}else {
-						canvas.repaint();
 						canvas.deleteAllBoxes();
 					}
 				} 
@@ -261,8 +260,44 @@ public class Main {
 								
 							}
 						}
+						canvas.deleteAllBoxes();
+						JFileChooser chooser2 = new JFileChooser();
+						chooser2.setFileFilter(new FileFilter(){
+		                   @Override
+		                   public boolean accept(File file)
+		                   {
+		                      return file.getName().toLowerCase().endsWith(".pap");
+		                   }
+
+		                   @Override
+		                   public String getDescription()
+		                   {
+		                      return ".pap files";
+		                   }
+		                });
+						if(chooser2.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+						    File selectedFile = chooser2.getSelectedFile();
+						    
+						    try {
+								ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
+								 List<Box> listbox = (List<Box>) in.readObject();
+								 boxes.clear();
+								 boxes.addAll(listbox);
+								 List<Arrow> listarrow = (List<Arrow>) in.readObject();
+								 arrows.clear();
+								 arrows.addAll(listarrow);
+						         in.close();
+						         canvas.repaint();
+						         System.out.printf("Serialized data is read from " + selectedFile);
+							} catch (FileNotFoundException e1) {
+								
+							} catch (IOException e1) {
+								
+							} catch (ClassNotFoundException e1) {
+								
+							}
+						}
 						}else {
-							canvas.repaint();
 							canvas.deleteAllBoxes();
 							JFileChooser chooser = new JFileChooser();
 							chooser.setFileFilter(new FileFilter(){
