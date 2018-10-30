@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.awt.*;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -33,6 +34,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.*;
+import javax.swing.event.*;
+
 
 
 
@@ -40,6 +44,8 @@ public class Main {
 
 	private JTextArea textArea;
 	private JButton arrowButton;
+	private JSlider slider;
+	private JLabel label;
 
 	public static void main(String[] args) {
 
@@ -505,7 +511,26 @@ public class Main {
 	public void setMakeArrowEnabled(boolean enabled) {
 		arrowButton.setEnabled(enabled);
 	}
-
+	public void boxResizeSlider() {
+		slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
+		slider.setMajorTickSpacing(25);
+		slider.setPaintTicks(true);
+		add(slider);
+		
+		label = new JLabel("current zoom: 50");
+		add(label);
+		
+		event e = new event();
+		slider.addChangeListener(e);
+		
+	}
+	
+	public class event implements ChangeListener {
+		public void stateChanged (ChangeEvent e) {
+			int value = slider.getValue();
+			label.setText("Current zoom: " + value);
+		}
+	}
 
 
 }
