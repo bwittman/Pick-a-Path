@@ -529,7 +529,9 @@ public class Main extends JFrame{
 		arrowButton.setEnabled(enabled);
 	}
 	public void boxResizeSlider() {
+		//need to add mouse listener to this, and when it slides either way, have zoom increase or decrease by .05
 		float zoom = 1;
+		slider.setLayout(new BorderLayout());
 		slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
 		slider.setMajorTickSpacing(25);
 		slider.setPaintTicks(true);
