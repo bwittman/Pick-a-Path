@@ -41,7 +41,7 @@ import javax.swing.event.*;
 
 
 
-public class Main {
+public class Main extends JFrame{
 
 	private JTextArea textArea;
 	private JButton arrowButton;
@@ -529,6 +529,7 @@ public class Main {
 		arrowButton.setEnabled(enabled);
 	}
 	public void boxResizeSlider() {
+		
 		slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
 		slider.setMajorTickSpacing(25);
 		slider.setPaintTicks(true);
