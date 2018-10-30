@@ -529,11 +529,12 @@ public class Main extends JFrame{
 		arrowButton.setEnabled(enabled);
 	}
 	public void boxResizeSlider() {
-		
+		float zoom = 1;
 		slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
 		slider.setMajorTickSpacing(25);
 		slider.setPaintTicks(true);
 		add(slider);
+		
 		
 		label = new JLabel("current zoom: 50");
 		add(label);
