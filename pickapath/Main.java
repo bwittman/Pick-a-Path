@@ -1,5 +1,6 @@
 package pickapath;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -69,16 +70,32 @@ public class Main {
 		JFrame frame = new JFrame("PICK A PATH"); //title of window 
 
 		JFrame playerMode = new JFrame("PlayerMode");
-		JPanel playerPanel = new JPanel(new GridLayout(4,0));
+		JPanel playerPanel = new JPanel(new FlowLayout());
 		JLabel label1 = new JLabel("Situation");
-		playerPanel.add(label1, BorderLayout.CENTER);
-		JRadioButton JRadioButton = new JRadioButton("Choice1");
-		JRadioButton.setSelected(true);
+		final int MAX_BUTTONS = 25;
+		for(int i = 1; i < MAX_BUTTONS; i++) 
+        playerPanel.add(new JRadioButton("Choice" + i + "   "));
+		playerMode.add(label1, BorderLayout.NORTH);
+		//playerMode.setSize(10,500);
+
+		
+	/*	JRadioButton JRadioButton = new JRadioButton("Choice1");
+		JRadioButton.setSelected(false);
 		JRadioButton JRadioButton2 = new JRadioButton("Choice2");
-		JRadioButton2.setSelected(true);
+		JRadioButton2.setSelected(false);
+		JRadioButton JRadioButton3 = new JRadioButton("Choice3");
+		JRadioButton2.setSelected(false);
 		playerPanel.add(JRadioButton, BorderLayout.CENTER);
 		playerPanel.add(JRadioButton2, BorderLayout.CENTER);
-		playerPanel.add(new JButton("Submit"), BorderLayout.CENTER);
+		playerPanel.add(JRadioButton3, BorderLayout.CENTER);
+*/
+		
+		JFrame submit = new JFrame("Submit");
+		JPanel bottom = new JPanel(new FlowLayout());
+		
+		playerPanel.add(bottom);
+		playerMode.add(new JButton("Submit"), BorderLayout.SOUTH);
+		
 
 		playerMode.add(playerPanel);
 
