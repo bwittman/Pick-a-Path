@@ -22,8 +22,12 @@ class Tests {
 	
 	@Test
 	public void addIncomingTest() {
-		
-		
+		List<Box> boxes = new ArrayList<Box>();
+		List<Arrow> incoming = new ArrayList<Arrow>();
+		boxes.add(new Box(40,60,100,50, "Olivia"));
+		boxes.add(new Box(25,70,100,50, "Lucia"));
+		incoming.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
+		Assert.assertEquals("Incoming arrow not added", true, incoming.size() != 0);
 	}
 	@Test
 	public void addOutgoingTest() {
