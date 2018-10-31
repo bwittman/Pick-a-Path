@@ -68,19 +68,14 @@ public class Main extends JFrame{
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
 		JFrame frame = new JFrame("PICK A PATH"); //title of window 
-
 		JFrame playerMode = new JFrame("PlayerMode");
 		JPanel playerPanel = new JPanel(new FlowLayout());
 		JLabel label1 = new JLabel("Situation");
-
-		final int MAX_BUTTONS = 7;
+		final int MAX_BUTTONS = 25;
 		for(int i = 1; i < MAX_BUTTONS; i++) 
-        playerPanel.add(new JRadioButton("Choices" + i + "   "));
-		playerPanel.setLayout(new GridLayout(7, 0, 0, 1));
+        playerPanel.add(new JRadioButton("Choice" + i + "   "));
 		playerMode.add(label1, BorderLayout.NORTH);
-
-		
-		//playerPanel.setSize(10,500);
+		//playerMode.setSize(10,500);
 
 		
 	/*	JRadioButton JRadioButton = new JRadioButton("Choice1");
@@ -533,6 +528,7 @@ public class Main extends JFrame{
 		arrowButton.setEnabled(enabled);
 	}
 	public void boxResizeSlider() {
+		
 		//need to add mouse listener to this, and when it slides either way, have zoom increase or decrease by .05
 		float zoom = 1;
 		slider.setLayout(new BorderLayout());
@@ -542,7 +538,7 @@ public class Main extends JFrame{
 		add(slider);
 		
 		
-		label = new JLabel("current zoom: 50");
+		label = new JLabel();
 		add(label);
 		
 		event e = new event();
