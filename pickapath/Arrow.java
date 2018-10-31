@@ -15,6 +15,9 @@ public class Arrow implements Serializable{
 		this.start = start;
 		this.end = end;
 		this.text = text;
+
+		start.addOutgoing(this);
+		end.addIncoming(this);
 	}
 
 
