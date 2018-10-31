@@ -47,6 +47,9 @@ public class Main extends JFrame{
 	private JButton arrowButton;
 	private JSlider slider;
 	private JLabel label;
+	private JPanel choicePanel;
+	private JFrame playerMode;
+	private JTextArea boxInformation;
 
 	public static void main(String[] args) {
 
@@ -69,21 +72,22 @@ public class Main extends JFrame{
 		List<Arrow> arrows = new ArrayList<Arrow>();
 		JFrame frame = new JFrame("PICK A PATH"); //title of window 
 
-		JFrame playerMode = new JFrame("PlayerMode");
-		JPanel playerPanel = new JPanel(new FlowLayout());
-		JLabel label1 = new JLabel("Situation");
+		playerMode = new JFrame("PlayerMode");
+		choicePanel = new JPanel();
+		boxInformation = new JTextArea("Situation");
+		boxInformation.setEditable(false);
 
-		final int MAX_BUTTONS = 7;
+		/*	final int MAX_BUTTONS = 7;
 		for(int i = 1; i < MAX_BUTTONS; i++) 
-        playerPanel.add(new JRadioButton("Choices" + i + "   "));
-		playerPanel.setLayout(new GridLayout(7, 0, 0, 1));
-		playerMode.add(label1, BorderLayout.NORTH);
+        choicePanel.add(new JRadioButton("Choices" + i + "   "));
+		choicePanel.setLayout(new GridLayout(7, 0, 0, 1));*/
+		playerMode.add(boxInformation, BorderLayout.NORTH);
 
-		
+
 		//playerPanel.setSize(10,500);
 
-		
-	/*	JRadioButton JRadioButton = new JRadioButton("Choice1");
+
+		/*	JRadioButton JRadioButton = new JRadioButton("Choice1");
 		JRadioButton.setSelected(false);
 		JRadioButton JRadioButton2 = new JRadioButton("Choice2");
 		JRadioButton2.setSelected(false);
@@ -92,28 +96,29 @@ public class Main extends JFrame{
 		playerPanel.add(JRadioButton, BorderLayout.CENTER);
 		playerPanel.add(JRadioButton2, BorderLayout.CENTER);
 		playerPanel.add(JRadioButton3, BorderLayout.CENTER);
-*/
-		
-		JFrame submit = new JFrame("Submit");
-		JPanel bottom = new JPanel(new FlowLayout());
-		
-		playerPanel.add(bottom);
-		playerMode.add(new JButton("Submit"), BorderLayout.SOUTH);
-		
+		 */
 
-		playerMode.add(playerPanel);
+
+		JPanel bottom = new JPanel(new FlowLayout());
+		JPanel center = new JPanel(new FlowLayout());
+		
+		JButton submitButton = new JButton("Submit");
+		bottom.add(submitButton);
+		playerMode.add(bottom, BorderLayout.SOUTH);
+		center.add(choicePanel);
+		playerMode.add(center, BorderLayout.CENTER);
 
 		playerMode.setSize(800,700);
 		playerMode.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		playerMode.addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent e)
-            {
-            	frame.setVisible(true);
-            	playerMode.setVisible(false);
-            }
-        });
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				frame.setVisible(true);
+				playerMode.setVisible(false);
+			}
+		});
 		playerMode.setVisible(false);
 
 
@@ -498,9 +503,17 @@ public class Main extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				playerMode.setVisible(true);
-				frame.setVisible(false);
 
+				List<Box> startingBoxes = getStartingBoxes(boxes);
+				if(startingBoxes.size() == 1) {
+					populateChoices(startingBoxes.get(0));
+					
+					playerMode.setVisible(true);
+					frame.setVisible(false);
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "You must have exactly one box with no incoming arrows before entering player mode!" );
+				}
 			}
 
 		});
@@ -512,17 +525,41 @@ public class Main extends JFrame{
 		frame.getSize();//size of window
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //this closes the GUI
 		frame.addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent e)
-            {
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
 
-            	playerMode.dispose();
-            }
-        });
+				playerMode.dispose();
+			}
+		});
 		frame.setVisible(true); //allows the GUI to start as visible
 		// panel.add(new JButton("South"), BorderLayout.SOUTH); We can use this to add a bottom container if we want
 
+	}
+
+	protected void populateChoices(Box box) {
+		choicePanel.removeAll();
+		choicePanel.setLayout(new GridLayout(box.getOutgoing().size(), 1));
+		boxInformation.setText(box.getText());
+		 ButtonGroup group = new ButtonGroup();
+		for(Arrow arrow: box.getOutgoing()) { 
+			JRadioButton button =  new JRadioButton(arrow.getText());
+			group.add(button);
+			choicePanel.add(button);
+			
+		}
+		playerMode.pack();
+	}
+
+	protected List<Box> getStartingBoxes(List<Box> boxes) {
+		List<Box> startingBoxes = new ArrayList<Box>();
+		for(Box box: boxes) {
+			if(box.getIncoming().isEmpty())
+				startingBoxes.add(box);
+		}
+
+		return startingBoxes;
 	}
 
 	public void setText(String text) {
@@ -540,16 +577,16 @@ public class Main extends JFrame{
 		slider.setMajorTickSpacing(25);
 		slider.setPaintTicks(true);
 		add(slider);
-		
-		
+
+
 		label = new JLabel("current zoom: 50");
 		add(label);
-		
+
 		event e = new event();
 		slider.addChangeListener(e);
-		
+
 	}
-	
+
 	public class event implements ChangeListener {
 		public void stateChanged (ChangeEvent e) {
 			int value = slider.getValue();
