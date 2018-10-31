@@ -25,8 +25,22 @@ class Tests {
 		
 		
 	}
+	@Test
+	public void addOutgoingTest() {
+		
+	}
 	
+	@Test
+	public void containsTest() {
+		
+	}
 	
-	
-	
+	@Test
+	public void getIncomingTest() {
+		
+	}
+	@Test
+	public void getOutgoingTest() {
+		
+	}
 }
