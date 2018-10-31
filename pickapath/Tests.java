@@ -1,5 +1,7 @@
 package pickapath;
 
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,22 +31,102 @@ class Tests {
 		incoming.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
 		Assert.assertEquals("Incoming arrow not added", true, incoming.size() != 0);
 	}
+	
 	@Test
 	public void addOutgoingTest() {
-		
+		List<Box> boxes = new ArrayList<Box>();
+		List<Arrow> outgoing = new ArrayList<Arrow>();
+		boxes.add(new Box(40,60,100,50, "Olivia"));
+		boxes.add(new Box(25,70,100,50, "Lucia"));
+		outgoing.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
+		Assert.assertEquals("Outgoing arrow not added", true, outgoing.size() != 0);
 	}
 	
 	@Test
-	public void containsTest() {
-		
+	public void boxContainsTest() {
+		int x = 45;
+		int y = 50;
+		Box box = new Box(40,60,100,50, "Olivia");
+		Assert.assertEquals("points not contained in box", true, (x >= box.getX()-(box.getWidth()/2) && x <= box.getX() + (box.getWidth()/2) && y >= box.getY() - (box.getHeight()/2) && y <= box.getY() + (box.getHeight()/2)));
+	}
+	
+	@Test
+	public void arrowContainsTest() {
+		fail();
 	}
 	
 	@Test
 	public void getIncomingTest() {
-		
+		fail();
 	}
+	
 	@Test
 	public void getOutgoingTest() {
-		
+		fail();
+	}
+	
+	@Test
+	public void canvasContainsBoxes() {
+		fail();
+	}
+	
+	@Test
+	public void canvasContainsArrows() {
+		fail();
+	}
+	
+	@Test
+	public void makeBoxButtonTest() {
+		fail();
+	}
+	
+	@Test
+	public void makeArrowButtonTest() {
+		fail();
+	}
+	
+	@Test
+	public void selectedArrowTest() {
+		fail();
+	}
+	
+	@Test
+	public void selectedBoxTest() {
+		fail();
+	}
+	
+	@Test
+	public void saveFileButtonTest() {
+		fail();
+	}
+	
+	@Test
+	public void openFileButtonTest() {
+		fail();
+	}
+	
+	@Test
+	public void newProjectButtonTest() {
+		fail();
+	}
+	
+	@Test
+	public void exitButtonTest() {
+		fail();
+	}
+	
+	@Test
+	public void playerModeButtonTest() {
+		fail();
+	}
+	
+	@Test
+	public void deleteButtonTest() {
+		fail();
+	}
+	
+	@Test
+	public void somethingTest() {
+		fail();
 	}
 }
