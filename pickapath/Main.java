@@ -539,11 +539,6 @@ public class Main extends JFrame {
 		file.add(exit);
 
 //<<<<<<< HEAD
-		JMenu edit = new JMenu("Edit"); // edit button
-		bar.add(edit);
-
-		JMenuItem undo = new JMenuItem("Undo"); // undo button
-		edit.add(undo);
 
 		frame.setJMenuBar(bar);
 
