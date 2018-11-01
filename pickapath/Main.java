@@ -130,6 +130,32 @@ public class Main extends JFrame{
 
 		JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
+		
+		//public void boxResizeSlider() {
+			//need to add mouse listener to this, and when it slides either way, have zoom increase or decrease by .05
+			float zoom = 1;
+			//slider.setLayout(new BorderLayout());
+			slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
+			slider.setMajorTickSpacing(25);
+			slider.setPaintTicks(true);
+			JPanel jslider = new JPanel(new GridLayout()); //how many buttons there are on the right side, needs adjusting if adding a button
+			panel.add(slider, BorderLayout.NORTH);
+
+
+			label = new JLabel("current zoom: 50");
+			add(label);
+
+			//event e = new event();
+			//slider.addChangeListener(e);
+
+		//}
+
+		//public class event implements ChangeListener {
+			//public void stateChanged (ChangeEvent e) {
+				int value = slider.getValue();
+				label.setText("Current zoom: " + value);
+			//}
+		//}
 
 		Canvas canvas = new Canvas(arrows,boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
@@ -568,30 +594,6 @@ public class Main extends JFrame{
 	}
 	public void setMakeArrowEnabled(boolean enabled) {
 		arrowButton.setEnabled(enabled);
-	}
-	public void boxResizeSlider() {
-		//need to add mouse listener to this, and when it slides either way, have zoom increase or decrease by .05
-		float zoom = 1;
-		slider.setLayout(new BorderLayout());
-		slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
-		slider.setMajorTickSpacing(25);
-		slider.setPaintTicks(true);
-		add(slider);
-
-
-		label = new JLabel("current zoom: 50");
-		add(label);
-
-		event e = new event();
-		slider.addChangeListener(e);
-
-	}
-
-	public class event implements ChangeListener {
-		public void stateChanged (ChangeEvent e) {
-			int value = slider.getValue();
-			label.setText("Current zoom: " + value);
-		}
 	}
 
 
