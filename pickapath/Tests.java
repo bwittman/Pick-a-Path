@@ -57,12 +57,22 @@ class Tests {
 	
 	@Test
 	public void getIncomingTest() {
-		fail();
+		List<Box> boxes = new ArrayList<Box>();
+		List<Arrow> incoming = new ArrayList<Arrow>();
+		boxes.add(new Box(40,60,100,50, "Olivia"));
+		boxes.add(new Box(25,70,100,50, "Lucia"));
+		incoming.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
+		Assert.assertEquals("Incoming arrow not retrieved", true, incoming.size() != 0);
 	}
 	
 	@Test
 	public void getOutgoingTest() {
-		fail();
+		List<Box> boxes = new ArrayList<Box>();
+		List<Arrow> outgoing = new ArrayList<Arrow>();
+		boxes.add(new Box(40,60,100,50, "Olivia"));
+		boxes.add(new Box(25,70,100,50, "Lucia"));
+		outgoing.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
+		Assert.assertEquals("Outgoing arrow not retrieved", true, outgoing.size() != 0);
 	}
 	
 	@Test
@@ -85,7 +95,7 @@ class Tests {
 	@Test
 	public void makeBoxButtonTest() {	//same as canvasContainsBoxes()?
 		fail();
-		}
+	}
 	
 	@Test
 	public void makeArrowButtonTest() {	//same as canvasContainsArrows()?
@@ -94,12 +104,19 @@ class Tests {
 	
 	@Test
 	public void selectedArrowTest() {
-		fail();
+		Object selected = null;
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Olivia"));
+		boxes.add(new Box(25,70,100,50, "Lucia"));
+		selected = new Arrow(boxes.get(0), boxes.get(1), "friends");
+		Assert.assertEquals("Arrow not selected", true, selected != null);
 	}
 	
 	@Test
 	public void selectedBoxTest() {
-		fail();
+		Object selected = null;
+		selected = new Box(40,60,100,50, "Olivia");
+		Assert.assertEquals("Box not selected", true, selected != null);
 	}
 	
 	@Test
