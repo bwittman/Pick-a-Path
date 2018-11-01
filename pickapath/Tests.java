@@ -103,7 +103,7 @@ class Tests {
 	}
 	
 	@Test
-	public void selectedArrowTest() {
+	public void selectedArrowTest() { 
 		Object selected = null;
 		List<Box> boxes = new ArrayList<Box>();
 		boxes.add(new Box(40,60,100,50, "Olivia"));
