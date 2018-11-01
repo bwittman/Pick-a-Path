@@ -146,10 +146,26 @@ public class Main extends JFrame {
 		panel.add(modes, BorderLayout.NORTH); // assigns the boxes to the north container
 		frame.add(panel);
 
+<<<<<<< HEAD
 		JPanel numbers = new JPanel(new GridLayout(4, 0)); // how many buttons there are on the right side, needs
 		// adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); // right container in GUI
+=======
+		JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
+		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
+		
+		//public void zoomSlider() {
+			//need to add mouse listener to this, and when it slides either way, have zoom increase or decrease by .05
+			float zoom = 1; //default zoom setting
+			//slider.setLayout(new BorderLayout());
+			slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
+			//slider.setMajorTickSpacing(5);
+			slider.setPaintTicks(true);
+			slider.setMajorTickSpacing(25);
+			panel.add(slider, BorderLayout.NORTH);
+>>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
 
+<<<<<<< HEAD
 		// public void boxResizeSlider() {
 		// need to add mouse listener to this, and when it slides either way, have zoom
 		// increase or decrease by .05
@@ -164,10 +180,15 @@ public class Main extends JFrame {
 
 		label = new JLabel("current zoom: 50");
 		add(label);
+=======
+			label = new JLabel("current zoom: 50");
+			panel.add(label);
+>>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
 
 		// event e = new event();
 		// slider.addChangeListener(e);
 
+<<<<<<< HEAD
 		// }
 
 		// public class event implements ChangeListener {
@@ -178,6 +199,13 @@ public class Main extends JFrame {
 		// }
 
 		Canvas canvas = new Canvas(arrows, boxes, this);
+=======
+				int value = slider.getValue();
+				label.setText("Current zoom: " + value);
+				
+				
+		Canvas canvas = new Canvas(arrows,boxes, this);
+>>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
 		panel.add(canvas, BorderLayout.CENTER);
 		JButton makeBox = new JButton("Make Box");
 
@@ -510,6 +538,7 @@ public class Main extends JFrame {
 		});
 		file.add(exit);
 
+<<<<<<< HEAD
 		JMenu edit = new JMenu("Edit"); // edit button
 		bar.add(edit);
 
@@ -519,6 +548,11 @@ public class Main extends JFrame {
 		frame.setJMenuBar(bar);
 
 		JMenu mode = new JMenu("Mode"); // mode button
+=======
+		frame.setJMenuBar(bar);	
+
+		JMenu mode = new JMenu("Mode"); //mode button
+>>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
 		JMenuItem editorMode = new JMenuItem("Editor Mode");
 		JMenuItem playerModeItem = new JMenuItem("Player Mode");
 		playerModeItem.addActionListener(new ActionListener() {
