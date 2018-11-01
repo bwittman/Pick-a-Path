@@ -131,32 +131,26 @@ public class Main extends JFrame{
 		JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
 		
-		//public void boxResizeSlider() {
+		//public void zoomSlider() {
 			//need to add mouse listener to this, and when it slides either way, have zoom increase or decrease by .05
-			float zoom = 1;
+			float zoom = 1; //default zoom setting
 			//slider.setLayout(new BorderLayout());
 			slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
-			slider.setMajorTickSpacing(25);
+			//slider.setMajorTickSpacing(5);
 			slider.setPaintTicks(true);
-			JPanel jslider = new JPanel(new GridLayout()); //how many buttons there are on the right side, needs adjusting if adding a button
+			slider.setMajorTickSpacing(25);
 			panel.add(slider, BorderLayout.NORTH);
 
-
 			label = new JLabel("current zoom: 50");
-			add(label);
+			panel.add(label);
 
 			//event e = new event();
 			//slider.addChangeListener(e);
 
-		//}
-
-		//public class event implements ChangeListener {
-			//public void stateChanged (ChangeEvent e) {
 				int value = slider.getValue();
 				label.setText("Current zoom: " + value);
-			//}
-		//}
-
+				
+				
 		Canvas canvas = new Canvas(arrows,boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
 		JButton makeBox = new JButton("Make Box");
@@ -512,13 +506,6 @@ public class Main extends JFrame{
 				frame.dispose();
 			}});
 		file.add(exit);
-
-		JMenu edit = new JMenu("Edit");  //edit button
-		bar.add(edit);
-
-		JMenuItem undo = new JMenuItem("Undo");  //undo button
-		edit.add(undo);
-
 
 		frame.setJMenuBar(bar);	
 
