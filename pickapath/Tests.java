@@ -67,21 +67,28 @@ class Tests {
 	
 	@Test
 	public void canvasContainsBoxes() {
-		fail();
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Olivia"));
+		Assert.assertEquals("Canvas doesn't have any boxes", true, boxes.size() != 0);
 	}
 	
 	@Test
 	public void canvasContainsArrows() {
-		fail();
+		List<Arrow> arrows = new ArrayList<Arrow>();
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Olivia"));
+		boxes.add(new Box(25,70,100,50, "Lucia"));
+		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
+		Assert.assertEquals("Canvas doesn't have any arrows", true, arrows.size() != 0);
 	}
+
+	@Test
+	public void makeBoxButtonTest() {	//same as canvasContainsBoxes()?
+		fail();
+		}
 	
 	@Test
-	public void makeBoxButtonTest() {
-		fail();
-	}
-	
-	@Test
-	public void makeArrowButtonTest() {
+	public void makeArrowButtonTest() {	//same as canvasContainsArrows()?
 		fail();
 	}
 	
@@ -122,7 +129,18 @@ class Tests {
 	
 	@Test
 	public void deleteButtonTest() {
-		fail();
+		Object selected = null;
+		List<Arrow> arrows = new ArrayList<Arrow>();
+		List<Box> boxes = new ArrayList<Box>();
+		Box box1 = new Box(40,60,100,50, "Olivia");
+		boxes.add(box1);
+		Box box2 = new Box(25,70,100,50, "Lucia");
+		boxes.add(box2);
+		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
+		Canvas canvas = new Canvas(arrows, boxes, null);
+		selected = box2;	//this isnt reading into deletebox() and idk why
+		canvas.deleteBox();
+		Assert.assertEquals("box not deleted", true, boxes.size()<2);
 	}
 	
 	@Test
