@@ -20,7 +20,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	boolean mouseDragged;
 	private Main main;
 	boolean arrowCheck;
-
+	private double zoom = 1.0;
 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
@@ -58,6 +58,11 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		for (Box box: boxes) {
 			g.setColor(Color.GREEN);
 
+			int x = (int)Math.round(zoom*box.getX());
+			int y = (int)Math.round(zoom*box.getY());
+			int width = (int)Math.round(zoom*box.getWidth());
+			int height = (int)Math.round(zoom*box.getHeight());
+			
 			g.fillRect(box.getX() - box.getWidth()/2, box.getY() - box.getHeight()/2, box.getWidth(), box.getHeight());
 			if (box == selected) {
 				g.setColor(Color.WHITE);
@@ -69,6 +74,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			g.setClip(box.getX() - box.getWidth()/2, box.getY() - box.getHeight()/2, box.getWidth(), box.getHeight());
 			g.drawString(box.getText(), box.getX() -45, box.getY());
 			g.setClip(null);
+			
 			
 		}
 
@@ -205,6 +211,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		selected = null;
 		arrowCheck = false;
 		repaint();
+	}
+
+	public double getZoom() {
+		return zoom;
+	}
+
+	public void setZoom(double zoom) {
+		this.zoom = zoom;
 	}
 
 

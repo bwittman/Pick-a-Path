@@ -221,6 +221,5 @@ class Tests {
 			frame.setVisible(true);
 		}
 		Assert.assertEquals("no starting box",true, playerMode.isVisible()==false && frame.isVisible()==true);
-	}
-	
+	}	
 }

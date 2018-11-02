@@ -17,8 +17,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.awt.*;
-
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -33,8 +31,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -152,35 +148,41 @@ public class Main extends JFrame {
 	//	JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
 		
-		//public void zoomSlider() {
-			//need to add mouse listener(?) to this, and when it slides either way, have zoom increase or decrease by .05
-			double zoom = 1; //default zoom setting
-			slider = new JSlider(JSlider.HORIZONTAL, 25, 100, 50);
-			slider.setPaintTicks(true);
-			slider.setMajorTickSpacing(25);
-			panel.add(slider, BorderLayout.NORTH);
 
-		//JPanel jslider = new JPanel(new GridLayout()); 
-		//add(label);
-		//label = new JLabel("current zoom: 50");
-		//panel.add(label, BorderLayout.NORTH);
-		event e = new event();
-		slider.addChangeListener(e);
+		
+		
+		
+		
 
-			//int value = slider.getValue();
-			if (zoom != 1) {
-				if (slider.getValue()==25) {
-					zoom = 0.5;
-					int newPanelHeight = (int) (panel.getHeight()*zoom);
-					int newPanelWidth = (int) (panel.getWidth()*zoom);
-					panel.setSize(newPanelWidth, newPanelHeight);
-				}
-			}
-			//label.setText("Current zoom: " + value);
+	//add(label);c
+	//label = new JLabel("current zoom: 50");
+	//panel.add(label, BorderLayout.NORTH);
+	//JTextArea sliderText = new JTextArea("Current zoom: ");
+	//panel.add(sliderText, BorderLayout.NORTH);
+	
+	
+		//label.setText("Current zoom: " + value);
+		
 				
 				
 		Canvas canvas = new Canvas(arrows,boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
+		
+		
+		slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 1);
+		slider.setPaintTicks(true);
+		slider.setMajorTickSpacing(1);
+		slider.setPaintLabels(true);
+		panel.add(slider, BorderLayout.NORTH);
+		slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				canvas.setZoom(1.0 / slider.getValue()); 
+			}
+			
+		});
+		
 		JButton makeBox = new JButton("Make Box");
 
 		Random random = new Random();
@@ -598,11 +600,6 @@ public class Main extends JFrame {
 	public void setMakeArrowEnabled(boolean enabled) {
 		arrowButton.setEnabled(enabled);
 	}
-	public class event implements ChangeListener {
-		public void stateChanged (ChangeEvent e) {
-			//int value = slider.getValue();
-			//label.setText("Current zoom: " + value);
-			}
-		}
+
 
 }
