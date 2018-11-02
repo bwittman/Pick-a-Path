@@ -52,7 +52,14 @@ class Tests {
 	
 	@Test
 	public void arrowContainsTest() {
-		fail();
+		int x = 20;
+		int y = 50;
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Olivia"));
+		boxes.add(new Box(25,70,100,50, "Lucia"));
+		List<Arrow> arrow = new ArrayList<Arrow>();
+		arrow.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
+		//Assert.assertEquals("points not contains in arrow", true, arrow.contains(x,y));
 	}
 	
 	@Test
