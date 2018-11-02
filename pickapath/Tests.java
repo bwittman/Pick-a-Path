@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 
 import org.junit.Assert;
@@ -186,6 +187,14 @@ class Tests {
 	
 	@Test
 	public void somethingTest() {
-		fail();
+		JMenuItem frame = new JMenuItem("Editor Mode");
+		JMenuItem playerMode = new JMenuItem("Player Mode");
+		List<Box> startingBoxes = new ArrayList<Box>();
+		startingBoxes.add(new Box(40,60,100,50, "Logan"));
+		if (startingBoxes.size() == 1) {
+			playerMode.setVisible(false);
+			frame.setVisible(true);
+		}
+		Assert.assertEquals("no starting box",true, playerMode.isVisible()==false && frame.isVisible()==true);
 	}
 }
