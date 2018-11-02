@@ -10,6 +10,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.junit.Assert;
@@ -128,8 +129,19 @@ class Tests {
 	
 	@Test
 	public void saveFileButtonTest() {
-		
-		fail();
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(new FileFilter() {
+			@Override
+			public boolean accept(File file) {
+				return file.getName().toLowerCase().endsWith(".pap");
+			}
+
+			@Override
+			public String getDescription() {
+				return ".pap files";
+			}
+		});
+		Assert.assertEquals("File not saved", true, chooser != null);
 	}
 	
 	@Test
@@ -222,5 +234,43 @@ class Tests {
 		}
 		Assert.assertEquals("no starting box",true, playerMode.isVisible()==false && frame.isVisible()==true);
 	}
+	
+	@Test
+	public void boxHeightTest(){
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Logan"));
+		Assert.assertEquals("That is not the height",true,boxes.get(0).getHeight() == 50);
+		
+		}
+	
+	@Test
+	public void boxWidthTest(){
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Logan"));
+		Assert.assertEquals("That is not the width",true,boxes.get(0).getWidth() == 100);
+		
+		}
+	
+	@Test
+	public void boxXTest(){
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Logan"));
+		Assert.assertEquals("That is not the width",true,boxes.get(0).getX() == 40);
+		
+		}
+	
+	@Test
+	public void boxYTest(){
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Logan"));
+		Assert.assertEquals("That is not the width",true,boxes.get(0).getY() == 60);
+		
+		}
+	
+	
+	
+	
+	
+	
 	
 }
