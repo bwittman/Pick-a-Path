@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 
@@ -151,7 +152,9 @@ class Tests {
 	
 	@Test
 	public void exitButtonTest() {
-		fail();
+		JFrame frame = new JFrame("Editor Mode");
+		frame.dispose();
+		Assert.assertEquals("Frame not closed", true, frame.isVisible() == false);
 	}
 	
 	@Test
