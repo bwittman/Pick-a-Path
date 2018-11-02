@@ -1,6 +1,5 @@
 package pickapath;
 
-import java.awt.Color;
 import java.io.Serializable;
 public class Arrow implements Serializable{
 	private String text;
