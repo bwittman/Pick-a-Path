@@ -186,16 +186,30 @@ class Tests {
 		Assert.assertEquals("box not deleted", true, selected == null);
 	}
 	
+
 	@Test
-	public void somethingTest() {
+	public void positiveStartingBoxesTest() {
 		JMenuItem frame = new JMenuItem("Editor Mode");
 		JMenuItem playerMode = new JMenuItem("Player Mode");
 		List<Box> startingBoxes = new ArrayList<Box>();
 		startingBoxes.add(new Box(40,60,100,50, "Logan"));
 		if (startingBoxes.size() == 1) {
+			playerMode.setVisible(true);
+			frame.setVisible(false);
+		}
+		Assert.assertEquals("no starting box",true, playerMode.isVisible()==true && frame.isVisible()==false);
+	}
+	
+	@Test
+	public void negativeStartingBoxesTest() {
+		JMenuItem frame = new JMenuItem("Editor Mode");
+		JMenuItem playerMode = new JMenuItem("Player Mode");
+		List<Box> startingBoxes = new ArrayList<Box>();
+		if (startingBoxes.size() == 0) {
 			playerMode.setVisible(false);
 			frame.setVisible(true);
 		}
 		Assert.assertEquals("no starting box",true, playerMode.isVisible()==false && frame.isVisible()==true);
 	}
+	
 }
