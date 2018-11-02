@@ -2,8 +2,12 @@ package pickapath;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -129,12 +133,26 @@ class Tests {
 	
 	@Test
 	public void saveFileButtonTest() {
+		
 		fail();
 	}
 	
 	@Test
 	public void openFileButtonTest() {
-		fail();
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(new FileFilter(){
+			@Override
+			public boolean accept(File file) {
+				return file.getName().toLowerCase().endsWith(".pap");
+			}
+
+			@Override
+			public String getDescription() {
+				return ".pap files";
+			}
+		
+		});
+		Assert.assertEquals("File not opened",true, chooser.getSelectedFile() != null);
 	}
 	
 	@Test
