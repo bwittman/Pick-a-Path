@@ -163,11 +163,6 @@ class Tests {
 	}
 	
 	@Test
-	public void newProjectButtonTest() {
-		fail();
-	}
-	
-	@Test
 	public void exitButtonTest() {
 		JFrame frame = new JFrame("Editor Mode");
 		frame.dispose();
