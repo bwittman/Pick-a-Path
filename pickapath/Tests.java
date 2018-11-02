@@ -56,15 +56,14 @@ class Tests {
 	
 	@Test
 	public void arrowContainsTest() {
-		int x = 20;
-		int y = 50;
+		int x = 50;
 		List<Box> boxes = new ArrayList<Box>();
 		boxes.add(new Box(40,60,100,50, "Olivia"));
 		boxes.add(new Box(25,70,100,50, "Lucia"));
 		List<Arrow> arrow = new ArrayList<Arrow>();
 		arrow.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
-		//arrow.contains(arrow);
-		//Assert.assertEquals("points not contains in arrow", true, arrow.contains(arrow));
+		//arrow.contains();
+		Assert.assertEquals("points not contains in arrow", true, arrow.contains(arrow));
 	}
 	
 	@Test
