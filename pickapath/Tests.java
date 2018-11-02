@@ -150,9 +150,8 @@ class Tests {
 			public String getDescription() {
 				return ".pap files";
 			}
-		
 		});
-		Assert.assertEquals("File not opened",true, chooser.getSelectedFile() != null);
+		Assert.assertEquals("File not opened", true, chooser != null);
 	}
 	
 	@Test
@@ -181,7 +180,7 @@ class Tests {
 		boxes.add(box2);
 		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
 		Canvas canvas = new Canvas(arrows, boxes, null);
-		selected = box2;	//this isnt reading into deletebox() and idk why
+		selected = box2;
 		canvas.deleteBox();
 		Assert.assertEquals("box not deleted", true, boxes.size()<2);
 	}
