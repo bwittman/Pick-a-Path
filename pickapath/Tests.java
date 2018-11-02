@@ -2,6 +2,7 @@ package pickapath;
 
 import static org.junit.Assert.fail;
 
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,14 +57,17 @@ class Tests {
 	
 	@Test
 	public void arrowContainsTest() {
-		int x = 50;
 		List<Box> boxes = new ArrayList<Box>();
+		List<Arrow> arrows = new ArrayList<Arrow>();
+		//Canvas canvas = new Canvas(arrows, boxes, null);
 		boxes.add(new Box(40,60,100,50, "Olivia"));
 		boxes.add(new Box(25,70,100,50, "Lucia"));
-		List<Arrow> arrow = new ArrayList<Arrow>();
-		arrow.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
-		//arrow.contains();
-		Assert.assertEquals("points not contains in arrow", true, arrow.contains(arrow));
+		arrows.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
+		Arrow arrow = new Arrow(boxes.get(0), boxes.get(1), null);
+		int boxX =  boxes.get(0).getX();
+		int boxY = boxes.get(0).getY();
+		//arrow.contains(boxX, boxY);
+		Assert.assertEquals("mouse X and Y not inside arrow", false, arrow.contains(boxX, boxY));
 	}
 	
 	@Test
