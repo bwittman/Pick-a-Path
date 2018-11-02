@@ -148,12 +148,6 @@ public class Main extends JFrame {
 	//	JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
 		
-
-		
-		
-		
-		
-
 	//add(label);c
 	//label = new JLabel("current zoom: 50");
 	//panel.add(label, BorderLayout.NORTH);
