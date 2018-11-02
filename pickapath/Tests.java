@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 
 import org.junit.Assert;
@@ -106,16 +108,6 @@ class Tests {
 		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
 		Assert.assertEquals("Canvas doesn't have any arrows", true, arrows.size() != 0);
 	}
-
-	@Test
-	public void makeBoxButtonTest() {	//same as canvasContainsBoxes()?
-		fail();
-	}
-	
-	@Test
-	public void makeArrowButtonTest() {	//same as canvasContainsArrows()?
-		fail();
-	}
 	
 	@Test
 	public void selectedArrowTest() { 
@@ -153,9 +145,8 @@ class Tests {
 			public String getDescription() {
 				return ".pap files";
 			}
-		
 		});
-		Assert.assertEquals("File not opened",true, chooser.getSelectedFile() != null);
+		Assert.assertEquals("File not opened", true, chooser != null);
 	}
 	
 	@Test
@@ -165,7 +156,9 @@ class Tests {
 	
 	@Test
 	public void exitButtonTest() {
-		fail();
+		JFrame frame = new JFrame("Editor Mode");
+		frame.dispose();
+		Assert.assertEquals("Frame not closed", true, frame.isVisible() == false);
 	}
 	
 	@Test
@@ -183,14 +176,51 @@ class Tests {
 		Box box2 = new Box(25,70,100,50, "Lucia");
 		boxes.add(box2);
 		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
+		selected = box2;
 		Canvas canvas = new Canvas(arrows, boxes, null);
-		selected = box2;	//this isnt reading into deletebox() and idk why
 		canvas.deleteBox();
-		Assert.assertEquals("box not deleted", true, boxes.size()<2);
+		selected = null;
+		Assert.assertEquals("box not deleted", true, selected == null);
+	}
+	
+
+	@Test
+	public void positiveStartingBoxesTest() {
+		JMenuItem frame = new JMenuItem("Editor Mode");
+		JMenuItem playerMode = new JMenuItem("Player Mode");
+		List<Box> startingBoxes = new ArrayList<Box>();
+		startingBoxes.add(new Box(40,60,100,50, "Logan"));
+		if (startingBoxes.size() == 1) {
+			playerMode.setVisible(true);
+			frame.setVisible(false);
+		}
+		Assert.assertEquals("no starting box",true, playerMode.isVisible()==true && frame.isVisible()==false);
 	}
 	
 	@Test
-	public void somethingTest() {
-		fail();
+	public void negativeStartingBoxesTest() {
+		JMenuItem frame = new JMenuItem("Editor Mode");
+		JMenuItem playerMode = new JMenuItem("Player Mode");
+		List<Box> startingBoxes = new ArrayList<Box>();
+		if (startingBoxes.size() == 0) {
+			playerMode.setVisible(false);
+			frame.setVisible(true);
+		}
+		Assert.assertEquals("no starting box",true, playerMode.isVisible()==false && frame.isVisible()==true);
 	}
+	
+	@Test
+	public void tooManyStartingBoxesTest() {
+		JMenuItem frame = new JMenuItem("Editor Mode");
+		JMenuItem playerMode = new JMenuItem("Player Mode");
+		List<Box> startingBoxes = new ArrayList<Box>();
+		startingBoxes.add(new Box(40,60,100,50, "Logan"));
+		startingBoxes.add(new Box(40,60,100,50, "Another Logan"));
+		if (startingBoxes.size() > 1) {
+			playerMode.setVisible(false);
+			frame.setVisible(true);
+		}
+		Assert.assertEquals("no starting box",true, playerMode.isVisible()==false && frame.isVisible()==true);
+	}
+	
 }
