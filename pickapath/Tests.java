@@ -103,16 +103,6 @@ class Tests {
 		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
 		Assert.assertEquals("Canvas doesn't have any arrows", true, arrows.size() != 0);
 	}
-
-	@Test
-	public void makeBoxButtonTest() {	//same as canvasContainsBoxes()?
-		fail();
-	}
-	
-	@Test
-	public void makeArrowButtonTest() {	//same as canvasContainsArrows()?
-		fail();
-	}
 	
 	@Test
 	public void selectedArrowTest() { 
