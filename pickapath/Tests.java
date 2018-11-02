@@ -2,7 +2,6 @@ package pickapath;
 
 import static org.junit.Assert.fail;
 
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +9,11 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
+<<<<<<< HEAD
 import javax.swing.JOptionPane;
+=======
+import javax.swing.JTextArea;
+>>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
 import javax.swing.filechooser.FileFilter;
 
 import org.junit.Assert;
@@ -172,10 +175,12 @@ class Tests {
 		frame.dispose();
 		Assert.assertEquals("Frame not closed", true, frame.isVisible() == false);
 	}
-	
+
 	@Test
-	public void playerModeButtonTest() {
-		fail();
+	public void textAreaEditableTest() {
+		JTextArea boxInformation = new JTextArea();
+		boxInformation.setEditable(false);
+		Assert.assertEquals("Text is editable", true, boxInformation.isEditable() == false);
 	}
 	
 	@Test
@@ -234,6 +239,7 @@ class Tests {
 		}
 		Assert.assertEquals("no starting box",true, playerMode.isVisible()==false && frame.isVisible()==true);
 	}
+<<<<<<< HEAD
 	
 	@Test
 	public void boxHeightTest(){
@@ -273,4 +279,6 @@ class Tests {
 	
 	
 	
+=======
+>>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
 }
