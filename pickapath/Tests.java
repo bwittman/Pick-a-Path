@@ -9,11 +9,9 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
-<<<<<<< HEAD
 import javax.swing.JOptionPane;
-=======
 import javax.swing.JTextArea;
->>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
+
 import javax.swing.filechooser.FileFilter;
 
 import org.junit.Assert;
