@@ -239,7 +239,6 @@ class Tests {
 		}
 		Assert.assertEquals("no starting box",true, playerMode.isVisible()==false && frame.isVisible()==true);
 	}
-<<<<<<< HEAD
 	
 	@Test
 	public void boxHeightTest(){
@@ -272,13 +271,4 @@ class Tests {
 		Assert.assertEquals("That is not the width",true,boxes.get(0).getY() == 60);
 		
 		}
-	
-	
-	
-	
-	
-	
-	
-=======
->>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
 }
