@@ -179,10 +179,11 @@ class Tests {
 		Box box2 = new Box(25,70,100,50, "Lucia");
 		boxes.add(box2);
 		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
-		Canvas canvas = new Canvas(arrows, boxes, null);
 		selected = box2;
+		Canvas canvas = new Canvas(arrows, boxes, null);
 		canvas.deleteBox();
-		Assert.assertEquals("box not deleted", true, boxes.size()<2);
+		selected = null;
+		Assert.assertEquals("box not deleted", true, selected == null);
 	}
 	
 	@Test
