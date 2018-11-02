@@ -163,19 +163,19 @@ public class Main extends JFrame {
 		panel.add(canvas, BorderLayout.CENTER);
 		
 		
-		slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 1);
-		slider.setPaintTicks(true);
-		slider.setMajorTickSpacing(1);
-		slider.setPaintLabels(true);
-		panel.add(slider, BorderLayout.NORTH);
-		slider.addChangeListener(new ChangeListener() {
+		//slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 1);
+		//slider.setPaintTicks(true);
+		//slider.setMajorTickSpacing(1);
+		//slider.setPaintLabels(true);
+		//panel.add(slider, BorderLayout.NORTH);
+		//slider.addChangeListener(new ChangeListener() {
 
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				canvas.setZoom(1.0 / slider.getValue()); 
-			}
+			//@Override
+			//public void stateChanged(ChangeEvent arg0) {
+				//canvas.setZoom(1.0 / slider.getValue()); 
+			//}
 			
-		});
+		//});
 		
 		JButton makeBox = new JButton("Make Box");
 
