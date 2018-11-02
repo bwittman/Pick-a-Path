@@ -61,6 +61,7 @@ class Tests {
 		arrow.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
 		//arrow.contains(arrow);
 		//Assert.assertEquals("points not contains in arrow", true, arrow.contains(arrow));
+		fail();
 	}
 	
 	@Test
