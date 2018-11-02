@@ -59,7 +59,8 @@ class Tests {
 		boxes.add(new Box(25,70,100,50, "Lucia"));
 		List<Arrow> arrow = new ArrayList<Arrow>();
 		arrow.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
-		//Assert.assertEquals("points not contains in arrow", true, arrow.contains(x,y));
+		//arrow.contains(arrow);
+		//Assert.assertEquals("points not contains in arrow", true, arrow.contains(arrow));
 	}
 	
 	@Test
