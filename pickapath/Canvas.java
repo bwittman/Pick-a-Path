@@ -51,6 +51,16 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			double leftY = midY + Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
 			double rightX = midX -Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2);
 			double rightY = midY - Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
+			//zoom variables
+			double midXZoom = Math.round(zoom*midX);
+			double midYZoom = Math.round(zoom*midY);
+			double tipYZoom = Math.round(zoom*tipY);
+			double tipXZoom = Math.round(zoom*tipX);
+			double leftXZoom = Math.round(zoom*leftX);
+			double leftYZoom = Math.round(zoom*leftY);
+			double rightXZoom = Math.round(zoom*rightX);
+			double rightYZoom = Math.round(zoom*rightY);
+			
 			int[] xPoints = {(int)Math.round(leftX),(int)Math.round(tipX), (int)Math.round(rightX)};
 			int[] yPoints = {(int)Math.round(leftY),(int)Math.round(tipY), (int)Math.round(rightY)};
 			g.fillPolygon(xPoints, yPoints, 3);
@@ -92,7 +102,20 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			}
 			selected = null;
 			repaint();
-		}
+		}}
+	public void deleteArrow() {	
+			if (selected != null && selected instanceof Arrow) {
+			Arrow selectedArrow = (Arrow) selected;
+			arrows.remove(selected);
+			for(Arrow arrow: selectedArrow.getStart().getIncoming()) {
+				arrows.remove(arrow);
+			}
+			for(Arrow arrow: selectedArrow.getStart().getOutgoing()) {
+				arrows.remove(arrow);
+			} 
+			
+		} selected = null;
+		repaint();
 	}
 
 	public void updateText(String text) {

@@ -43,6 +43,7 @@ public class Main extends JFrame {
 	private JLabel label;
 	private JPanel choicePanel;
 	private JFrame playerMode;
+	private JFrame mainMenu;
 	private JTextArea boxInformation;
 	private List<JRadioButton> buttonList;
 	private Box situation;
@@ -135,6 +136,9 @@ public class Main extends JFrame {
 			}
 		});
 		playerMode.setVisible(false);
+		
+		
+		
 
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new JButton("North"), BorderLayout.NORTH);
@@ -148,6 +152,15 @@ public class Main extends JFrame {
 	//	JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
 		
+		
+		//Main Menu frame and panels
+		mainMenu = new JFrame("PICK-A-PATH Main Menu");
+		mainMenu.setSize(800, 700);
+		JPanel menuPanel = new JPanel(new BorderLayout());
+		menuPanel.add(new JButton("South"), BorderLayout.SOUTH);
+		frame.add(panel);
+		JPanel menuButtonPanel = new JPanel(new GridLayout(0, 2)); // how many buttons there are on the right side, needs
+		menuPanel.add(new JButton("South"), BorderLayout.SOUTH);
 	//add(label);c
 	//label = new JLabel("current zoom: 50");
 	//panel.add(label, BorderLayout.NORTH);
@@ -163,19 +176,19 @@ public class Main extends JFrame {
 		panel.add(canvas, BorderLayout.CENTER);
 		
 		
-		//slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 1);
-		//slider.setPaintTicks(true);
-		//slider.setMajorTickSpacing(1);
-		//slider.setPaintLabels(true);
-		//panel.add(slider, BorderLayout.NORTH);
-		//slider.addChangeListener(new ChangeListener() {
+		slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 1);
+		slider.setPaintTicks(true);
+		slider.setMajorTickSpacing(1);
+		slider.setPaintLabels(true);
+		panel.add(slider, BorderLayout.NORTH);
+		slider.addChangeListener(new ChangeListener() {
 
-			//@Override
-			//public void stateChanged(ChangeEvent arg0) {
-				//canvas.setZoom(1.0 / slider.getValue()); 
-			//}
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				canvas.setZoom(1.0 / slider.getValue()); 
+			}
 			
-		//});
+		});
 		
 		JButton makeBox = new JButton("Make Box");
 
@@ -219,6 +232,7 @@ public class Main extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				canvas.deleteBox();
+				canvas.deleteArrow();
 
 			}
 
