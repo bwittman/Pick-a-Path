@@ -2,6 +2,7 @@ package pickapath;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,6 +18,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -28,12 +31,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.*;
-import javax.swing.event.*;
 
 public class Main extends JFrame {
 
@@ -47,6 +53,9 @@ public class Main extends JFrame {
 	private JTextArea boxInformation;
 	private List<JRadioButton> buttonList;
 	private Box situation;
+	private Font[] fonts;
+	private static int MAX_SLIDER = 5;
+	private static int MIN_SLIDER = 1;
 
 	public static void main(String[] args) {
 
@@ -176,16 +185,22 @@ public class Main extends JFrame {
 		panel.add(canvas, BorderLayout.CENTER);
 		
 		
-		slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 1);
+		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
 		slider.setMajorTickSpacing(1);
-		slider.setPaintLabels(true);
+		//slider.setPaintLabels(true);
+		
+		fonts = new Font[MAX_SLIDER - MIN_SLIDER + 1];
+		fonts[0] = new JLabel().getFont();
+		for( int i = 1; i < fonts.length; ++i )
+			fonts[i] = fonts[0].deriveFont(fonts[0].getSize()/((i + MIN_SLIDER+1)/2.0f));		
+		
 		panel.add(slider, BorderLayout.NORTH);
 		slider.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				canvas.setZoom(1.0 / slider.getValue()); 
+				canvas.setZoom(1.0 / ((slider.getValue()+1)/2.0), fonts[slider.getValue() - MIN_SLIDER]); 
 			}
 			
 		});
@@ -311,6 +326,9 @@ public class Main extends JFrame {
 						});
 						if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 							File selectedFile = chooser.getSelectedFile();
+							String path = selectedFile.getAbsolutePath();
+							if( !path.toLowerCase().endsWith(".pap"))
+								selectedFile = new File(path + ".pap");
 
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
@@ -353,6 +371,9 @@ public class Main extends JFrame {
 						});
 						if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 							File selectedFile = chooser.getSelectedFile();
+							String path = selectedFile.getAbsolutePath();
+							if( !path.toLowerCase().endsWith(".pap"))
+								selectedFile = new File(path + ".pap");
 
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
@@ -432,6 +453,7 @@ public class Main extends JFrame {
 							} catch (FileNotFoundException e1) {
 
 							} catch (IOException e1) {
+								e1.printStackTrace();
 
 							} catch (ClassNotFoundException e1) {
 
@@ -496,6 +518,9 @@ public class Main extends JFrame {
 				});
 				if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = chooser.getSelectedFile();
+					String path = selectedFile.getAbsolutePath();
+					if( !path.toLowerCase().endsWith(".pap"))
+						selectedFile = new File(path + ".pap");
 
 					try {
 						ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));

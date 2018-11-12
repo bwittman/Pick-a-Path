@@ -2,6 +2,8 @@ package pickapath;
 
 import java.io.Serializable;
 public class Arrow implements Serializable{
+
+	private static final long serialVersionUID = 4384512514370109657L;
 	private String text;
 	private Box start;
 	private Box end;
@@ -33,8 +35,12 @@ public class Arrow implements Serializable{
 		this.text = text;
 	}
 
-	public boolean contains(int x, int y) {
+	public boolean contains(int x, int y, double zoom) {
 		// TODO Auto-generated method stub
+		
+		x = (int) Math.round(x/zoom); 
+		y = (int) Math.round(y/zoom);
+		
 		Box start = getStart();
 		Box end = getEnd();
 		double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());

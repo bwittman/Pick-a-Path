@@ -69,8 +69,17 @@ public class Box implements Serializable {
 	}
 	
 	
-	public boolean contains(int x, int y) {
-	 return (x >= this.x-(width/2) && x <= this.x + (width/2) && y >= this.y - (height/2) && y <= this.y + (height/2));
+	public boolean contains(int x, int y, double zoom) {
+	 return (x >= zoom*(this.x-(width/2)) && x <= zoom*(this.x + (width/2)) && y >= zoom*(this.y - (height/2)) && y <= zoom*(this.y + (height/2)));
+		
+	}
+	public void setX(int x, double zoom) {
+		setX((int)Math.round(x / zoom));
+		
+	}
+	
+	public void setY(int y, double zoom) {
+		setY((int)Math.round(y / zoom));
 		
 	}
 }

@@ -70,8 +70,9 @@ class Tests {
 		Arrow arrow = new Arrow(boxes.get(0), boxes.get(1), null);
 		int boxX =  boxes.get(0).getX();
 		int boxY = boxes.get(0).getY();
+		double zoom = 1.0;
 		//arrow.contains(boxX, boxY);
-		Assert.assertEquals("mouse X and Y not inside arrow", false, arrow.contains(boxX, boxY));
+		Assert.assertEquals("mouse X and Y not inside arrow", false, arrow.contains(boxX, boxY, zoom));
 	}
 	
 	@Test
