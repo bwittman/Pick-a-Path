@@ -327,15 +327,16 @@ public class Main extends JFrame {
 						if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 							File selectedFile = chooser.getSelectedFile();
 							String path = selectedFile.getAbsolutePath();
-							if( !path.toLowerCase().endsWith(".pap"))
+							if( !path.toLowerCase().endsWith(".pap")) {
 								selectedFile = new File(path + ".pap");
-
+							}
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								out.writeObject(boxes);
 								out.writeObject(arrows);
 								out.close();
 								System.out.printf("Serialized data is saved in " + selectedFile);
+								canvas.deleteAllBoxes();
 							} catch (FileNotFoundException e1) {
 
 							} catch (IOException e1) {
@@ -372,9 +373,9 @@ public class Main extends JFrame {
 						if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 							File selectedFile = chooser.getSelectedFile();
 							String path = selectedFile.getAbsolutePath();
-							if( !path.toLowerCase().endsWith(".pap"))
+							if( !path.toLowerCase().endsWith(".pap")) {
 								selectedFile = new File(path + ".pap");
-
+							}
 							try {
 								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 								out.writeObject(boxes);
@@ -519,8 +520,9 @@ public class Main extends JFrame {
 				if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = chooser.getSelectedFile();
 					String path = selectedFile.getAbsolutePath();
-					if( !path.toLowerCase().endsWith(".pap"))
+					if( !path.toLowerCase().endsWith(".pap")) {
 						selectedFile = new File(path + ".pap");
+					}
 
 					try {
 						ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
