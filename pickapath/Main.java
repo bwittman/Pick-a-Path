@@ -82,24 +82,7 @@ public class Main extends JFrame {
 		boxInformation = new JTextArea("Situation");
 		boxInformation.setEditable(false);
 
-		/*
-		 * final int MAX_BUTTONS = 7; for(int i = 1; i < MAX_BUTTONS; i++)
-		 * choicePanel.add(new JRadioButton("Choices" + i + "   "));
-		 * choicePanel.setLayout(new GridLayout(7, 0, 0, 1));
-		 */
 		playerMode.add(boxInformation, BorderLayout.NORTH);
-
-		// playerPanel.setSize(10,500);
-
-		/*
-		 * JRadioButton JRadioButton = new JRadioButton("Choice1");
-		 * JRadioButton.setSelected(false); JRadioButton JRadioButton2 = new
-		 * JRadioButton("Choice2"); JRadioButton2.setSelected(false); JRadioButton
-		 * JRadioButton3 = new JRadioButton("Choice3");
-		 * JRadioButton2.setSelected(false); playerPanel.add(JRadioButton,
-		 * BorderLayout.CENTER); playerPanel.add(JRadioButton2, BorderLayout.CENTER);
-		 * playerPanel.add(JRadioButton3, BorderLayout.CENTER);
-		 */
 
 		JPanel bottom = new JPanel(new FlowLayout());
 		JPanel center = new JPanel(new FlowLayout());
@@ -109,20 +92,19 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (situation.getOutgoing().size() > 0 ) {
+				if (situation.getOutgoing().size() > 0) {
 					Arrow arrow = null;
 
 					for (int i = 0; i < buttonList.size(); i++) {
-						if(buttonList.get(i).isSelected())
+						if (buttonList.get(i).isSelected())
 							arrow = situation.getOutgoing().get(i);
 					}
-					if(arrow != null) {
+					if (arrow != null) {
 						Box next = arrow.getEnd();
 						populateChoices(next);
 
 					}
-				}
-				else {
+				} else {
 					frame.setVisible(true);
 					playerMode.setVisible(false);
 				}
@@ -145,9 +127,6 @@ public class Main extends JFrame {
 			}
 		});
 		playerMode.setVisible(false);
-		
-		
-		
 
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new JButton("North"), BorderLayout.NORTH);
@@ -157,54 +136,41 @@ public class Main extends JFrame {
 		JPanel numbers = new JPanel(new GridLayout(4, 0)); // how many buttons there are on the right side, needs
 		// adjusting if adding a button
 		panel.add(new JButton("East"), BorderLayout.EAST); // right container in GUI
-//=======
-	//	JPanel numbers = new JPanel(new GridLayout(4,0)); //how many buttons there are on the right side, needs adjusting if adding a button
-		panel.add(new JButton("East"), BorderLayout.EAST); //right container in GUI
-		
-		
-		//Main Menu frame and panels
+		panel.add(new JButton("East"), BorderLayout.EAST); // right container in GUI
+
+		// Main Menu frame and panels
 		mainMenu = new JFrame("PICK-A-PATH Main Menu");
 		mainMenu.setSize(800, 700);
 		JPanel menuPanel = new JPanel(new BorderLayout());
 		menuPanel.add(new JButton("South"), BorderLayout.SOUTH);
 		frame.add(panel);
-		JPanel menuButtonPanel = new JPanel(new GridLayout(0, 2)); // how many buttons there are on the right side, needs
+		JPanel menuButtonPanel = new JPanel(new GridLayout(0, 2)); // how many buttons there are on the right side,
+																	// needs
 		menuPanel.add(new JButton("South"), BorderLayout.SOUTH);
-	//add(label);c
-	//label = new JLabel("current zoom: 50");
-	//panel.add(label, BorderLayout.NORTH);
-	//JTextArea sliderText = new JTextArea("Current zoom: ");
-	//panel.add(sliderText, BorderLayout.NORTH);
-	
-	
-		//label.setText("Current zoom: " + value);
-		
-				
-				
-		Canvas canvas = new Canvas(arrows,boxes, this);
+
+		Canvas canvas = new Canvas(arrows, boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
-		
-		
+
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
 		slider.setMajorTickSpacing(1);
-		//slider.setPaintLabels(true);
-		
+		// slider.setPaintLabels(true);
+
 		fonts = new Font[MAX_SLIDER - MIN_SLIDER + 1];
 		fonts[0] = new JLabel().getFont();
-		for( int i = 1; i < fonts.length; ++i )
-			fonts[i] = fonts[0].deriveFont(fonts[0].getSize()/((i + MIN_SLIDER+1)/2.0f));		
-		
+		for (int i = 1; i < fonts.length; ++i)
+			fonts[i] = fonts[0].deriveFont(fonts[0].getSize() / ((i + MIN_SLIDER + 1) / 2.0f));
+
 		panel.add(slider, BorderLayout.NORTH);
 		slider.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				canvas.setZoom(1.0 / ((slider.getValue()+1)/2.0), fonts[slider.getValue() - MIN_SLIDER]); 
+				canvas.setZoom(1.0 / ((slider.getValue() + 1) / 2.0), fonts[slider.getValue() - MIN_SLIDER]);
 			}
-			
+
 		});
-		
+
 		JButton makeBox = new JButton("Make Box");
 
 		Random random = new Random();
@@ -220,7 +186,7 @@ public class Main extends JFrame {
 
 		}
 
-				);
+		);
 
 		arrowButton.setEnabled(false);
 		makeBox.addActionListener(new ActionListener() {
@@ -236,7 +202,7 @@ public class Main extends JFrame {
 
 		}
 
-				);
+		);
 
 		numbers.add(makeBox); // make box button
 		numbers.add(arrowButton); // make arrow button
@@ -253,7 +219,7 @@ public class Main extends JFrame {
 
 		}
 
-				);
+		);
 		// numbers.add(new JButton("Add Text")); // add text button
 		JButton deleteAll = new JButton("Delete All"); // delete all button
 		numbers.add(deleteAll);
@@ -312,38 +278,7 @@ public class Main extends JFrame {
 				if (!boxes.isEmpty()) {
 					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						JFileChooser chooser = new JFileChooser();
-						chooser.setFileFilter(new FileFilter() {
-							@Override
-							public boolean accept(File file) {
-								return file.getName().toLowerCase().endsWith(".pap");
-							}
-
-							@Override
-							public String getDescription() {
-								return ".pap files";
-							}
-						});
-						if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-							File selectedFile = chooser.getSelectedFile();
-							String path = selectedFile.getAbsolutePath();
-							if( !path.toLowerCase().endsWith(".pap")) {
-								selectedFile = new File(path + ".pap");
-							}
-							try {
-								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
-								out.writeObject(boxes);
-								out.writeObject(arrows);
-								out.close();
-								System.out.printf("Serialized data is saved in " + selectedFile);
-								canvas.deleteAllBoxes();
-							} catch (FileNotFoundException e1) {
-
-							} catch (IOException e1) {
-
-							}
-
-						}
+						Saving.saveFile(boxes, arrows, canvas);
 					} else {
 						canvas.deleteAllBoxes();
 					}
@@ -358,144 +293,17 @@ public class Main extends JFrame {
 				if (!boxes.isEmpty()) {
 					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						JFileChooser chooser = new JFileChooser();
-						chooser.setFileFilter(new FileFilter() {
-							@Override
-							public boolean accept(File file) {
-								return file.getName().toLowerCase().endsWith(".pap");
-							}
 
-							@Override
-							public String getDescription() {
-								return ".pap files";
-							}
-						});
-						if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-							File selectedFile = chooser.getSelectedFile();
-							String path = selectedFile.getAbsolutePath();
-							if( !path.toLowerCase().endsWith(".pap")) {
-								selectedFile = new File(path + ".pap");
-							}
-							try {
-								ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
-								out.writeObject(boxes);
-								out.writeObject(arrows);
-								out.close();
-								System.out.printf("Serialized data is saved in " + selectedFile);
-							} catch (FileNotFoundException e1) {
+						Saving.saveFile(boxes, arrows, canvas);
 
-							} catch (IOException e1) {
+						Saving.openFile(boxes, arrows, canvas);
 
-							}
-						}
-						canvas.deleteAllBoxes();
-						JFileChooser chooser2 = new JFileChooser();
-						chooser2.setFileFilter(new FileFilter() {
-							@Override
-							public boolean accept(File file) {
-								return file.getName().toLowerCase().endsWith(".pap");
-							}
-
-							@Override
-							public String getDescription() {
-								return ".pap files";
-							}
-						});
-						if (chooser2.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-							File selectedFile = chooser2.getSelectedFile();
-
-							try {
-								ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
-								List<Box> listbox = (List<Box>) in.readObject();
-								boxes.clear();
-								boxes.addAll(listbox);
-								List<Arrow> listarrow = (List<Arrow>) in.readObject();
-								arrows.clear();
-								arrows.addAll(listarrow);
-								in.close();
-								canvas.repaint();
-								System.out.printf("Serialized data is read from " + selectedFile);
-							} catch (FileNotFoundException e1) {
-
-							} catch (IOException e1) {
-
-							} catch (ClassNotFoundException e1) {
-
-							}
-						}
 					} else {
-						canvas.deleteAllBoxes();
-						JFileChooser chooser = new JFileChooser();
-						chooser.setFileFilter(new FileFilter() {
-							@Override
-							public boolean accept(File file) {
-								return file.getName().toLowerCase().endsWith(".pap");
-							}
-
-							@Override
-							public String getDescription() {
-								return ".pap files";
-							}
-						});
-						if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-							File selectedFile = chooser.getSelectedFile();
-
-							try {
-								ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
-								List<Box> listbox = (List<Box>) in.readObject();
-								boxes.clear();
-								boxes.addAll(listbox);
-								List<Arrow> listarrow = (List<Arrow>) in.readObject();
-								arrows.clear();
-								arrows.addAll(listarrow);
-								in.close();
-								canvas.repaint();
-								System.out.printf("Serialized data is read from " + selectedFile);
-							} catch (FileNotFoundException e1) {
-
-							} catch (IOException e1) {
-								e1.printStackTrace();
-
-							} catch (ClassNotFoundException e1) {
-
-							}
-						}
+						Saving.openFile(boxes, arrows, canvas);
+						// boxes = Saving.openFile().boxes;
 					}
 				} else {
-					JFileChooser chooser = new JFileChooser();
-					chooser.setFileFilter(new FileFilter() {
-						@Override
-						public boolean accept(File file) {
-							return file.getName().toLowerCase().endsWith(".pap");
-						}
-
-						@Override
-						public String getDescription() {
-							return ".pap files";
-						}
-					});
-					if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-						File selectedFile = chooser.getSelectedFile();
-
-						try {
-							ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
-							List<Box> listbox = (List<Box>) in.readObject();
-							boxes.clear();
-							boxes.addAll(listbox);
-							List<Arrow> listarrow = (List<Arrow>) in.readObject();
-							arrows.clear();
-							arrows.addAll(listarrow);
-							in.close();
-							canvas.repaint();
-							System.out.printf("Serialized data is read from " + selectedFile);
-						} catch (FileNotFoundException e1) {
-
-						} catch (IOException e1) {
-
-						} catch (ClassNotFoundException e1) {
-
-						}
-					}
+					Saving.openFile(boxes, arrows, canvas);
 				}
 			}
 
@@ -505,38 +313,7 @@ public class Main extends JFrame {
 		file.add(save);
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setFileFilter(new FileFilter() {
-					@Override
-					public boolean accept(File file) {
-						return file.getName().toLowerCase().endsWith(".pap");
-					}
-
-					@Override
-					public String getDescription() {
-						return ".pap files";
-					}
-				});
-				if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-					File selectedFile = chooser.getSelectedFile();
-					String path = selectedFile.getAbsolutePath();
-					if( !path.toLowerCase().endsWith(".pap")) {
-						selectedFile = new File(path + ".pap");
-					}
-
-					try {
-						ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
-						out.writeObject(boxes);
-						out.writeObject(arrows);
-						out.close();
-						System.out.printf("Serialized data is saved in " + selectedFile);
-					} catch (FileNotFoundException e1) {
-
-					} catch (IOException e1) {
-
-					}
-
-				}
+				Saving.saveFile(boxes, arrows, canvas);
 			}
 		});
 
@@ -549,16 +326,11 @@ public class Main extends JFrame {
 		});
 		file.add(exit);
 
-//<<<<<<< HEAD
-
 		frame.setJMenuBar(bar);
 
 		JMenu mode = new JMenu("Mode"); // mode button
-//=======
-		frame.setJMenuBar(bar);	
+		frame.setJMenuBar(bar);
 
-		//JMenu mode = new JMenu("Mode"); //mode button
-//>>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2.git
 		JMenuItem editorMode = new JMenuItem("Editor Mode");
 		JMenuItem playerModeItem = new JMenuItem("Player Mode");
 		playerModeItem.addActionListener(new ActionListener() {
@@ -594,8 +366,6 @@ public class Main extends JFrame {
 			}
 		});
 		frame.setVisible(true); // allows the GUI to start as visible
-		// panel.add(new JButton("South"), BorderLayout.SOUTH); We can use this to add a
-		// bottom container if we want
 
 	}
 
@@ -614,7 +384,7 @@ public class Main extends JFrame {
 			choicePanel.add(button);
 
 		}
-		playerMode.setSize(500,400);
+		playerMode.setSize(500, 400);
 	}
 
 	protected List<Box> getStartingBoxes(List<Box> boxes) {
@@ -635,6 +405,5 @@ public class Main extends JFrame {
 	public void setMakeArrowEnabled(boolean enabled) {
 		arrowButton.setEnabled(enabled);
 	}
-
 
 }
