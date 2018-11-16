@@ -87,10 +87,11 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 			g.drawRect(x, y, width, height);
 			g.setClip(x, y, width, height);
-			int textX = (int)Math.round(zoom*(box.getX() - 45));
+			int textX = (int)Math.round(zoom*(box.getX()));
 			int textY = (int)Math.round(zoom*box.getY());
 			if( font != null )
 				g.setFont(font);
+			int stringLength = box.getText().length();
 			g.drawString(box.getText(), textX, textY);
 			g.setClip(null);		
 		}
