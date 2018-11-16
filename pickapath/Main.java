@@ -279,6 +279,7 @@ public class Main extends JFrame {
 					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						Saving.saveFile(boxes, arrows, canvas);
+						Saving.openFile(boxes, arrows, canvas);
 					} else {
 						canvas.deleteAllBoxes();
 					}
@@ -318,13 +319,13 @@ public class Main extends JFrame {
 		});
 
 		JMenuItem exit = new JMenuItem("Exit"); // exit button
+		file.add(exit);
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				frame.dispose();
 			}
 		});
-		file.add(exit);
 
 		frame.setJMenuBar(bar);
 
@@ -351,8 +352,8 @@ public class Main extends JFrame {
 			}
 
 		});
+		
 		bar.add(mode);
-
 		mode.add(editorMode);
 		mode.add(playerModeItem);
 		frame.setSize(800, 700);
@@ -393,17 +394,14 @@ public class Main extends JFrame {
 			if (box.getIncoming().isEmpty())
 				startingBoxes.add(box);
 		}
-
 		return startingBoxes;
 	}
 
 	public void setText(String text) {
 		textArea.setText(text);
-
 	}
 
 	public void setMakeArrowEnabled(boolean enabled) {
 		arrowButton.setEnabled(enabled);
 	}
-
 }
