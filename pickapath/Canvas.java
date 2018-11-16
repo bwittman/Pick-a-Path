@@ -71,7 +71,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			g.fillPolygon(xPoints, yPoints, 3);
 		}
 		for (Box box: boxes) {
-			g.setColor(Color.GREEN);
+			g.setColor(new Color(194,211,250));
 
 			int x = (int)Math.round(zoom*(box.getX() - box.getWidth()/2));
 			int y = (int)Math.round(zoom*(box.getY() - box.getHeight()/2));
@@ -80,7 +80,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			
 			g.fillRect(x, y, width, height);
 			if (box == selected) {
-				g.setColor(Color.WHITE);
+				g.setColor(Color.RED);
 			} else {
 				g.setColor(Color.BLACK);
 			}
@@ -112,16 +112,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		}}
 	public void deleteArrow() {	
 			if (selected != null && selected instanceof Arrow) {
-			Arrow selectedArrow = (Arrow) selected;
 			arrows.remove(selected);
-			for(Arrow arrow: selectedArrow.getStart().getIncoming()) {
-				arrows.remove(arrow);
-			}
-			for(Arrow arrow: selectedArrow.getStart().getOutgoing()) {
-				arrows.remove(arrow);
 			} 
-			
-		} selected = null;
+		selected = null;
 		repaint();
 	}
 
