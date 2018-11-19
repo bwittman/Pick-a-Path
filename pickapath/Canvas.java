@@ -2,6 +2,7 @@ package pickapath;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -26,6 +27,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
+		this.setBackground(new Color(185,185,185));
 		this.boxes = boxes;
 		this.arrows = arrows;
 		addMouseListener(this);
@@ -39,7 +41,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			Box start = arrow.getStart();
 			Box end = arrow.getEnd();
 			if(arrow == selected) {
-				g.setColor(Color.RED);
+				g.setColor(Color.WHITE);
 			} else {
 				g.setColor(Color.BLACK);
 			}
@@ -58,29 +60,33 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			double rightX = midX -Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2);
 			double rightY = midY - Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
 			//zoom variables
-			
+
 			int tipYZoom = (int) Math.round(zoom*tipY);
 			int tipXZoom = (int) Math.round(zoom*tipX);
 			int leftXZoom = (int) Math.round(zoom*leftX);
 			int leftYZoom = (int) Math.round(zoom*leftY);
 			int rightXZoom = (int) Math.round(zoom*rightX);
 			int rightYZoom = (int) Math.round(zoom*rightY);
-			
+
 			int[] xPoints = {leftXZoom, tipXZoom, rightXZoom};
 			int[] yPoints = {leftYZoom, tipYZoom, rightYZoom};
 			g.fillPolygon(xPoints, yPoints, 3);
 		}
 		for (Box box: boxes) {
+			if (box == selected) {
+				g.setColor(new Color(35,6,200));
+			} else {
 			g.setColor(new Color(194,211,250));
+			}
 
 			int x = (int)Math.round(zoom*(box.getX() - box.getWidth()/2));
 			int y = (int)Math.round(zoom*(box.getY() - box.getHeight()/2));
 			int width = (int)Math.round(zoom*box.getWidth());
 			int height = (int)Math.round(zoom*box.getHeight());
-			
+
 			g.fillRect(x, y, width, height);
 			if (box == selected) {
-				g.setColor(Color.RED);
+				g.setColor(Color.WHITE);
 			} else {
 				g.setColor(Color.BLACK);
 			}
@@ -89,10 +95,24 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			g.setClip(x, y, width, height);
 			int textX = (int)Math.round(zoom*(box.getX()));
 			int textY = (int)Math.round(zoom*box.getY());
-			if( font != null )
+			FontMetrics metrics;
+			if( font != null ) {
 				g.setFont(font);
-			int stringLength = box.getText().length();
-			g.drawString(box.getText(), textX, textY);
+				metrics = g.getFontMetrics(font); 
+			}
+			else
+				metrics = g.getFontMetrics(); 
+
+			int stringLength = metrics.stringWidth(box.getText());
+			int stringHeight = metrics.getAscent();
+			String text = box.getText();
+			if( stringLength > box.getWidth() ) {
+				int space = text.indexOf(' ');
+				text = text.substring(0, Math.min(space < 0 ? text.length() : space,10))+ "...";
+				stringLength = metrics.stringWidth(text);
+
+			}
+			g.drawString(text, textX - (stringLength/2), textY + stringHeight/2);
 			g.setClip(null);		
 		}
 
@@ -112,9 +132,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			repaint();
 		}}
 	public void deleteArrow() {	
-			if (selected != null && selected instanceof Arrow) {
+		if (selected != null && selected instanceof Arrow) {
 			arrows.remove(selected);
-			} 
+		} 
 		selected = null;
 		repaint();
 	}
@@ -206,12 +226,12 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				}
 			}
 			if (selected != null) {
-					Box selectedBox = (Box) selected;
-					main.setText(selectedBox.getText());
-					if(boxes.size()>= 2) {
-						main.setMakeArrowEnabled(true);
-					
-					} 
+				Box selectedBox = (Box) selected;
+				main.setText(selectedBox.getText());
+				if(boxes.size()>= 2) {
+					main.setMakeArrowEnabled(true);
+
+				} 
 			} else {
 				for (Arrow arrow: arrows) {
 					if (arrow.contains(mouseX, mouseY, zoom)) {
