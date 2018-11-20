@@ -40,6 +40,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class Main extends JFrame {
 
@@ -141,6 +144,9 @@ public class Main extends JFrame {
 		// Main Menu frame and panels
 		mainMenu = new JFrame("PICK-A-PATH Main Menu");
 		mainMenu.setSize(800, 700);
+		
+		//frame.setMinimumSize(new Dimension(600,300));
+		
 		JPanel menuPanel = new JPanel(new BorderLayout());
 		menuPanel.add(new JButton("South"), BorderLayout.SOUTH);
 		frame.add(panel);
