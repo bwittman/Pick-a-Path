@@ -1,6 +1,7 @@
 package pickapath;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -8,20 +9,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -39,20 +32,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileFilter;
-import java.awt.Dimension;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 public class Main extends JFrame {
 
 	private JTextArea textArea;
 	private JButton arrowButton;
 	private JSlider slider;
-	private JLabel label;
 	private JPanel choicePanel;
 	private JFrame playerMode;
-	private JFrame mainMenu;
 	private JTextArea boxInformation;
 	private List<JRadioButton> buttonList;
 	private Box situation;
@@ -132,28 +119,13 @@ public class Main extends JFrame {
 		playerMode.setVisible(false);
 
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(new JButton("North"), BorderLayout.NORTH);
 		JPanel modes = new JPanel(new GridLayout(0, 2));
 		panel.add(modes, BorderLayout.NORTH); // assigns the boxes to the north container
 		frame.add(panel);
 		JPanel numbers = new JPanel(new GridLayout(4, 0)); // how many buttons there are on the right side, needs
-		// adjusting if adding a button
-		panel.add(new JButton("East"), BorderLayout.EAST); // right container in GUI
-		panel.add(new JButton("East"), BorderLayout.EAST); // right container in GUI
-
-		// Main Menu frame and panels
-		mainMenu = new JFrame("PICK-A-PATH Main Menu");
-		mainMenu.setSize(800, 700);
-		
-		//frame.setMinimumSize(new Dimension(600,300));
-		
-		JPanel menuPanel = new JPanel(new BorderLayout());
-		menuPanel.add(new JButton("South"), BorderLayout.SOUTH);
+	
 		frame.add(panel);
-		JPanel menuButtonPanel = new JPanel(new GridLayout(0, 2)); // how many buttons there are on the right side,
-																	// needs
-		menuPanel.add(new JButton("South"), BorderLayout.SOUTH);
-
+		
 		Canvas canvas = new Canvas(arrows, boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
 
@@ -338,7 +310,7 @@ public class Main extends JFrame {
 		JMenu mode = new JMenu("Mode"); // mode button
 		frame.setJMenuBar(bar);
 
-		JMenuItem editorMode = new JMenuItem("Editor Mode");
+
 		JMenuItem playerModeItem = new JMenuItem("Player Mode");
 		playerModeItem.addActionListener(new ActionListener() {
 
@@ -360,10 +332,9 @@ public class Main extends JFrame {
 		});
 		
 		bar.add(mode);
-		mode.add(editorMode);
 		mode.add(playerModeItem);
 		frame.setSize(800, 700);
-		frame.getSize();// size of window
+		frame.setMinimumSize(new Dimension(800, 700));
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // this closes the GUI
 		frame.addWindowListener(new WindowAdapter() {
 			@Override

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -35,6 +36,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		this.main = main;
 	}
 
+	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		for (Arrow arrow: arrows) {
@@ -92,6 +94,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			}
 
 			g.drawRect(x, y, width, height);
+			Shape oldClip = g.getClip();
 			g.setClip(x, y, width, height);
 			int textX = (int)Math.round(zoom*(box.getX()));
 			int textY = (int)Math.round(zoom*box.getY());
@@ -113,7 +116,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 			}
 			g.drawString(text, textX - (stringLength/2), textY + stringHeight/2);
-			g.setClip(null);		
+			g.setClip(oldClip);		
 		}
 
 	}
