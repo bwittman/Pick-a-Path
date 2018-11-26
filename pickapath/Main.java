@@ -107,6 +107,7 @@ public class Main extends JFrame {
 		playerMode.add(center, BorderLayout.CENTER);
 
 		playerMode.setSize(800, 700);
+		playerMode.setMinimumSize(new Dimension(350,350));
 		playerMode.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		playerMode.addWindowListener(new WindowAdapter() {
 			@Override
