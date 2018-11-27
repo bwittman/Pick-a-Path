@@ -25,6 +25,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
@@ -76,6 +77,9 @@ public class Main extends JFrame {
 		JPanel bottom = new JPanel(new FlowLayout());
 		JPanel center = new JPanel(new FlowLayout());
 
+		boxInformation.setLineWrap(true);	
+		
+		
 		JButton submitButton = new JButton("Submit");
 		submitButton.addActionListener(new ActionListener() {
 
