@@ -7,11 +7,15 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,6 +29,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -254,6 +259,9 @@ public class Main extends JFrame {
 		bar.add(file);
 
 		JMenuItem nproject = new JMenuItem("New Project"); // new project button
+		
+		KeyStroke keyStrokeToNewProject = KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK); 
+		nproject.setAccelerator(keyStrokeToNewProject);
 		file.add(nproject);
 		nproject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -270,6 +278,8 @@ public class Main extends JFrame {
 		});
 
 		JMenuItem openp = new JMenuItem("Open Project"); // open project button
+		KeyStroke keyStrokeToOpen = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK); 
+		openp.setAccelerator(keyStrokeToOpen);
 		file.add(openp);
 		openp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -293,6 +303,8 @@ public class Main extends JFrame {
 		});
 
 		JMenuItem save = new JMenuItem("Save"); // save button
+		KeyStroke keyStrokeToSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK); 
+		save.setAccelerator(keyStrokeToSave);
 		file.add(save);
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -301,6 +313,8 @@ public class Main extends JFrame {
 		});
 
 		JMenuItem exit = new JMenuItem("Exit"); // exit button
+		KeyStroke keyStrokeToExit = KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK); 
+		exit.setAccelerator(keyStrokeToExit);
 		file.add(exit);
 		exit.addActionListener(new ActionListener() {
 			@Override
