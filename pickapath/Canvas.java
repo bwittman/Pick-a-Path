@@ -143,7 +143,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	//Deletes selected arrow
 	public void deleteArrow() {	
 		if (selected != null && selected instanceof Arrow) {
+			Arrow arrow = (Arrow) selected;
 			arrows.remove(selected);
+			arrow.getStart().getOutgoing().remove(arrow);
+			arrow.getEnd().getIncoming().remove(arrow);			
 		} 
 		selected = null;
 		repaint();
