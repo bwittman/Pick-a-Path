@@ -27,7 +27,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	boolean arrowCheck;
 	private double zoom = 1.0;
 	private Font font = null;
-
+	
+	//Canvas constructor 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
 		this.setBackground(new Color(185,185,185));
@@ -39,6 +40,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 	@Override
+	//Paints the boxes arrows
 	public void paint(Graphics g) {
 		super.paint(g);
 		for (Arrow arrow: arrows) {
@@ -49,6 +51,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			} else {
 				g.setColor(Color.BLACK);
 			}
+			//Variables to draw boxes and arrows
 			int startX = (int) Math.round(zoom*start.getX());
 			int startY = (int) Math.round(zoom*start.getY());
 			int endX = (int) Math.round(zoom*end.getX());
@@ -76,6 +79,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			int[] yPoints = {leftYZoom, tipYZoom, rightYZoom};
 			g.fillPolygon(xPoints, yPoints, 3);
 		}
+		//Sets color for the boxes and their outline
 		for (Box box: boxes) {
 			if (box == selected) {
 				g.setColor(new Color(35,6,200));
@@ -87,14 +91,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			int y = (int)Math.round(zoom*(box.getY() - box.getHeight()/2));
 			int width = (int)Math.round(zoom*box.getWidth());
 			int height = (int)Math.round(zoom*box.getHeight());
-
+			//Sets colors for arrow and selected arrow
 			g.fillRect(x, y, width, height);
 			if (box == selected) {
 				g.setColor(Color.WHITE);
 			} else {
 				g.setColor(Color.BLACK);
 			}
-
+			//Draws text characters in the box
 			g.drawRect(x, y, width, height);
 			Shape oldClip = g.getClip();
 			g.setClip(x, y, width, height);
@@ -122,7 +126,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		}
 
 	}
-
+	//Deletes selected box and arrows attached to it
 	public void deleteBox() {
 		if (selected != null && selected instanceof Box) {
 			Box selectedBox = (Box) selected;
@@ -136,6 +140,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			selected = null;
 			repaint();
 		}}
+	//Deletes selected arrow
 	public void deleteArrow() {	
 		if (selected != null && selected instanceof Arrow) {
 			arrows.remove(selected);
@@ -143,7 +148,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		selected = null;
 		repaint();
 	}
-
+	//Allows boxes and arrows to contain text 
 	public void updateText(String text) {
 		if (selected != null) {
 			if (selected instanceof Box) {
@@ -157,6 +162,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		}
 	}
 	@Override
+	//Determines if a mouse is inside a box based on its area and coordinates
 	public void mouseDragged(MouseEvent e) {
 		if (selected != null && selected instanceof Box) {
 			Box selectedBox = (Box) selected;
@@ -199,6 +205,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 	@Override
+	//Performs "selected" functions when a box or arrow is clicked 
 	public void mousePressed(MouseEvent arg0) {
 		int mouseX = arg0.getX();
 		int mouseY = arg0.getY();
@@ -256,7 +263,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		// TODO Auto-generated method stub
 
 	}
-
+	//Deletes all boxes on the canvas
 	public void deleteAllBoxes() {
 		boxes.clear();
 		arrows.clear();
