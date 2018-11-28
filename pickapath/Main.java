@@ -74,10 +74,15 @@ public class Main extends JFrame {
 		boxInformation = new JTextArea("Situation");
 		boxInformation.setEditable(false);
 
+		boxInformation.setLineWrap(true);
+		JScrollPane scrolling = new JScrollPane(boxInformation);
+
+		scrolling.setPreferredSize(new Dimension(400, 200));		
+		scrolling.setMaximumSize(new Dimension(2048, 400));
+		//scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		playerMode.add(scrolling, BorderLayout.NORTH);
 		
-		playerMode.add(boxInformation, BorderLayout.NORTH);
-		
-		//boxInformation.setLineWrap(true);	
+		//boxInformation.setLineWrap(true);
 
 		JPanel bottom = new JPanel(new FlowLayout());
 		JPanel center = new JPanel(new FlowLayout());
@@ -245,7 +250,7 @@ public class Main extends JFrame {
 			}
 
 		});
-		JScrollPane scrolling = new JScrollPane(textArea);
+		scrolling = new JScrollPane(textArea);
 		panel.add(scrolling, BorderLayout.SOUTH);
 
 		JMenuBar bar = new JMenuBar(); // menu bar
@@ -334,7 +339,6 @@ public class Main extends JFrame {
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {
 					populateChoices(startingBoxes.get(0));
-	
 					playerMode.setVisible(true);
 					frame.setVisible(false);
 				} else {
@@ -368,6 +372,7 @@ public class Main extends JFrame {
 		choicePanel.setLayout(new GridLayout(box.getOutgoing().size(), 1));// where the JRadio Button info is formed
 		// from the arrows
 		boxInformation.setText(box.getText()); // text in the boxes
+		boxInformation.validate();
 		ButtonGroup group = new ButtonGroup();// groups the JButtons together for formatting in the gridLayout
 		for (Arrow arrow : box.getOutgoing()) {
 			JRadioButton button = new JRadioButton(arrow.getText());
@@ -376,7 +381,14 @@ public class Main extends JFrame {
 			choicePanel.add(button);
 
 		}
-		playerMode.setSize(500, 400);
+		
+		//boxInformation.setMaximumSize(new Dimension(2048, 400));
+		//boxInformation.setPreferredSize(new Dimension(400, 200));
+		
+		
+		playerMode.validate();
+		playerMode.pack();
+		//playerMode.setSize(500, 400);
 	}
 
 	
