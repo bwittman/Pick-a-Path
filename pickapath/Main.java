@@ -76,11 +76,11 @@ public class Main extends JFrame {
 
 		
 		playerMode.add(boxInformation, BorderLayout.NORTH);
+		
+		//boxInformation.setLineWrap(true);	
 
 		JPanel bottom = new JPanel(new FlowLayout());
 		JPanel center = new JPanel(new FlowLayout());
-
-		boxInformation.setLineWrap(true);	
 		
 		
 		JButton submitButton = new JButton("Submit");
@@ -98,7 +98,7 @@ public class Main extends JFrame {
 					if (arrow != null) {
 						Box next = arrow.getEnd();
 						populateChoices(next);
-
+						
 					}
 				} else {
 					frame.setVisible(true);
