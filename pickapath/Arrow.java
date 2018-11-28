@@ -11,7 +11,7 @@ public class Arrow implements Serializable{
 	public final static int HALF_WIDTH = 18;
 
 
-
+	//Constructor for arrows
 	public Arrow(Box start, Box end, String text) {
 		this.start = start;
 		this.end = end;
@@ -40,7 +40,7 @@ public class Arrow implements Serializable{
 		
 		x = (int) Math.round(x/zoom); 
 		y = (int) Math.round(y/zoom);
-		
+		//Sets variables to draw the line and arrow between two boxes
 		Box start = getStart();
 		Box end = getEnd();
 		double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
@@ -53,7 +53,7 @@ public class Arrow implements Serializable{
 		double cX = midX - HALF_WIDTH*Math.cos(theta-Math.PI/2);
 		double cY = midY - HALF_WIDTH*Math.sin(theta-Math.PI/2);
 
-
+		//Use dot product and Barry-centric coordinates to make the triangle on the line 
 		double d00 = dot(bX - aX, bY - aY, bX - aX, bY - aY );
 		double d01 = dot(bX - aX, bY - aY, cX - aX, cY - aY);
 		double d11 = dot( cX - aX, cY - aY,  cX - aX, cY - aY);
