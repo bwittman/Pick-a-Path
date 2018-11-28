@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -30,7 +28,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
@@ -77,6 +74,7 @@ public class Main extends JFrame {
 		boxInformation = new JTextArea("Situation");
 		boxInformation.setEditable(false);
 
+		
 		playerMode.add(boxInformation, BorderLayout.NORTH);
 
 		JPanel bottom = new JPanel(new FlowLayout());
@@ -141,7 +139,6 @@ public class Main extends JFrame {
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
 		slider.setMajorTickSpacing(1);
-		// slider.setPaintLabels(true);
 
 		fonts = new Font[MAX_SLIDER - MIN_SLIDER + 1];
 		fonts[0] = new JLabel().getFont();
@@ -167,7 +164,6 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				canvas.startArrowCheck();
 			}
 
@@ -180,7 +176,6 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "");
 				boxes.add(box);
 
@@ -261,7 +256,7 @@ public class Main extends JFrame {
 		JMenuItem nproject = new JMenuItem("New Project"); // new project button
 		
 		KeyStroke keyStrokeToNewProject = KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK); 
-		nproject.setAccelerator(keyStrokeToNewProject);
+		nproject.setAccelerator(keyStrokeToNewProject); //hotkey to create a new project
 		file.add(nproject);
 		nproject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -279,7 +274,7 @@ public class Main extends JFrame {
 
 		JMenuItem openp = new JMenuItem("Open Project"); // open project button
 		KeyStroke keyStrokeToOpen = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK); 
-		openp.setAccelerator(keyStrokeToOpen);
+		openp.setAccelerator(keyStrokeToOpen); //hotkey to open a project
 		file.add(openp);
 		openp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -304,7 +299,7 @@ public class Main extends JFrame {
 
 		JMenuItem save = new JMenuItem("Save"); // save button
 		KeyStroke keyStrokeToSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK); 
-		save.setAccelerator(keyStrokeToSave);
+		save.setAccelerator(keyStrokeToSave); //hotkey to save a project
 		file.add(save);
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -314,7 +309,7 @@ public class Main extends JFrame {
 
 		JMenuItem exit = new JMenuItem("Exit"); // exit button
 		KeyStroke keyStrokeToExit = KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK); 
-		exit.setAccelerator(keyStrokeToExit);
+		exit.setAccelerator(keyStrokeToExit); //hotkey for exiting
 		file.add(exit);
 		exit.addActionListener(new ActionListener() {
 			@Override
@@ -330,21 +325,22 @@ public class Main extends JFrame {
 
 
 		JMenuItem playerModeItem = new JMenuItem("Player Mode");
+		KeyStroke playerModeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK); 
+		playerModeItem.setAccelerator(playerModeKeyStroke); //hotkey to get to player mode
 		playerModeItem.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-
+				
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {
 					populateChoices(startingBoxes.get(0));
-
+	
 					playerMode.setVisible(true);
 					frame.setVisible(false);
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"You must have exactly one box with no incoming arrows before entering player mode!");
-				}
+				};
 			}
 
 		});
@@ -383,6 +379,7 @@ public class Main extends JFrame {
 		playerMode.setSize(500, 400);
 	}
 
+	
 	protected List<Box> getStartingBoxes(List<Box> boxes) {
 		List<Box> startingBoxes = new ArrayList<Box>();
 		for (Box box : boxes) {
