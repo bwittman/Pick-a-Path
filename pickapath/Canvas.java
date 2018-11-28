@@ -5,12 +5,14 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Shape;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener {
 	private List<Box> boxes;
@@ -266,6 +268,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public double getZoom() {
 		return zoom;
 	}
+	
+
+	//Test comment
 
 	public void setZoom(double zoom, Font font) {
 		this.zoom = zoom;
