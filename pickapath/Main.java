@@ -79,10 +79,8 @@ public class Main extends JFrame {
 
 		scrolling.setPreferredSize(new Dimension(400, 200));		
 		scrolling.setMaximumSize(new Dimension(2048, 400));
-		//scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		playerMode.add(scrolling, BorderLayout.NORTH);
 		
-		//boxInformation.setLineWrap(true);
 
 		JPanel bottom = new JPanel(new FlowLayout());
 		JPanel center = new JPanel(new FlowLayout());
@@ -382,13 +380,9 @@ public class Main extends JFrame {
 
 		}
 		
-		//boxInformation.setMaximumSize(new Dimension(2048, 400));
-		//boxInformation.setPreferredSize(new Dimension(400, 200));
-		
-		
+		boxInformation.setMaximumSize(new Dimension(2048, 400));
 		playerMode.validate();
 		playerMode.pack();
-		//playerMode.setSize(500, 400);
 	}
 
 	
