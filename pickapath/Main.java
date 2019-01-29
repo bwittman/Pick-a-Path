@@ -266,8 +266,10 @@ public class Main extends JFrame {
 				if (!boxes.isEmpty()) {
 					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						Saving.saveFile(boxes, arrows, canvas);
-						Saving.openFile(boxes, arrows, canvas);
+						Saving.saveFile(boxes, arrows);
+						canvas.deleteAllBoxes();
+						Saving.openFile(boxes, arrows);
+						canvas.repaint();
 					} else {
 						canvas.deleteAllBoxes();
 					}
@@ -285,16 +287,20 @@ public class Main extends JFrame {
 					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
-						Saving.saveFile(boxes, arrows, canvas);
-
-						Saving.openFile(boxes, arrows, canvas);
+						Saving.saveFile(boxes, arrows);
+						canvas.deleteAllBoxes();
+						Saving.openFile(boxes, arrows);
+						canvas.repaint();
 
 					} else {
-						Saving.openFile(boxes, arrows, canvas);
+						canvas.deleteAllBoxes();
+						Saving.openFile(boxes, arrows);
+						canvas.repaint();
 						// boxes = Saving.openFile().boxes;
 					}
 				} else {
-					Saving.openFile(boxes, arrows, canvas);
+					Saving.openFile(boxes, arrows);
+					canvas.repaint();
 				}
 			}
 
@@ -306,7 +312,7 @@ public class Main extends JFrame {
 		file.add(save);
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Saving.saveFile(boxes, arrows, canvas);
+				Saving.saveFile(boxes, arrows);
 			}
 		});
 

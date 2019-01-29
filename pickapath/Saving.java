@@ -13,14 +13,10 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-public class Saving extends Canvas{
+public class Saving {
 
-	public Saving(List<Arrow> arrows, List<Box> boxes, Main main) {
-		super(arrows, boxes, main);
-		// TODO Auto-generated constructor stub
-	}
 
-	public static void saveFile(List<Box> boxes, List<Arrow> arrows, Canvas canvas) {
+	public static void saveFile(List<Box> boxes, List<Arrow> arrows) {
 		
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(new FileFilter() {
@@ -55,9 +51,8 @@ public class Saving extends Canvas{
 		}
 	}
 
-	public static void openFile(List<Box> boxes, List<Arrow> arrows, Canvas canvas) {
+	public static void openFile(List<Box> boxes, List<Arrow> arrows) {
 		
-		canvas.deleteAllBoxes();
 		JFileChooser chooser2 = new JFileChooser();
 		chooser2.setFileFilter(new FileFilter() {
 			@Override
@@ -82,7 +77,6 @@ public class Saving extends Canvas{
 				arrows.clear();
 				arrows.addAll(listarrow);
 				in.close();
-				canvas.repaint();
 				System.out.printf("Serialized data is read from " + selectedFile);
 			} catch (FileNotFoundException e1) {
 
