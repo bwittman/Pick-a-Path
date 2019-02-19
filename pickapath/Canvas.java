@@ -45,6 +45,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		
+		
 	}
 
 	@Override
