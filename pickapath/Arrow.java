@@ -54,7 +54,7 @@ public class Arrow implements Serializable{
 		double cY = midY - HALF_WIDTH*Math.sin(theta-Math.PI/2);
 
 		//Use dot product and Barry-centric coordinates to make the triangle on the line 
-		double d00 = dot(bX - aX, bY - aY, bX - aX, bY - aY );
+		double d00 = dot(bX - aX, bY - aY, bX - aX, bY - aY ); 
 		double d01 = dot(bX - aX, bY - aY, cX - aX, cY - aY);
 		double d11 = dot( cX - aX, cY - aY,  cX - aX, cY - aY);
 		double d20 = dot(x - aX, y - aY, bX - aX, bY - aY);

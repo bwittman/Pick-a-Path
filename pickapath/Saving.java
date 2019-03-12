@@ -53,8 +53,8 @@ public class Saving {
 
 	public static void openFile(List<Box> boxes, List<Arrow> arrows) {
 		
-		JFileChooser chooser2 = new JFileChooser();
-		chooser2.setFileFilter(new FileFilter() {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
 				return file.getName().toLowerCase().endsWith(".pap");
@@ -65,8 +65,8 @@ public class Saving {
 				return ".pap files";
 			}
 		});
-		if (chooser2.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = chooser2.getSelectedFile();
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = chooser.getSelectedFile();
 
 			try {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
