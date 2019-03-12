@@ -1,5 +1,6 @@
 package pickapath;
 
+import java.awt.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -45,6 +46,10 @@ public class Main extends JFrame {
 	private Font[] fonts;
 	private static int MAX_SLIDER = 5;
 	private static int MIN_SLIDER = 1;
+	private int leftMostPoint;
+	private int rightMostPoint;
+	private int upperMostPoint;
+	private int lowerMostPoint;
 
 	public static void main(String[] args) {
 
@@ -98,6 +103,8 @@ public class Main extends JFrame {
 			}
 
 		});
+		
+		Scrollbar scrolly = new Scrollbar();
 
 		JButton makeBox = new JButton("Make Box");
 
