@@ -38,10 +38,18 @@ public class PlayerMode {
 		Scanner in = new Scanner(System.in);
 		
 		while(box.getOutgoing().size() > 0) {
+			int counter = 1;
 			for (Arrow arrow : box.getOutgoing()) {
+				System.out.println(counter+ arrow.getText());
+				counter++;
 				
 
 			}
+			System.out.print("enter choice" + "\n");
+			int choice = in.nextInt() -1;
+			Arrow arrow = box.getOutgoing().get(choice);
+			box = arrow.getEnd();
+			
 		}
 		
 		

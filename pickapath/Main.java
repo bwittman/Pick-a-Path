@@ -284,7 +284,8 @@ public class Main extends JFrame {
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
 					frame.setVisible(false);
-					new PlayerMode(startingBoxes.get(0), frame);
+					//new PlayerMode(startingBoxes.get(0), frame);
+					new PlayerMode(startingBoxes.get(0));
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"You must have exactly one box with no incoming arrows before entering player mode!");
