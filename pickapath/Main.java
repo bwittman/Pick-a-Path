@@ -1,5 +1,6 @@
 package pickapath;
 
+import java.awt.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -40,14 +41,15 @@ public class Main extends JFrame {
 	private JTextArea textArea;
 	private JButton arrowButton;
 	private JSlider slider;
-	private JPanel choicePanel;
-	private JFrame playerMode;
-	private JTextArea boxInformation;
-	private List<JRadioButton> buttonList;
-	private Box situation;
+
+	
 	private Font[] fonts;
 	private static int MAX_SLIDER = 5;
 	private static int MIN_SLIDER = 1;
+	private int leftMostPoint;
+	private int rightMostPoint;
+	private int upperMostPoint;
+	private int lowerMostPoint;
 
 	public static void main(String[] args) {
 
@@ -64,69 +66,13 @@ public class Main extends JFrame {
 	}
 
 	public Main() {
-		buttonList = new ArrayList<JRadioButton>();
+		
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
 		JFrame frame = new JFrame("PICK A PATH"); // title of window
 
-		playerMode = new JFrame("PlayerMode");
-		choicePanel = new JPanel();
-		boxInformation = new JTextArea("Situation");
-		boxInformation.setEditable(false);
-
-		boxInformation.setLineWrap(true);
-		JScrollPane scrolling = new JScrollPane(boxInformation);
-
-		scrolling.setPreferredSize(new Dimension(400, 200));		
-		scrolling.setMaximumSize(new Dimension(2048, 400));
-		playerMode.add(scrolling, BorderLayout.NORTH);
 		
 
-		JPanel bottom = new JPanel(new FlowLayout());
-		JPanel center = new JPanel(new FlowLayout());
-		
-		
-		JButton submitButton = new JButton("Submit");
-		submitButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (situation.getOutgoing().size() > 0) {
-					Arrow arrow = null;
-
-					for (int i = 0; i < buttonList.size(); i++) {
-						if (buttonList.get(i).isSelected())
-							arrow = situation.getOutgoing().get(i);
-					}
-					if (arrow != null) {
-						Box next = arrow.getEnd();
-						populateChoices(next);
-						
-					}
-				} else {
-					frame.setVisible(true);
-					playerMode.setVisible(false);
-				}
-
-			}
-
-		});
-		bottom.add(submitButton);
-		playerMode.add(bottom, BorderLayout.SOUTH);
-		center.add(choicePanel);
-		playerMode.add(center, BorderLayout.CENTER);
-
-		playerMode.setSize(800, 700);
-		playerMode.setMinimumSize(new Dimension(350,350));
-		playerMode.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		playerMode.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				frame.setVisible(true);
-				playerMode.setVisible(false);
-			}
-		});
-		playerMode.setVisible(false);
 
 		JPanel panel = new JPanel(new BorderLayout());
 		JPanel modes = new JPanel(new GridLayout(0, 2));
@@ -157,6 +103,8 @@ public class Main extends JFrame {
 			}
 
 		});
+		
+		Scrollbar scrolly = new Scrollbar();
 
 		JButton makeBox = new JButton("Make Box");
 
@@ -248,7 +196,7 @@ public class Main extends JFrame {
 			}
 
 		});
-		scrolling = new JScrollPane(textArea);
+		JScrollPane scrolling = new JScrollPane(textArea);
 		panel.add(scrolling, BorderLayout.SOUTH);
 
 		JMenuBar bar = new JMenuBar(); // menu bar
@@ -341,10 +289,10 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				List<Box> startingBoxes = getStartingBoxes(boxes);
-				if (startingBoxes.size() == 1) {
-					populateChoices(startingBoxes.get(0));
-					playerMode.setVisible(true);
+				if (startingBoxes.size() == 1) {					
 					frame.setVisible(false);
+					//new PlayerMode(startingBoxes.get(0), frame);
+					new PlayerMode(startingBoxes.get(0));
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"You must have exactly one box with no incoming arrows before entering player mode!");
@@ -358,39 +306,12 @@ public class Main extends JFrame {
 		frame.setSize(800, 700);
 		frame.setMinimumSize(new Dimension(800, 700));
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // this closes the GUI
-		frame.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-
-				playerMode.dispose();
-			}
-		});
+		
 		frame.setVisible(true); // allows the GUI to start as visible
 
 	}
 
-	protected void populateChoices(Box box) {
-		situation = box;
-		buttonList.clear();
-		choicePanel.removeAll();
-		choicePanel.setLayout(new GridLayout(box.getOutgoing().size(), 1));// where the JRadio Button info is formed
-		// from the arrows
-		boxInformation.setText(box.getText()); // text in the boxes
-		boxInformation.validate();
-		ButtonGroup group = new ButtonGroup();// groups the JButtons together for formatting in the gridLayout
-		for (Arrow arrow : box.getOutgoing()) {
-			JRadioButton button = new JRadioButton(arrow.getText());
-			group.add(button);// adds all the buttons to the middle
-			buttonList.add(button);
-			choicePanel.add(button);
-
-		}
-		
-		boxInformation.setMaximumSize(new Dimension(2048, 400));
-		playerMode.validate();
-		playerMode.pack();
-	}
-
+	
 	
 	protected List<Box> getStartingBoxes(List<Box> boxes) {
 		List<Box> startingBoxes = new ArrayList<Box>();

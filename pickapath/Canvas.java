@@ -1,18 +1,20 @@
 package pickapath;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.event.KeyEvent;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener {
 	private List<Box> boxes;
@@ -26,7 +28,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private Main main;
 	boolean arrowCheck;
 	private double zoom = 1.0;
+	private RenderingHints hints;
 	private Font font = null;
+
 	
 	//Canvas constructor 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
@@ -37,12 +41,22 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		this.main = main;
+		hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		
+		
 	}
 
 	@Override
 	//Paints the boxes arrows
 	public void paint(Graphics g) {
 		super.paint(g);
+		
+		Graphics2D graphics = (Graphics2D) g;		
+		graphics.addRenderingHints(hints);
+		Stroke oldStroke = graphics.getStroke();
+		BasicStroke newStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
 		for (Arrow arrow: arrows) {
 			Box start = arrow.getStart();
 			Box end = arrow.getEnd();
@@ -56,7 +70,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			int startY = (int) Math.round(zoom*start.getY());
 			int endX = (int) Math.round(zoom*end.getX());
 			int endY = (int) Math.round(zoom*end.getY());
+			graphics.setStroke(newStroke);
 			g.drawLine(startX, startY, endX, endY);
+			graphics.setStroke(oldStroke);
 			double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
 			double midX = (start.getX() + end.getX())/2.0;
 			double midY = (start.getY() + end.getY())/2.0;

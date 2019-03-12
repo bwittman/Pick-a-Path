@@ -18,8 +18,8 @@ public class Saving {
 
 	public static void saveFile(List<Box> boxes, List<Arrow> arrows) {
 		
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(new FileFilter() {
+		JFileChooser fileSelect = new JFileChooser();
+		fileSelect.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
 				return file.getName().toLowerCase().endsWith(".pap");
@@ -30,8 +30,8 @@ public class Saving {
 				return ".pap files";
 			}
 		});
-		if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = chooser.getSelectedFile();
+		if (fileSelect.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileSelect.getSelectedFile();
 			String path = selectedFile.getAbsolutePath();
 			if (!path.toLowerCase().endsWith(".pap")) {
 				selectedFile = new File(path + ".pap");
@@ -53,8 +53,10 @@ public class Saving {
 
 	public static void openFile(List<Box> boxes, List<Arrow> arrows) {
 		
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(new FileFilter() {
+
+		JFileChooser fileSelect = new JFileChooser();
+		fileSelect.setFileFilter(new FileFilter() {
+
 			@Override
 			public boolean accept(File file) {
 				return file.getName().toLowerCase().endsWith(".pap");
@@ -65,8 +67,8 @@ public class Saving {
 				return ".pap files";
 			}
 		});
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = chooser.getSelectedFile();
+		if (fileSelect.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileSelect.getSelectedFile();
 
 			try {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));

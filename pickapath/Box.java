@@ -12,7 +12,7 @@ public class Box implements Serializable {
 	private int y;
 	private int width;
 	private int height;
-	private List<Arrow>incoming;
+	private List<Arrow>incoming; 
 	private List<Arrow>outgoing;
 	
 	public Box(int x,int y,int width,int height, String text) {
