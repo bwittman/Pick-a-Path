@@ -78,7 +78,7 @@ public class Main extends JFrame {
 		JPanel modes = new JPanel(new GridLayout(0, 2));
 		panel.add(modes, BorderLayout.NORTH); // assigns the boxes to the north container
 		frame.add(panel);
-		JPanel numbers = new JPanel(new GridLayout(4, 0)); // how many buttons there are on the right side, needs
+		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
 	
 		frame.add(panel);
 		
@@ -139,6 +139,10 @@ public class Main extends JFrame {
 
 		numbers.add(makeBox); // make box button
 		numbers.add(arrowButton); // make arrow button
+		
+		JButton item = new JButton("Create Item"); //create item button
+		numbers.add(item);
+		
 		JButton delete = new JButton("Delete");
 		numbers.add(delete); // delete button (for boxes and arrows)
 		delete.addActionListener(new ActionListener() {
@@ -163,6 +167,8 @@ public class Main extends JFrame {
 				canvas.deleteAllBoxes();
 
 			}
+			
+		
 
 		});
 		panel.add(numbers, BorderLayout.EAST); // assigns the boxes to the right container
