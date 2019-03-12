@@ -53,8 +53,10 @@ public class Saving {
 
 	public static void openFile(List<Box> boxes, List<Arrow> arrows) {
 		
+
 		JFileChooser fileSelect = new JFileChooser();
 		fileSelect.setFileFilter(new FileFilter() {
+
 			@Override
 			public boolean accept(File file) {
 				return file.getName().toLowerCase().endsWith(".pap");
