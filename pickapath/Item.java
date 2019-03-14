@@ -1,5 +1,4 @@
 package pickapath;
-
 import java.util.HashMap;
 import java.util.Set;
 import javax.swing.JTable;
@@ -10,7 +9,7 @@ import javax.swing.JTable;
 public class Item {
 	String [] columnNames = {"Item Number", "Item Name"};
 	Object [][] itemInfo = {};// Need to figure out how to let the user input item data 
-	HashMap<String, Set<String>>map = new HashMap<>(); // Does the HashMap populate the table?
+	HashMap map = new HashMap(); // Does the HashMap populate the table?
 	JTable table = new JTable(itemInfo, columnNames);
 		
 
