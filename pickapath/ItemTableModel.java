@@ -2,19 +2,19 @@ package pickapath;
 
 import java.util.ArrayList;
 
+import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import javafx.util.Pair;
-
 public class ItemTableModel implements TableModel {
-	
-	private TableModelListener listener;
-	ArrayList<Pair<Integer, String>> items = new ArrayList<>();
+
+	private ArrayList<TableModelListener> listeners = new ArrayList<>();
+	private ArrayList<Item> items = new ArrayList<>();
+	private int itemIdCount = 1;
 
 	@Override
 	public void addTableModelListener(TableModelListener listener) {
-		this.listener = listener;
+		listeners.add(listener);
 
 	}
 
@@ -51,29 +51,52 @@ public class ItemTableModel implements TableModel {
 	//Work in progress
 	public Object getValueAt(int row, int column) {
 		// TODO Auto-generated method stub
-		if (items.get(row).getKey() != 0) {
-			return items.size();
+		Item item = items.get(row);
+		if (column ==0) {
+			return item.getId();
+		} else if (column == 1) {
+			return item.getName();
 		} else {
-			return 0;}
+			return null;
 		}
-	
-
+	}
 	@Override
 	public boolean isCellEditable(int row, int column) {
 		// TODO Auto-generated method stub
+		if (column == 1 && row >= 0 && row < items.size()) 
+			return true;
+
 		return false;
 	}
 
 	@Override
-	public void removeTableModelListener(TableModelListener arg0) {
+	public void removeTableModelListener(TableModelListener listener) {
 		// TODO Auto-generated method stub
+		listeners.remove(listener);
 
 	}
 
 	@Override
-	public void setValueAt(Object arg0, int arg1, int arg2) {
+	public void setValueAt(Object object, int row, int column) {
 		// TODO Auto-generated method stub
+		Item item = items.get(row);
 
+		if (column == 1) {
+			item.setName((String) object);
+
+			TableModelEvent event = new TableModelEvent(this, row, row, column);
+			for (TableModelListener listener: listeners)
+				listener.tableChanged(event);
+		}
+	}
+	//itemIdCount
+	public void addItem (String item) {
+		Item addedItem = new Item(itemIdCount,item);
+		items.add(addedItem);
+		itemIdCount ++;
+		TableModelEvent event = new TableModelEvent(this, items.size() - 1, items.size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT);
+		for (TableModelListener listener: listeners)
+			listener.tableChanged(event);
 	}
 
 }
