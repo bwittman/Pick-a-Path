@@ -46,10 +46,6 @@ public class Main extends JFrame {
 	private Font[] fonts;
 	private static int MAX_SLIDER = 5;
 	private static int MIN_SLIDER = 1;
-	private int leftMostPoint;
-	private int rightMostPoint;
-	private int upperMostPoint;
-	private int lowerMostPoint;
 
 	public static void main(String[] args) {
 
@@ -75,16 +71,15 @@ public class Main extends JFrame {
 
 
 		JPanel panel = new JPanel(new BorderLayout());
-		JPanel modes = new JPanel(new GridLayout(0, 2));
-		panel.add(modes, BorderLayout.NORTH); // assigns the boxes to the north container
+		JPanel centerPanel = new JPanel(new BorderLayout());
+		JPanel southScrollArea = new JPanel (new GridLayout(1,0));
 		frame.add(panel);
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
-		JPanel southern = new JPanel(new GridLayout(2,0));
 		frame.add(panel);
-		frame.add(southern);
 		
 		Canvas canvas = new Canvas(arrows, boxes, this);
-		panel.add(canvas, BorderLayout.CENTER);
+		panel.add(centerPanel, BorderLayout.CENTER);
+		centerPanel.add(canvas, BorderLayout.CENTER);
 
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
@@ -105,15 +100,14 @@ public class Main extends JFrame {
 
 		});
 		
-		Scrollbar scrolly = new Scrollbar();
-		scrolly.setBounds(canvas.getX(), canvas.getY(), frame.getWidth(), frame.getHeight());
-		panel.add(scrolly, BorderLayout.WEST);
-		scrolly.setVisible(true);
+		Scrollbar verticalScroll = new Scrollbar();
+		verticalScroll.setBounds(canvas.getX(), canvas.getY(), frame.getWidth(), frame.getHeight());
+		centerPanel.add(verticalScroll, BorderLayout.WEST);
+		verticalScroll.setVisible(true);
 		
-		Scrollbar scrolly2 = new Scrollbar();
-		scrolly2.setBounds(canvas.getX(), canvas.getY(), frame.getWidth(), frame.getHeight());
-		southern.add(scrolly2);
-		scrolly2.setVisible(true);
+		Scrollbar horizontalScroll = new Scrollbar();
+		centerPanel.add(horizontalScroll, BorderLayout.SOUTH);
+		horizontalScroll.setVisible(true);
 
 
 		JButton makeBox = new JButton("Make Box");
@@ -215,7 +209,6 @@ public class Main extends JFrame {
 		});
 		JScrollPane scrolling = new JScrollPane(textArea);
 		panel.add(scrolling, BorderLayout.SOUTH);
-		panel.add(southern, BorderLayout.SOUTH); //assigns x axis scroll bar to the bottom of the frame
 		frame.add(panel);
 		JMenuBar bar = new JMenuBar(); // menu bar
 		JMenu file = new JMenu("File"); // file button
