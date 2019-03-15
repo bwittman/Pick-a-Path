@@ -19,9 +19,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
@@ -62,9 +62,6 @@ public class Main extends JFrame {
 		List<Arrow> arrows = new ArrayList<Arrow>();
 		JFrame frame = new JFrame("PICK A PATH"); // title of window
 
-		
-
-
 		JPanel panel = new JPanel(new BorderLayout());
 		frame.add(panel);
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
@@ -72,7 +69,17 @@ public class Main extends JFrame {
 		
 		Canvas canvas = new Canvas(arrows, boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
-
+		//Table stuff
+		
+		ItemTableModel tableModel = new ItemTableModel();
+		JTable itemTable = new JTable(tableModel);
+		itemTable.setFillsViewportHeight(true);
+		JScrollPane tableScroll = new JScrollPane(itemTable);
+		tableScroll.setPreferredSize(new Dimension(200, 500));
+		
+		panel.add(tableScroll, BorderLayout.WEST);
+		
+		
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
 		slider.setMajorTickSpacing(1);
