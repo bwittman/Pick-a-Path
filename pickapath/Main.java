@@ -1,21 +1,16 @@
 package pickapath;
 
-import java.awt.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,7 +19,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
@@ -71,15 +66,12 @@ public class Main extends JFrame {
 
 
 		JPanel panel = new JPanel(new BorderLayout());
-		JPanel centerPanel = new JPanel(new BorderLayout());
-		JPanel southScrollArea = new JPanel (new GridLayout(1,0));
 		frame.add(panel);
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
 		frame.add(panel);
 		
 		Canvas canvas = new Canvas(arrows, boxes, this);
-		panel.add(centerPanel, BorderLayout.CENTER);
-		centerPanel.add(canvas, BorderLayout.CENTER);
+		panel.add(canvas, BorderLayout.CENTER);
 
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
@@ -99,15 +91,6 @@ public class Main extends JFrame {
 			}
 
 		});
-		
-		Scrollbar verticalScroll = new Scrollbar();
-		verticalScroll.setBounds(canvas.getX(), canvas.getY(), frame.getWidth(), frame.getHeight());
-		centerPanel.add(verticalScroll, BorderLayout.WEST);
-		verticalScroll.setVisible(true);
-		
-		Scrollbar horizontalScroll = new Scrollbar();
-		centerPanel.add(horizontalScroll, BorderLayout.SOUTH);
-		horizontalScroll.setVisible(true);
 
 
 		JButton makeBox = new JButton("Make Box");

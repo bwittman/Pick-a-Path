@@ -14,9 +14,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
 
-import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
-public class Canvas extends JPanel implements MouseMotionListener, MouseListener {
+public class Canvas extends JScrollPane implements MouseMotionListener, MouseListener {
 	private List<Box> boxes;
 	private List<Arrow> arrows;
 	private Object selected = null;
@@ -35,6 +35,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	//Canvas constructor 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
+		super(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		this.setBackground(new Color(185,185,185));
 		this.boxes = boxes;
 		this.arrows = arrows;
