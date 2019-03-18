@@ -30,6 +30,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class Main extends JFrame {
 
@@ -69,15 +71,58 @@ public class Main extends JFrame {
 		
 		Canvas canvas = new Canvas(arrows, boxes, this);
 		panel.add(canvas, BorderLayout.CENTER);
-		//Table stuff
 		
+		//Table stuff
+		JPanel tablePanel = new JPanel(new BorderLayout());
+		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
 		ItemTableModel tableModel = new ItemTableModel();
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
 		JScrollPane tableScroll = new JScrollPane(itemTable);
 		tableScroll.setPreferredSize(new Dimension(200, 500));
+		JButton addItem = new JButton("Add Item");
+		JButton deleteItem = new JButton("Delete Item");
+		buttonPanel.add(addItem);
+		addItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				tableModel.addItem("New Item");
+			}
+			
+		});
+		buttonPanel.add(deleteItem);
+		deleteItem.setEnabled(false);
+		deleteItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+				if(itemTable.getSelectedRow()!= -1) {
+					if(JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete " + 
+							tableModel.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
+							JOptionPane.YES_NO_OPTION)== JOptionPane.YES_OPTION)
+						tableModel.deleteItem(itemTable.getSelectedRow());
+					
+				}
+			}
+			
+		});
+		itemTable.setRowSelectionAllowed(true);
+		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+					deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
+			}
+			
+		});
+		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
+		tablePanel.add(tableScroll, BorderLayout.CENTER);
+		panel.add(tablePanel, BorderLayout.WEST);
 		
-		panel.add(tableScroll, BorderLayout.WEST);
 		
 		
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
