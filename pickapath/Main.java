@@ -192,7 +192,6 @@ public class Main extends JFrame {
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
 		frame.add(panel);
 		Canvas canvas = new Canvas(arrows, boxes, this);
-<<<<<<< HEAD
 		JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
 		canvas.setViewport(scrollPane.getViewport());
 		panel.add(scrollPane, BorderLayout.CENTER);
@@ -212,10 +211,9 @@ public class Main extends JFrame {
 		panel.add(tableScroll, BorderLayout.WEST);
 		
 		
-=======
 		panel.add(canvas, BorderLayout.CENTER);
 		JDialog itemWindow = makeItemDialog(canvas);
->>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2
+
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
 		slider.setMajorTickSpacing(1);
