@@ -1,17 +1,21 @@
 package pickapath;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -37,8 +41,9 @@ public class Main extends JFrame {
 
 	private JTextArea textArea;
 	private JButton arrowButton;
+	private JButton items;
 	private JSlider slider;
-
+	private JTextArea operatorField;
 	
 	private Font[] fonts;
 	private static int MAX_SLIDER = 5;
@@ -57,22 +62,12 @@ public class Main extends JFrame {
 		new Main();
 
 	}
-
-	public Main() {
+	
+	private JDialog makeItemDialog(Canvas canvas){
 		
-		List<Box> boxes = new ArrayList<Box>();
-		List<Arrow> arrows = new ArrayList<Arrow>();
-		JFrame frame = new JFrame("PICK A PATH"); // title of window
-
-		JPanel panel = new JPanel(new BorderLayout());
-		frame.add(panel);
-		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
-		frame.add(panel);
-		
-		Canvas canvas = new Canvas(arrows, boxes, this);
-		panel.add(canvas, BorderLayout.CENTER);
-		
-		//Table stuff
+	
+		JDialog itemWindow = new JDialog(this,"Items",true);
+		itemWindow.setLayout(new BorderLayout());
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
 		ItemTableModel tableModel = new ItemTableModel();
@@ -101,7 +96,7 @@ public class Main extends JFrame {
 				// TODO Auto-generated method stub
 				
 				if(itemTable.getSelectedRow()!= -1) {
-					if(JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete " + 
+					if(JOptionPane.showConfirmDialog(itemWindow, "Are you sure you want to delete " + 
 							tableModel.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
 							JOptionPane.YES_NO_OPTION)== JOptionPane.YES_OPTION)
 						tableModel.deleteItem(itemTable.getSelectedRow());
@@ -121,10 +116,84 @@ public class Main extends JFrame {
 		});
 		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
 		tablePanel.add(tableScroll, BorderLayout.CENTER);
-		panel.add(tablePanel, BorderLayout.WEST);
+		itemWindow.add(tablePanel, BorderLayout.WEST);
+		//End table stuff
 		
+		operatorField = new JTextArea();
+		JPanel panel = new JPanel(new GridLayout(3,2));
+		JButton and = new JButton("AND");
+		JButton or = new JButton("OR");
+		JButton not = new JButton("NOT");
+		JButton check = new JButton("Check");
+		JButton cancel = new JButton("Cancel");
+		JButton delete = new JButton("Delete");
+		check.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				itemWindow.setVisible(false);
+			}
+			
+		});
+		cancel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				itemWindow.setVisible(false);
+			}
+			
+		});
+		delete.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				itemWindow.setVisible(false);
+			}
+			
+		});
+		panel.add(and);
+		panel.add(check);
+		panel.add(or);
+		panel.add(cancel);
+		panel.add(not);
+		panel.add(delete);
+		JPanel centerPanel = new JPanel(new BorderLayout());
+		centerPanel.add(operatorField,BorderLayout.CENTER);
+		centerPanel.add(panel,BorderLayout.SOUTH);
+		itemWindow.add(centerPanel, BorderLayout.CENTER);
+		operatorField.setBackground(Color.LIGHT_GRAY);
+		itemWindow.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		itemWindow.addWindowListener(new WindowAdapter() {
+
+		@Override
+			public void windowClosing(WindowEvent arg0) {
+				cancel.doClick();
+				
+			}
+
+				
+		});
+		itemWindow.pack();
+		return itemWindow;
+	}
+
+	public Main() {
 		
+		List<Box> boxes = new ArrayList<Box>();
+		List<Arrow> arrows = new ArrayList<Arrow>();
+		JFrame frame = new JFrame("PICK A PATH"); // title of window
+
+		JPanel panel = new JPanel(new BorderLayout());
+		frame.add(panel);
+		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
+		frame.add(panel);
 		
+		Canvas canvas = new Canvas(arrows, boxes, this);
+		panel.add(canvas, BorderLayout.CENTER);
+		JDialog itemWindow = makeItemDialog(canvas);
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
 		slider.setMajorTickSpacing(1);
@@ -179,8 +248,20 @@ public class Main extends JFrame {
 		numbers.add(makeBox); // make box button
 		numbers.add(arrowButton); // make arrow button
 		
-		JButton item = new JButton("Create Item"); //create item button
-		numbers.add(item);
+		items = new JButton("Items"); //create item button
+		items.setEnabled(false);
+		numbers.add(items);
+		items.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				itemWindow.setVisible(true);
+
+			}
+
+		}
+
+		);
 		
 		JButton delete = new JButton("Delete");
 		numbers.add(delete); // delete button (for boxes and arrows)
@@ -374,5 +455,9 @@ public class Main extends JFrame {
 
 	public void setMakeArrowEnabled(boolean enabled) {
 		arrowButton.setEnabled(enabled);
+	}
+	
+	public void setItemsEnabled(boolean enabled) {
+		items.setEnabled(enabled);
 	}
 }
