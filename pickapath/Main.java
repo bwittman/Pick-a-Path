@@ -19,6 +19,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
@@ -66,9 +67,15 @@ public class Main extends JFrame {
 		frame.add(panel);
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
 		frame.add(panel);
-		
 		Canvas canvas = new Canvas(arrows, boxes, this);
-		panel.add(canvas, BorderLayout.CENTER);
+		JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
+		canvas.setViewport(scrollPane.getViewport());
+		panel.add(scrollPane, BorderLayout.CENTER);
+		
+		JScrollBar horizontalScroll = new JScrollBar(JScrollBar.HORIZONTAL);
+		JScrollBar verticalScroll = new JScrollBar(JScrollBar.VERTICAL);
+		horizontalScroll.setVisible(true);
+		verticalScroll.setVisible(true);
 		//Table stuff
 		
 		ItemTableModel tableModel = new ItemTableModel();

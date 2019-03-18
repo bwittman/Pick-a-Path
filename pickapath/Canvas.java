@@ -1,20 +1,28 @@
 package pickapath;
 
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
-import java.awt.*;
 
-import javax.swing.JScrollBar;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.ChangeEvent;
+import javax.swing.JViewport;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 
-import javafx.scene.control.ScrollPane;
-
-public class Canvas extends JScrollPane implements MouseMotionListener, MouseListener {
+public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable {
 	private List<Box> boxes;
 	private List<Arrow> arrows;
 	private Object selected = null;
@@ -28,12 +36,21 @@ public class Canvas extends JScrollPane implements MouseMotionListener, MouseLis
 	private double zoom = 1.0;
 	private RenderingHints hints;
 	private Font font = null;
+	private int boxMaxX;
+	private int boxMaxY;
+	private int boxMinX;
+	private int boxMinY;
+	private JViewport viewport = null;
 
 	
 	//Canvas constructor 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
-		super(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		
+		/*boxMaxX = this.getWidth();
+		boxMaxY = this.getHeight();
+		boxMinX = 0;
+		boxMinY = 0; */
 		this.setBackground(new Color(185,185,185));
 		this.boxes = boxes;
 		this.arrows = arrows;
@@ -46,24 +63,10 @@ public class Canvas extends JScrollPane implements MouseMotionListener, MouseLis
 		
 		
 	}
-
-	public void scrollBarSetup() {
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setPreferredSize(new Dimension(Frame.WIDTH, Frame.HEIGHT));
-		JScrollBar horizontalScroll = new JScrollBar(JScrollBar.HORIZONTAL);
-		JScrollBar verticalScroll = new JScrollBar(JScrollBar.VERTICAL);
-		
-		class MyAdjustmentListener implements AdjustmentListener {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                scrollPane.repaint();
-            }
-        }
-		
-		horizontalScroll.addAdjustmentListener(new MyAdjustmentListener( ));
-        verticalScroll.addAdjustmentListener(new MyAdjustmentListener( ));
 	
-		//horizontalScroll.addMouseWheelListener(e);
-		
+	public void setViewport(JViewport viewport) {
+		this.viewport = viewport;
+		viewport.setOpaque(false);
 	}
 	
 	@Override
@@ -212,6 +215,21 @@ public class Canvas extends JScrollPane implements MouseMotionListener, MouseLis
 				int deltaY = y - startYDrag;
 				selectedBox.setX(startXBox + deltaX, zoom);
 				selectedBox.setY(startYBox + deltaY, zoom);
+				if ((selectedBox.getX()-selectedBox.getWidth()/2)* zoom < boxMinX) {
+					boxMinX = (int) Math.floor((selectedBox.getX()-selectedBox.getWidth()/2)* zoom);
+				}
+				if ((selectedBox.getX()+selectedBox.getWidth()/2)* zoom > boxMaxX) {
+					boxMaxX = (int) Math.ceil((selectedBox.getX()+selectedBox.getWidth()/2)* zoom);
+				}
+				if ((selectedBox.getY()-selectedBox.getHeight()/2)* zoom < boxMinY) {
+					boxMinY = (int) Math.floor((selectedBox.getY()-selectedBox.getHeight()/2)* zoom);
+				}
+				if ((selectedBox.getY()+selectedBox.getHeight()/2)* zoom > boxMaxY) {
+					boxMaxY = (int) Math.ceil((selectedBox.getY()+selectedBox.getHeight()/2)* zoom);
+				} 
+				
+				this.setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
+				this.revalidate(); 
 			}
 			repaint();
 		}
@@ -317,6 +335,43 @@ public class Canvas extends JScrollPane implements MouseMotionListener, MouseLis
 		this.zoom = zoom;
 		this.font = font;
 		repaint();
+	}
+
+	@Override
+	public Dimension getPreferredScrollableViewportSize() {
+
+		if( viewport == null )
+			return getSize();
+		else
+			return viewport.getExtentSize();
+	}
+
+	@Override
+	public int getScrollableBlockIncrement(Rectangle visibleRect,
+            int orientation,
+            int direction) {
+		if( orientation == SwingConstants.HORIZONTAL )
+			return (boxMaxX  - boxMinX) / 5;
+		else
+			return (boxMaxY  - boxMinY) / 5;
+	}
+
+	@Override
+	public boolean getScrollableTracksViewportHeight() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean getScrollableTracksViewportWidth() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getScrollableUnitIncrement(Rectangle arg0, int arg1, int arg2) {
+		// TODO Auto-generated method stub
+		return 1;
 	}
 
 
