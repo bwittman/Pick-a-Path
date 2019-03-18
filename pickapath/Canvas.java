@@ -1,20 +1,18 @@
 package pickapath;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Stroke;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
+import java.awt.*;
 
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.event.ChangeEvent;
+
+import javafx.scene.control.ScrollPane;
 
 public class Canvas extends JScrollPane implements MouseMotionListener, MouseListener {
 	private List<Box> boxes;
@@ -49,6 +47,25 @@ public class Canvas extends JScrollPane implements MouseMotionListener, MouseLis
 		
 	}
 
+	public void scrollBarSetup() {
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setPreferredSize(new Dimension(Frame.WIDTH, Frame.HEIGHT));
+		JScrollBar horizontalScroll = new JScrollBar(JScrollBar.HORIZONTAL);
+		JScrollBar verticalScroll = new JScrollBar(JScrollBar.VERTICAL);
+		
+		class MyAdjustmentListener implements AdjustmentListener {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                scrollPane.repaint();
+            }
+        }
+		
+		horizontalScroll.addAdjustmentListener(new MyAdjustmentListener( ));
+        verticalScroll.addAdjustmentListener(new MyAdjustmentListener( ));
+	
+		//horizontalScroll.addMouseWheelListener(e);
+		
+	}
+	
 	@Override
 	//Paints the boxes arrows
 	public void paint(Graphics g) {
@@ -295,9 +312,6 @@ public class Canvas extends JScrollPane implements MouseMotionListener, MouseLis
 	public double getZoom() {
 		return zoom;
 	}
-	
-
-	//Test comment
 
 	public void setZoom(double zoom, Font font) {
 		this.zoom = zoom;
