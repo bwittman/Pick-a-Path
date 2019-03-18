@@ -84,7 +84,7 @@ public class ItemTableModel implements TableModel {
 		if (column == 1) {
 			item.setName((String) object);
 
-			TableModelEvent event = new TableModelEvent(this, row, row, column);
+			TableModelEvent event = new TableModelEvent(this, row, row, column,TableModelEvent.UPDATE);
 			for (TableModelListener listener: listeners)
 				listener.tableChanged(event);
 		}
@@ -98,5 +98,10 @@ public class ItemTableModel implements TableModel {
 		for (TableModelListener listener: listeners)
 			listener.tableChanged(event);
 	}
-
+	public void deleteItem (int row) {
+		items.remove(row);
+		TableModelEvent event = new TableModelEvent(this, row, row, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE);
+		for (TableModelListener listener: listeners)
+			listener.tableChanged(event);
+	}
 }

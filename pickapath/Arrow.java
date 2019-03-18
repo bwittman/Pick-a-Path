@@ -7,6 +7,7 @@ public class Arrow implements Serializable{
 	private String text;
 	private Box start;
 	private Box end;
+	private BooleanExpression expression;
 	public final static int HEIGHT = 24;
 	public final static int HALF_WIDTH = 18;
 

@@ -264,6 +264,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public void mousePressed(MouseEvent arg0) {
 		int mouseX = arg0.getX();
 		int mouseY = arg0.getY();
+		main.setItemsEnabled(false);
 		if (arrowCheck) {
 			Box selectedBox = (Box) selected;
 			Box otherBox = null;
@@ -280,6 +281,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			}
 			arrowCheck = false;
 			main.setMakeArrowEnabled(false);
+			
 			repaint();
 		} else {
 			selected = null;
@@ -307,6 +309,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				}
 				if (selected != null) {
 					main.setText(((Arrow) selected).getText());
+					main.setItemsEnabled(true);
 				}
 			}
 			repaint();
@@ -318,6 +321,11 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		// TODO Auto-generated method stub
 
 	}
+	
+	public Object getSelected() {
+		return selected;
+	}
+	
 	//Deletes all boxes on the canvas
 	public void deleteAllBoxes() {
 		boxes.clear();

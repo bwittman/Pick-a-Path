@@ -1,17 +1,21 @@
 package pickapath;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -31,13 +35,16 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class Main extends JFrame {
 
 	private JTextArea textArea;
 	private JButton arrowButton;
+	private JButton items;
 	private JSlider slider;
-
+	private JTextArea operatorField;
 	
 	private Font[] fonts;
 	private static int MAX_SLIDER = 5;
@@ -56,6 +63,123 @@ public class Main extends JFrame {
 		new Main();
 
 	}
+	
+	private JDialog makeItemDialog(Canvas canvas){
+		
+	
+		JDialog itemWindow = new JDialog(this,"Items",true);
+		itemWindow.setLayout(new BorderLayout());
+		JPanel tablePanel = new JPanel(new BorderLayout());
+		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
+		ItemTableModel tableModel = new ItemTableModel();
+		JTable itemTable = new JTable(tableModel);
+		itemTable.setFillsViewportHeight(true);
+		JScrollPane tableScroll = new JScrollPane(itemTable);
+		tableScroll.setPreferredSize(new Dimension(200, 500));
+		JButton addItem = new JButton("Add Item");
+		JButton deleteItem = new JButton("Delete Item");
+		buttonPanel.add(addItem);
+		addItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				tableModel.addItem("New Item");
+			}
+			
+		});
+		buttonPanel.add(deleteItem);
+		deleteItem.setEnabled(false);
+		deleteItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+				if(itemTable.getSelectedRow()!= -1) {
+					if(JOptionPane.showConfirmDialog(itemWindow, "Are you sure you want to delete " + 
+							tableModel.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
+							JOptionPane.YES_NO_OPTION)== JOptionPane.YES_OPTION)
+						tableModel.deleteItem(itemTable.getSelectedRow());
+					
+				}
+			}
+			
+		});
+		itemTable.setRowSelectionAllowed(true);
+		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+					deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
+			}
+			
+		});
+		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
+		tablePanel.add(tableScroll, BorderLayout.CENTER);
+		itemWindow.add(tablePanel, BorderLayout.WEST);
+		//End table stuff
+		
+		operatorField = new JTextArea();
+		JPanel panel = new JPanel(new GridLayout(3,2));
+		JButton and = new JButton("AND");
+		JButton or = new JButton("OR");
+		JButton not = new JButton("NOT");
+		JButton check = new JButton("Check");
+		JButton cancel = new JButton("Cancel");
+		JButton delete = new JButton("Delete");
+		check.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				itemWindow.setVisible(false);
+			}
+			
+		});
+		cancel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				itemWindow.setVisible(false);
+			}
+			
+		});
+		delete.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				itemWindow.setVisible(false);
+			}
+			
+		});
+		panel.add(and);
+		panel.add(check);
+		panel.add(or);
+		panel.add(cancel);
+		panel.add(not);
+		panel.add(delete);
+		JPanel centerPanel = new JPanel(new BorderLayout());
+		centerPanel.add(operatorField,BorderLayout.CENTER);
+		centerPanel.add(panel,BorderLayout.SOUTH);
+		itemWindow.add(centerPanel, BorderLayout.CENTER);
+		operatorField.setBackground(Color.LIGHT_GRAY);
+		itemWindow.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		itemWindow.addWindowListener(new WindowAdapter() {
+
+		@Override
+			public void windowClosing(WindowEvent arg0) {
+				cancel.doClick();
+				
+			}
+
+				
+		});
+		itemWindow.pack();
+		return itemWindow;
+	}
 
 	public Main() {
 		
@@ -68,6 +192,7 @@ public class Main extends JFrame {
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
 		frame.add(panel);
 		Canvas canvas = new Canvas(arrows, boxes, this);
+<<<<<<< HEAD
 		JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
 		canvas.setViewport(scrollPane.getViewport());
 		panel.add(scrollPane, BorderLayout.CENTER);
@@ -87,6 +212,10 @@ public class Main extends JFrame {
 		panel.add(tableScroll, BorderLayout.WEST);
 		
 		
+=======
+		panel.add(canvas, BorderLayout.CENTER);
+		JDialog itemWindow = makeItemDialog(canvas);
+>>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
 		slider.setPaintTicks(true);
 		slider.setMajorTickSpacing(1);
@@ -141,8 +270,20 @@ public class Main extends JFrame {
 		numbers.add(makeBox); // make box button
 		numbers.add(arrowButton); // make arrow button
 		
-		JButton item = new JButton("Create Item"); //create item button
-		numbers.add(item);
+		items = new JButton("Items"); //create item button
+		items.setEnabled(false);
+		numbers.add(items);
+		items.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				itemWindow.setVisible(true);
+
+			}
+
+		}
+
+		);
 		
 		JButton delete = new JButton("Delete");
 		numbers.add(delete); // delete button (for boxes and arrows)
@@ -336,5 +477,9 @@ public class Main extends JFrame {
 
 	public void setMakeArrowEnabled(boolean enabled) {
 		arrowButton.setEnabled(enabled);
+	}
+	
+	public void setItemsEnabled(boolean enabled) {
+		items.setEnabled(enabled);
 	}
 }
