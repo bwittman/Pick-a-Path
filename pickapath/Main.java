@@ -248,6 +248,7 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "");
 				boxes.add(box);
+				
 
 				canvas.repaint();
 			}
