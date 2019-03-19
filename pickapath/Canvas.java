@@ -123,23 +123,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			} else {
 			g.setColor(new Color(194,211,250));
 			}
-			Box selectedBox = (Box) selected;
 			int x = (int)Math.round(zoom*(box.getX() - box.getWidth()/2));
 			int y = (int)Math.round(zoom*(box.getY() - box.getHeight()/2));
 			int width = (int)Math.round(zoom*box.getWidth());
 			int height = (int)Math.round(zoom*box.getHeight());
-			if ((selectedBox.getX()-selectedBox.getWidth()/2)* zoom < boxMinX) {
-				boxMinX = (int) Math.floor((selectedBox.getX()-selectedBox.getWidth()/2)* zoom);
-			}
-			if ((selectedBox.getX()+selectedBox.getWidth()/2)* zoom > boxMaxX) {
-				boxMaxX = (int) Math.ceil((selectedBox.getX()+selectedBox.getWidth()/2)* zoom);
-			}
-			if ((selectedBox.getY()-selectedBox.getHeight()/2)* zoom < boxMinY) {
-				boxMinY = (int) Math.floor((selectedBox.getY()-selectedBox.getHeight()/2)* zoom);
-			}
-			if ((selectedBox.getY()+selectedBox.getHeight()/2)* zoom > boxMaxY) {
-				boxMaxY = (int) Math.ceil((selectedBox.getY()+selectedBox.getHeight()/2)* zoom);
-			} 
 			
 			this.setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
 			this.revalidate(); 
