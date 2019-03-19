@@ -201,14 +201,14 @@ public class Main extends JFrame {
 		horizontalScroll.setVisible(true);
 		verticalScroll.setVisible(true);
 		//Table stuff
-		
+		/*
 		ItemTableModel tableModel = new ItemTableModel();
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
 		JScrollPane tableScroll = new JScrollPane(itemTable);
 		tableScroll.setPreferredSize(new Dimension(200, 500));
 		
-		panel.add(tableScroll, BorderLayout.WEST);
+		panel.add(tableScroll, BorderLayout.WEST); */
 		
 		
 		panel.add(canvas, BorderLayout.CENTER);
