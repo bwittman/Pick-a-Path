@@ -1,5 +1,8 @@
 package pickapath;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,25 @@ public class Box implements Serializable {
 		this.height = height;
 		this.text = text;
 	}
+
+	public Box(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		incoming = new ArrayList<Arrow>();
+		outgoing = new ArrayList<Arrow>();
+		text = (String)in.readObject();
+		x = in.readInt();
+		y = in.readInt();
+		width = in.readInt();
+		height = in.readInt();
+	}
+	
+	public void write(ObjectOutputStream out) throws IOException {
+		out.writeObject(text);
+		out.writeInt(x);
+		out.writeInt(y);
+		out.writeInt(width);
+		out.writeInt(height);
+	}
+	
 	public int getHeight() {
 		return height;
 	}
