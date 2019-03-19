@@ -206,9 +206,12 @@ public class Main extends JFrame {
 		horizontalScroll.addAdjustmentListener(new AdjustmentListener(){
 
 			@Override
-			public void adjustmentValueChanged(AdjustmentEvent arg0) {
+			public void adjustmentValueChanged(AdjustmentEvent e) {
 				// TODO Auto-generated method stub
-				
+				if (horizontalScroll.getValueIsAdjusting()) {
+					int hScrollVal = horizontalScroll.getValue();
+					horizontalScroll.setValue(hScrollVal);
+				}
 			}
 			
 		});
@@ -216,8 +219,11 @@ public class Main extends JFrame {
 		verticalScroll.addAdjustmentListener(new AdjustmentListener(){
 
 			@Override
-			public void adjustmentValueChanged(AdjustmentEvent arg0) {
-				// TODO Auto-generated method stub
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				if (verticalScroll.getValueIsAdjusting()) {
+					int vScrollVal = horizontalScroll.getValue();
+					verticalScroll.setValue(vScrollVal);
+				}
 				
 			}
 			
