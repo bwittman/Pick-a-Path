@@ -13,7 +13,6 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -45,7 +44,6 @@ public class Main extends JFrame {
 	private JButton items;
 	private JSlider slider;
 	private JTextArea operatorField;
-	
 	private Font[] fonts;
 	private static int MAX_SLIDER = 5;
 	private static int MIN_SLIDER = 1;
@@ -66,7 +64,7 @@ public class Main extends JFrame {
 	
 	private JDialog makeItemDialog(Canvas canvas){
 		
-	
+		//Setting parameters to create the table for item creation
 		JDialog itemWindow = new JDialog(this,"Items",true);
 		itemWindow.setLayout(new BorderLayout());
 		JPanel tablePanel = new JPanel(new BorderLayout());
@@ -80,7 +78,7 @@ public class Main extends JFrame {
 		JButton deleteItem = new JButton("Delete Item");
 		buttonPanel.add(addItem);
 		addItem.addActionListener(new ActionListener() {
-
+			//Listener for add item button that creates a new item
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -88,10 +86,11 @@ public class Main extends JFrame {
 			}
 			
 		});
+		// Adding delete item button to the button panel
 		buttonPanel.add(deleteItem);
 		deleteItem.setEnabled(false);
 		deleteItem.addActionListener(new ActionListener() {
-
+			// Listener for delete button that checks if the user wants to delete the item
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -106,9 +105,10 @@ public class Main extends JFrame {
 			}
 			
 		});
+		//Enables a row to be selected 
 		itemTable.setRowSelectionAllowed(true);
 		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
+			//Listener that enables delete button if a row is selected
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
 					deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
@@ -132,7 +132,7 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
+				// read from text, convert to number, look through list,get it, then evaluate
 				itemWindow.setVisible(false);
 			}
 			
