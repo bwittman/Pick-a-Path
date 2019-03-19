@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -200,6 +202,26 @@ public class Main extends JFrame {
 		verticalScroll.setVisible(true);
 		frame.add(verticalScroll, BorderLayout.WEST);
 		frame.add(horizontalScroll, BorderLayout.SOUTH);
+		
+		horizontalScroll.addAdjustmentListener(new AdjustmentListener(){
+
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
+		verticalScroll.addAdjustmentListener(new AdjustmentListener(){
+
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		
 		panel.add(canvas, BorderLayout.CENTER);
 		JDialog itemWindow = makeItemDialog(canvas);
