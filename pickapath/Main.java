@@ -286,7 +286,7 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JViewport viewport = canvas.getViewport();
 				Dimension size = viewport.getExtentSize();
-				Box box = new Box(random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX(), random.nextInt(((int)size.getHeight()) + (int)viewport.getViewPosition().getY()), 100, 50, "");
+				Box box = new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), 100, 50, "");
 				boxes.add(box);
 				canvas.updateBounds(box);
 				
