@@ -129,6 +129,8 @@ public class Main extends JFrame {
 		JButton check = new JButton("Check");
 		JButton cancel = new JButton("Cancel");
 		JButton delete = new JButton("Delete");
+		
+		//Listener for check button in the item window
 		check.addActionListener(new ActionListener() {
 
 			@Override
@@ -138,8 +140,10 @@ public class Main extends JFrame {
 			}
 			
 		});
+		
+		//Listener for cancel button in item window  
 		cancel.addActionListener(new ActionListener() {
-
+			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -147,6 +151,8 @@ public class Main extends JFrame {
 			}
 			
 		});
+		
+		//Listener for delete button in item window
 		delete.addActionListener(new ActionListener() {
 
 			@Override
