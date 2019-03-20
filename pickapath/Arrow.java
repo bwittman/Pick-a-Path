@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 public class Arrow implements Serializable{
 
 	private static final long serialVersionUID = 4384512514370109657L;
@@ -15,7 +16,8 @@ public class Arrow implements Serializable{
 	private BooleanExpression expression;
 	public final static int HEIGHT = 24;
 	public final static int HALF_WIDTH = 18;
-
+	private Set<Item> itemsHeld = new HashSet<Item>();
+	
 
 	//Constructor for arrows
 	public Arrow(Box start, Box end, String text) {
@@ -27,7 +29,6 @@ public class Arrow implements Serializable{
 		end.addIncoming(this);
 	}
 	
-	
 	public Arrow(ObjectInputStream in, List<Box> boxes) throws IOException, ClassNotFoundException {
 		text = (String)in.readObject();
 	}
@@ -36,18 +37,19 @@ public class Arrow implements Serializable{
 		out.writeObject(text);
 		
 	}
-
-
-
+	
 	public Box getStart() {
 		return start;
 	}
+	
 	public Box getEnd() {
 		return end;
 	}
+	
 	public String getText() {
 		return text;
 	}
+	
 	public void setText(String text) {
 		this.text = text;
 	}
@@ -85,4 +87,17 @@ public class Arrow implements Serializable{
 	private static double dot(double x1,double y1, double x2, double y2) {
 		return x1 * x2 + y1 * y2;
 	}
+	public void setBooleanExpression(BooleanExpression expression) {
+		this.expression = expression;
+	}
+	public Set<Item> getItem(){
+		return itemsHeld;
+	}
+	public void removeItem(Item item) {
+		itemsHeld.remove(item);
+	}
+	public void addItem(Item item) {
+		itemsHeld.add(item);
+	}
+	
 }

@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -71,6 +72,8 @@ public class Main extends JFrame {
 		itemWindow.setLayout(new BorderLayout());
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
+		JPanel itemsChecked = new JPanel(new BorderLayout());
+		JPanel itemsGiven = new JPanel(new BorderLayout());
 		ItemTableModel tableModel = new ItemTableModel();
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
@@ -137,7 +140,16 @@ public class Main extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// read from text, convert to number, look through list,get it, then evaluate
-				itemWindow.setVisible(false);
+				String text = operatorField.getText().trim();
+				int itemNumber = Integer.parseInt(text);
+				List<Item> items = tableModel.getItems();
+				for(Item item: items ) {
+					if(item.getId() == itemNumber) {
+						canvas.setBooleanExpression(new BooleanExpression(item));
+						itemWindow.setVisible(false);
+					}
+				}
+				
 			}
 			
 		});

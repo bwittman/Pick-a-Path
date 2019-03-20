@@ -384,6 +384,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		return 1;
 	}
 
+	public void setBooleanExpression(BooleanExpression expression) {
+		if (selected != null && selected instanceof Arrow) {
+			Arrow arrow = (Arrow) selected;
+			arrow.setBooleanExpression(expression);
+		}
+		
+	}
+
 
 
 }
