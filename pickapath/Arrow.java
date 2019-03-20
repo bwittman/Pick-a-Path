@@ -6,9 +6,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-public class Arrow implements Serializable{
+public class Arrow{
 
-	private static final long serialVersionUID = 4384512514370109657L;
 	private String text;
 	private Box start;
 	private Box end;
@@ -34,7 +33,18 @@ public class Arrow implements Serializable{
 	
 	public void write(ObjectOutputStream out, List<Box> boxes) throws IOException {
 		out.writeObject(text);
-		
+		int startIndex = -1;
+		int endIndex = -1;
+		for(int i = 0; i < boxes.size(); i++) {
+			if (boxes.get(i) == start) {
+				startIndex = i;
+			}
+			if (boxes.get(i) == end) {
+				endIndex = i;
+			}
+		}
+		out.writeInt(startIndex);
+		out.writeInt(endIndex);
 	}
 
 

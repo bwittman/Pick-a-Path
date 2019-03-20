@@ -1,4 +1,4 @@
-package pickapath;
+ package pickapath;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,9 +7,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Box implements Serializable {
+public class Box{
 
-	private static final long serialVersionUID = -8277069112909394633L;
 	private String text;
 	private int x;
 	private int y;

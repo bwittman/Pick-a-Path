@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -15,9 +14,46 @@ import javax.swing.filechooser.FileFilter;
 
 public class Saving {
 
+	public static void write(File selectedFile, List<Box> boxes, List<Arrow> arrows) throws FileNotFoundException, IOException{
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
+		out.writeInt(boxes.size());
+		for (Box box: boxes) {
+			box.write(out);
+		}
 
-	public static void saveFile(List<Box> boxes, List<Arrow> arrows) {
+		out.writeInt(arrows.size());
+		for (Arrow arrow:arrows) {
+			arrow.write(out, boxes);
+		}
+		out.close();
+		System.out.printf("Saved data is saved in " + selectedFile);
+	}
+
+	public static void read(File selectedFile, List<Box> boxes, List<Arrow> arrows) throws FileNotFoundException, IOException, ClassNotFoundException{
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
+		int boxCount = in.readInt();
+		boxes.clear();
+		for (int i = 0; i < boxCount; ++i ) {
+			boxes.add(new Box(in));
+		}
 		
+		int arrowCount = in.readInt();
+		arrows.clear();
+		for (int i = 0; i <  arrowCount; ++i) {
+			arrows.add(new Arrow(in, boxes));
+		}
+		in.close();
+		System.out.printf("Saved data is read from " + selectedFile);
+	}
+	
+	
+	
+	
+	//move below somewhere else
+	
+	
+	public static void saveFile(List<Box> boxes, List<Arrow> arrows) {
+
 		JFileChooser fileSelect = new JFileChooser();
 		fileSelect.setFileFilter(new FileFilter() {
 			@Override
@@ -37,11 +73,7 @@ public class Saving {
 				selectedFile = new File(path + ".pap");
 			}
 			try {
-				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
-				out.writeObject(boxes);
-				out.writeObject(arrows);
-				out.close();
-				System.out.printf("Serialized data is saved in " + selectedFile);
+				Saving.write(selectedFile, boxes, arrows);
 			} catch (FileNotFoundException e1) {
 
 			} catch (IOException e1) {
@@ -52,7 +84,7 @@ public class Saving {
 	}
 
 	public static void openFile(List<Box> boxes, List<Arrow> arrows) {
-		
+
 
 		JFileChooser fileSelect = new JFileChooser();
 		fileSelect.setFileFilter(new FileFilter() {
@@ -71,7 +103,10 @@ public class Saving {
 			File selectedFile = fileSelect.getSelectedFile();
 
 			try {
-				ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
+				
+				Saving.read(selectedFile, boxes, arrows);
+				
+				/*ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
 				List<Box> listbox = (List<Box>) in.readObject();
 				boxes.clear();
 				boxes.addAll(listbox);
@@ -79,7 +114,7 @@ public class Saving {
 				arrows.clear();
 				arrows.addAll(listarrow);
 				in.close();
-				System.out.printf("Serialized data is read from " + selectedFile);
+				System.out.printf("Saved data is read from " + selectedFile);*/
 			} catch (FileNotFoundException e1) {
 
 			} catch (IOException e1) {
