@@ -47,10 +47,6 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
 		
-		/*boxMaxX = this.getWidth();
-		boxMaxY = this.getHeight();
-		boxMinX = 0;
-		boxMinY = 0; */
 		this.setBackground(new Color(185,185,185));
 		this.boxes = boxes;
 		this.arrows = arrows;
@@ -66,7 +62,12 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	
 	public void setViewport(JViewport viewport) {
 		this.viewport = viewport;
-		viewport.setOpaque(false);
+		//viewport.setOpaque(false);
+	}
+	
+	public JViewport  getViewport() {
+		return viewport;
+		//viewport.setOpaque(false);
 	}
 	
 	@Override
@@ -123,23 +124,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			} else {
 			g.setColor(new Color(194,211,250));
 			}
-			Box selectedBox = (Box) selected;
 			int x = (int)Math.round(zoom*(box.getX() - box.getWidth()/2));
 			int y = (int)Math.round(zoom*(box.getY() - box.getHeight()/2));
 			int width = (int)Math.round(zoom*box.getWidth());
 			int height = (int)Math.round(zoom*box.getHeight());
-			if ((selectedBox.getX()-selectedBox.getWidth()/2)* zoom < boxMinX) {
-				boxMinX = (int) Math.floor((selectedBox.getX()-selectedBox.getWidth()/2)* zoom);
-			}
-			if ((selectedBox.getX()+selectedBox.getWidth()/2)* zoom > boxMaxX) {
-				boxMaxX = (int) Math.ceil((selectedBox.getX()+selectedBox.getWidth()/2)* zoom);
-			}
-			if ((selectedBox.getY()-selectedBox.getHeight()/2)* zoom < boxMinY) {
-				boxMinY = (int) Math.floor((selectedBox.getY()-selectedBox.getHeight()/2)* zoom);
-			}
-			if ((selectedBox.getY()+selectedBox.getHeight()/2)* zoom > boxMaxY) {
-				boxMaxY = (int) Math.ceil((selectedBox.getY()+selectedBox.getHeight()/2)* zoom);
-			} 
 			
 			this.setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
 			this.revalidate(); 
@@ -190,6 +178,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				arrows.remove(arrow);
 			}
 			selected = null;
+			resetBounds();
 			repaint();
 		}}
 	//Deletes selected arrow
@@ -230,27 +219,41 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				int deltaY = y - startYDrag;
 				selectedBox.setX(startXBox + deltaX, zoom);
 				selectedBox.setY(startYBox + deltaY, zoom);
-				if ((selectedBox.getX()-selectedBox.getWidth()/2)* zoom < boxMinX) {
-					boxMinX = (int) Math.floor((selectedBox.getX()-selectedBox.getWidth()/2)* zoom);
-				}
-				if ((selectedBox.getX()+selectedBox.getWidth()/2)* zoom > boxMaxX) {
-					boxMaxX = (int) Math.ceil((selectedBox.getX()+selectedBox.getWidth()/2)* zoom);
-				}
-				if ((selectedBox.getY()-selectedBox.getHeight()/2)* zoom < boxMinY) {
-					boxMinY = (int) Math.floor((selectedBox.getY()-selectedBox.getHeight()/2)* zoom);
-				}
-				if ((selectedBox.getY()+selectedBox.getHeight()/2)* zoom > boxMaxY) {
-					boxMaxY = (int) Math.ceil((selectedBox.getY()+selectedBox.getHeight()/2)* zoom);
-				} 
-				
-				this.setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
-				this.revalidate(); 
+				updateBounds(selectedBox);
+			
 			}
 			repaint();
 		}
 	}
+	
+	public void updateBounds(Box box) {
+		if ((box.getX()-box.getWidth()/2)* zoom < boxMinX) {
+			boxMinX = (int) Math.floor((box.getX()-box.getWidth()/2)* zoom);
+		}
+		if ((box.getX()+box.getWidth()/2)* zoom > boxMaxX) {
+			boxMaxX = (int) Math.ceil((box.getX()+box.getWidth()/2)* zoom);
+		}
+		if ((box.getY()-box.getHeight()/2)* zoom < boxMinY) {
+			boxMinY = (int) Math.floor((box.getY()-box.getHeight()/2)* zoom);
+		}
+		if ((box.getY()+box.getHeight()/2)* zoom > boxMaxY) {
+			boxMaxY = (int) Math.ceil((box.getY()+box.getHeight()/2)* zoom);
+		} 
+		
+		setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
+		revalidate(); 
+	}
 
 
+	public void resetBounds() {
+		boxMaxX = Integer.MIN_VALUE;
+		boxMaxY = Integer.MIN_VALUE;
+		boxMinX = Integer.MAX_VALUE;
+		boxMinY = Integer.MAX_VALUE;
+		for (Box box: boxes) {
+			updateBounds(box);
+		}
+	}
 	@Override
 	public void mouseMoved(MouseEvent e) {
 	}
@@ -357,6 +360,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public void setZoom(double zoom, Font font) {
 		this.zoom = zoom;
 		this.font = font;
+		resetBounds();
 		repaint();
 	}
 
@@ -395,6 +399,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public int getScrollableUnitIncrement(Rectangle arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		return 1;
+	}
+
+	public void setBooleanExpression(BooleanExpression expression) {
+		if (selected != null && selected instanceof Arrow) {
+			Arrow arrow = (Arrow) selected;
+			arrow.setBooleanExpression(expression);
+		}
+		
 	}
 
 

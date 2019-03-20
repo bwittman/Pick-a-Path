@@ -13,6 +13,7 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -22,11 +23,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -69,6 +70,8 @@ public class Main extends JFrame {
 		itemWindow.setLayout(new BorderLayout());
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
+		JPanel itemsChecked = new JPanel(new BorderLayout());
+		JPanel itemsGiven = new JPanel(new BorderLayout());
 		ItemTableModel tableModel = new ItemTableModel();
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
@@ -128,17 +131,30 @@ public class Main extends JFrame {
 		JButton check = new JButton("Check");
 		JButton cancel = new JButton("Cancel");
 		JButton delete = new JButton("Delete");
+		
+		//Listener for check button in the item window
 		check.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// read from text, convert to number, look through list,get it, then evaluate
-				itemWindow.setVisible(false);
+				String text = operatorField.getText().trim();
+				int itemNumber = Integer.parseInt(text);
+				List<Item> items = tableModel.getItems();
+				for(Item item: items ) {
+					if(item.getId() == itemNumber) {
+						canvas.setBooleanExpression(new BooleanExpression(item));
+						itemWindow.setVisible(false);
+					}
+				}
+				
 			}
 			
 		});
+		
+		//Listener for cancel button in item window  
 		cancel.addActionListener(new ActionListener() {
-
+			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -146,6 +162,8 @@ public class Main extends JFrame {
 			}
 			
 		});
+		
+		//Listener for delete button in item window
 		delete.addActionListener(new ActionListener() {
 
 			@Override
@@ -182,27 +200,22 @@ public class Main extends JFrame {
 	}
 
 	public Main() {
-		
+		super("PICK A PATH");
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
-		JFrame frame = new JFrame("PICK A PATH"); // title of window
-
+		
 		JPanel panel = new JPanel(new BorderLayout());
-		frame.add(panel);
+		add(panel);
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
-		frame.add(panel);
 		Canvas canvas = new Canvas(arrows, boxes, this);
-		JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
+		JPanel extra = new JPanel(new BorderLayout());
+		extra.setOpaque(true);
+		extra.add(canvas, BorderLayout.CENTER);
+		JScrollPane scrollPane = new JScrollPane(extra); //adding the scrollpane to our canvas
 		canvas.setViewport(scrollPane.getViewport());
+
+		
 		panel.add(scrollPane, BorderLayout.CENTER);
-		
-		JScrollBar horizontalScroll = new JScrollBar(JScrollBar.HORIZONTAL);
-		JScrollBar verticalScroll = new JScrollBar(JScrollBar.VERTICAL);
-		horizontalScroll.setVisible(true);
-		verticalScroll.setVisible(true);
-		
-		
-		panel.add(canvas, BorderLayout.CENTER);
 		JDialog itemWindow = makeItemDialog(canvas);
 
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
@@ -246,8 +259,11 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "");
+				JViewport viewport = canvas.getViewport();
+				Dimension size = viewport.getExtentSize();
+				Box box = new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), 100, 50, "");
 				boxes.add(box);
+				canvas.updateBounds(box);
 				
 
 				canvas.repaint();
@@ -304,7 +320,6 @@ public class Main extends JFrame {
 
 		});
 		panel.add(numbers, BorderLayout.EAST); // assigns the boxes to the right container
-		frame.add(panel);
 
 		textArea = new JTextArea("Insert Text Here");
 		textArea.setColumns(20);
@@ -337,7 +352,6 @@ public class Main extends JFrame {
 		});
 		JScrollPane scrolling = new JScrollPane(textArea);
 		panel.add(scrolling, BorderLayout.SOUTH);
-		frame.add(panel);
 		JMenuBar bar = new JMenuBar(); // menu bar
 		JMenu file = new JMenu("File"); // file button
 
@@ -351,7 +365,7 @@ public class Main extends JFrame {
 		nproject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
-					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
+					if (JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						Saving.saveFile(boxes, arrows);
 						canvas.deleteAllBoxes();
@@ -371,7 +385,7 @@ public class Main extends JFrame {
 		openp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
-					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
+					if (JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
 						Saving.saveFile(boxes, arrows);
@@ -410,14 +424,13 @@ public class Main extends JFrame {
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				frame.dispose();
+				dispose();
 			}
 		});
 
-		frame.setJMenuBar(bar);
-
+		
 		JMenu mode = new JMenu("Mode"); // mode button
-		frame.setJMenuBar(bar);
+		setJMenuBar(bar);
 
 
 		JMenuItem playerModeItem = new JMenuItem("Player Mode");
@@ -429,7 +442,7 @@ public class Main extends JFrame {
 				
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
-					frame.setVisible(false);
+					setVisible(false);
 					//new PlayerMode(startingBoxes.get(0), frame);
 					new PlayerMode_cli(startingBoxes.get(0));
 				} else {
@@ -442,11 +455,11 @@ public class Main extends JFrame {
 		
 		bar.add(mode);
 		mode.add(playerModeItem);
-		frame.setSize(800, 700);
-		frame.setMinimumSize(new Dimension(800, 700));
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // this closes the GUI
+		setSize(800, 700);
+		setMinimumSize(new Dimension(800, 700));
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // this closes the GUI
 		
-		frame.setVisible(true); // allows the GUI to start as visible
+		setVisible(true); // allows the GUI to start as visible
 
 	}
 

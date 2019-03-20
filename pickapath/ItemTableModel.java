@@ -1,6 +1,7 @@
 package pickapath;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -103,5 +104,8 @@ public class ItemTableModel implements TableModel {
 		TableModelEvent event = new TableModelEvent(this, row, row, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE);
 		for (TableModelListener listener: listeners)
 			listener.tableChanged(event);
+	}
+	public List<Item> getItems() {
+		return items;
 	}
 }
