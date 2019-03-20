@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -198,15 +200,40 @@ public class Main extends JFrame {
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
 		frame.add(panel);
 		Canvas canvas = new Canvas(arrows, boxes, this);
-		JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
-		canvas.setViewport(scrollPane.getViewport());
-		panel.add(scrollPane, BorderLayout.CENTER);
-		
+		//JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
+		//canvas.setViewport(scrollPane.getViewport());
 		JScrollBar horizontalScroll = new JScrollBar(JScrollBar.HORIZONTAL);
 		JScrollBar verticalScroll = new JScrollBar(JScrollBar.VERTICAL);
 		horizontalScroll.setVisible(true);
 		verticalScroll.setVisible(true);
+		frame.add(verticalScroll, BorderLayout.WEST);
+		frame.add(horizontalScroll, BorderLayout.SOUTH);
 		
+		horizontalScroll.addAdjustmentListener(new AdjustmentListener(){
+
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				// TODO Auto-generated method stub
+				if (horizontalScroll.getValueIsAdjusting()) {
+					int hScrollVal = horizontalScroll.getValue();
+					horizontalScroll.setValue(hScrollVal);
+				}
+			}
+			
+		});
+		
+		verticalScroll.addAdjustmentListener(new AdjustmentListener(){
+
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				if (verticalScroll.getValueIsAdjusting()) {
+					int vScrollVal = horizontalScroll.getValue();
+					verticalScroll.setValue(vScrollVal);
+				}
+				
+			}
+			
+		});
 		
 		panel.add(canvas, BorderLayout.CENTER);
 		JDialog itemWindow = makeItemDialog(canvas);

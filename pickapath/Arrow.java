@@ -1,6 +1,11 @@
 package pickapath;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 public class Arrow implements Serializable{
 
 	private static final long serialVersionUID = 4384512514370109657L;
@@ -21,6 +26,17 @@ public class Arrow implements Serializable{
 		start.addOutgoing(this);
 		end.addIncoming(this);
 	}
+	
+	
+	public Arrow(ObjectInputStream in, List<Box> boxes) throws IOException, ClassNotFoundException {
+		text = (String)in.readObject();
+	}
+	
+	public void write(ObjectOutputStream out, List<Box> boxes) throws IOException {
+		out.writeObject(text);
+		
+	}
+
 
 
 	public Box getStart() {
