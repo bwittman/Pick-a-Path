@@ -66,7 +66,12 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	
 	public void setViewport(JViewport viewport) {
 		this.viewport = viewport;
-		viewport.setOpaque(false);
+		//viewport.setOpaque(false);
+	}
+	
+	public JViewport  getViewport() {
+		return viewport;
+		//viewport.setOpaque(false);
 	}
 	
 	@Override
@@ -217,24 +222,29 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				int deltaY = y - startYDrag;
 				selectedBox.setX(startXBox + deltaX, zoom);
 				selectedBox.setY(startYBox + deltaY, zoom);
-				if ((selectedBox.getX()-selectedBox.getWidth()/2)* zoom < boxMinX) {
-					boxMinX = (int) Math.floor((selectedBox.getX()-selectedBox.getWidth()/2)* zoom);
-				}
-				if ((selectedBox.getX()+selectedBox.getWidth()/2)* zoom > boxMaxX) {
-					boxMaxX = (int) Math.ceil((selectedBox.getX()+selectedBox.getWidth()/2)* zoom);
-				}
-				if ((selectedBox.getY()-selectedBox.getHeight()/2)* zoom < boxMinY) {
-					boxMinY = (int) Math.floor((selectedBox.getY()-selectedBox.getHeight()/2)* zoom);
-				}
-				if ((selectedBox.getY()+selectedBox.getHeight()/2)* zoom > boxMaxY) {
-					boxMaxY = (int) Math.ceil((selectedBox.getY()+selectedBox.getHeight()/2)* zoom);
-				} 
-				
-				this.setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
-				this.revalidate(); 
+				updateBounds(selectedBox);
+			
 			}
 			repaint();
 		}
+	}
+	
+	public void updateBounds(Box box) {
+		if ((box.getX()-box.getWidth()/2)* zoom < boxMinX) {
+			boxMinX = (int) Math.floor((box.getX()-box.getWidth()/2)* zoom);
+		}
+		if ((box.getX()+box.getWidth()/2)* zoom > boxMaxX) {
+			boxMaxX = (int) Math.ceil((box.getX()+box.getWidth()/2)* zoom);
+		}
+		if ((box.getY()-box.getHeight()/2)* zoom < boxMinY) {
+			boxMinY = (int) Math.floor((box.getY()-box.getHeight()/2)* zoom);
+		}
+		if ((box.getY()+box.getHeight()/2)* zoom > boxMaxY) {
+			boxMaxY = (int) Math.ceil((box.getY()+box.getHeight()/2)* zoom);
+		} 
+		
+		setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
+		revalidate(); 
 	}
 
 

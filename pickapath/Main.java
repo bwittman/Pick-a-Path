@@ -7,14 +7,13 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -24,11 +23,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -194,8 +193,12 @@ public class Main extends JFrame {
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
 		frame.add(panel);
 		Canvas canvas = new Canvas(arrows, boxes, this);
-		//JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
-		//canvas.setViewport(scrollPane.getViewport());
+		JPanel extra = new JPanel(new BorderLayout());
+		extra.setOpaque(true);
+		extra.add(canvas, BorderLayout.CENTER);
+		JScrollPane scrollPane = new JScrollPane(extra); //adding the scrollpane to our canvas
+		canvas.setViewport(scrollPane.getViewport());
+		/*
 		JScrollBar horizontalScroll = new JScrollBar(JScrollBar.HORIZONTAL);
 		JScrollBar verticalScroll = new JScrollBar(JScrollBar.VERTICAL);
 		horizontalScroll.setVisible(true);
@@ -228,8 +231,10 @@ public class Main extends JFrame {
 			}
 			
 		});
+		*/
+		//panel.add(canvas, BorderLayout.CENTER);
 		
-		panel.add(canvas, BorderLayout.CENTER);
+		panel.add(scrollPane, BorderLayout.CENTER);
 		JDialog itemWindow = makeItemDialog(canvas);
 
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
@@ -273,8 +278,11 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Box box = new Box(random.nextInt(500), random.nextInt(500), 100, 50, "");
+				JViewport viewport = canvas.getViewport();
+				Dimension size = viewport.getExtentSize();
+				Box box = new Box(random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX(), random.nextInt(((int)size.getHeight()) + (int)viewport.getViewPosition().getY()), 100, 50, "");
 				boxes.add(box);
+				canvas.updateBounds(box);
 				
 
 				canvas.repaint();
