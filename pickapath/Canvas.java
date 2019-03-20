@@ -47,10 +47,6 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
 		
-		/*boxMaxX = this.getWidth();
-		boxMaxY = this.getHeight();
-		boxMinX = 0;
-		boxMinY = 0; */
 		this.setBackground(new Color(185,185,185));
 		this.boxes = boxes;
 		this.arrows = arrows;
@@ -182,6 +178,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				arrows.remove(arrow);
 			}
 			selected = null;
+			resetBounds();
 			repaint();
 		}}
 	//Deletes selected arrow
@@ -248,6 +245,15 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 
+	public void resetBounds() {
+		boxMaxX = Integer.MIN_VALUE;
+		boxMaxY = Integer.MIN_VALUE;
+		boxMinX = Integer.MAX_VALUE;
+		boxMinY = Integer.MAX_VALUE;
+		for (Box box: boxes) {
+			updateBounds(box);
+		}
+	}
 	@Override
 	public void mouseMoved(MouseEvent e) {
 	}
@@ -354,6 +360,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public void setZoom(double zoom, Font font) {
 		this.zoom = zoom;
 		this.font = font;
+		resetBounds();
 		repaint();
 	}
 

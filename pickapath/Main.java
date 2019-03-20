@@ -189,56 +189,20 @@ public class Main extends JFrame {
 	}
 
 	public Main() {
-		
+		super("PICK A PATH");
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
-		JFrame frame = new JFrame("PICK A PATH"); // title of window
-
+		
 		JPanel panel = new JPanel(new BorderLayout());
-		frame.add(panel);
+		add(panel);
 		JPanel numbers = new JPanel(new GridLayout(5, 0)); // how many buttons there are on the right side, needs
-		frame.add(panel);
 		Canvas canvas = new Canvas(arrows, boxes, this);
 		JPanel extra = new JPanel(new BorderLayout());
 		extra.setOpaque(true);
 		extra.add(canvas, BorderLayout.CENTER);
 		JScrollPane scrollPane = new JScrollPane(extra); //adding the scrollpane to our canvas
 		canvas.setViewport(scrollPane.getViewport());
-		/*
-		JScrollBar horizontalScroll = new JScrollBar(JScrollBar.HORIZONTAL);
-		JScrollBar verticalScroll = new JScrollBar(JScrollBar.VERTICAL);
-		horizontalScroll.setVisible(true);
-		verticalScroll.setVisible(true);
-		frame.add(verticalScroll, BorderLayout.WEST);
-		frame.add(horizontalScroll, BorderLayout.SOUTH);
-		
-		horizontalScroll.addAdjustmentListener(new AdjustmentListener(){
 
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
-				// TODO Auto-generated method stub
-				if (horizontalScroll.getValueIsAdjusting()) {
-					int hScrollVal = horizontalScroll.getValue();
-					horizontalScroll.setValue(hScrollVal);
-				}
-			}
-			
-		});
-		
-		verticalScroll.addAdjustmentListener(new AdjustmentListener(){
-
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
-				if (verticalScroll.getValueIsAdjusting()) {
-					int vScrollVal = horizontalScroll.getValue();
-					verticalScroll.setValue(vScrollVal);
-				}
-				
-			}
-			
-		});
-		*/
-		//panel.add(canvas, BorderLayout.CENTER);
 		
 		panel.add(scrollPane, BorderLayout.CENTER);
 		JDialog itemWindow = makeItemDialog(canvas);
@@ -345,7 +309,6 @@ public class Main extends JFrame {
 
 		});
 		panel.add(numbers, BorderLayout.EAST); // assigns the boxes to the right container
-		frame.add(panel);
 
 		textArea = new JTextArea("Insert Text Here");
 		textArea.setColumns(20);
@@ -378,7 +341,6 @@ public class Main extends JFrame {
 		});
 		JScrollPane scrolling = new JScrollPane(textArea);
 		panel.add(scrolling, BorderLayout.SOUTH);
-		frame.add(panel);
 		JMenuBar bar = new JMenuBar(); // menu bar
 		JMenu file = new JMenu("File"); // file button
 
@@ -392,7 +354,7 @@ public class Main extends JFrame {
 		nproject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
-					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
+					if (JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						Saving.saveFile(boxes, arrows);
 						canvas.deleteAllBoxes();
@@ -412,7 +374,7 @@ public class Main extends JFrame {
 		openp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
-					if (JOptionPane.showConfirmDialog(frame, "Do you want to save first?", "Save?",
+					if (JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
 						Saving.saveFile(boxes, arrows);
@@ -451,14 +413,13 @@ public class Main extends JFrame {
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				frame.dispose();
+				dispose();
 			}
 		});
 
-		frame.setJMenuBar(bar);
-
+		
 		JMenu mode = new JMenu("Mode"); // mode button
-		frame.setJMenuBar(bar);
+		setJMenuBar(bar);
 
 
 		JMenuItem playerModeItem = new JMenuItem("Player Mode");
@@ -470,7 +431,7 @@ public class Main extends JFrame {
 				
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
-					frame.setVisible(false);
+					setVisible(false);
 					//new PlayerMode(startingBoxes.get(0), frame);
 					new PlayerMode_cli(startingBoxes.get(0));
 				} else {
@@ -483,11 +444,11 @@ public class Main extends JFrame {
 		
 		bar.add(mode);
 		mode.add(playerModeItem);
-		frame.setSize(800, 700);
-		frame.setMinimumSize(new Dimension(800, 700));
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // this closes the GUI
+		setSize(800, 700);
+		setMinimumSize(new Dimension(800, 700));
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // this closes the GUI
 		
-		frame.setVisible(true); // allows the GUI to start as visible
+		setVisible(true); // allows the GUI to start as visible
 
 	}
 
