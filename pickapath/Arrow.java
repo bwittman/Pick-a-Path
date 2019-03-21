@@ -30,6 +30,12 @@ public class Arrow{
 	
 	public Arrow(ObjectInputStream in, List<Box> boxes) throws IOException, ClassNotFoundException {
 		text = (String)in.readObject();
+		int startIndex = in.readInt();
+		int endIndex = in.readInt();
+		start = boxes.get(startIndex);
+		end = boxes.get(endIndex);
+		start.addOutgoing(this);
+		end.addIncoming(this);
 	}
 	
 	public void write(ObjectOutputStream out, List<Box> boxes) throws IOException {
