@@ -265,4 +265,10 @@ class Tests {
 		Assert.assertEquals("That is not the width",true,boxes.get(0).getY() == 60);
 		
 		}
+	@Test
+	public void itemIdTest() {
+		ArrayList<Item> items = new ArrayList<>();
+		
+
+	}
 }

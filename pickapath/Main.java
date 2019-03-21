@@ -139,6 +139,7 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				// read from text, convert to number, look through list,get it, then evaluate
 				String text = operatorField.getText().trim();
+				try {
 				int itemNumber = Integer.parseInt(text);
 				List<Item> items = tableModel.getItems();
 				for(Item item: items ) {
@@ -149,7 +150,8 @@ public class Main extends JFrame {
 				}
 				
 			}
-			
+				catch (NumberFormatException e) {}
+			}
 		});
 		
 		//Listener for cancel button in item window  
