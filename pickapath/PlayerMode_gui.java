@@ -9,7 +9,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -28,12 +30,15 @@ public class PlayerMode_gui {
 	private JTextArea boxInformation;
 	private List<JRadioButton> buttonList;
 	private Box situation;
-	
+	private Set<Item> items;
+	private List<Arrow> arrowList;
 
 
 public PlayerMode_gui(Box startingBox, JFrame frame) {
 
+	items = new HashSet<Item>();
 	buttonList = new ArrayList<JRadioButton>();
+	arrowList = new ArrayList<Arrow>();
 	playerMode = new JFrame("PlayerMode");
 	choicePanel = new JPanel();
 	boxInformation = new JTextArea("Situation");
@@ -57,14 +62,15 @@ public PlayerMode_gui(Box startingBox, JFrame frame) {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			if (situation.getOutgoing().size() > 0) {
+			if (arrowList.size() > 0) {
 				Arrow arrow = null;
 
 				for (int i = 0; i < buttonList.size(); i++) {
 					if (buttonList.get(i).isSelected())
-						arrow = situation.getOutgoing().get(i);
+						arrow = arrowList.get(i);
 				}
 				if (arrow != null) {
+					items.addAll(arrow.getItems());
 					Box next = arrow.getEnd();
 					populateChoices(next);
 
@@ -104,6 +110,7 @@ public PlayerMode_gui(Box startingBox, JFrame frame) {
 private void populateChoices(Box box) {
 	situation = box;
 	buttonList.clear();
+	arrowList.clear();
 	choicePanel.removeAll();
 	choicePanel.setLayout(new GridLayout(box.getOutgoing().size(), 1));// where the JRadio Button info is formed
 	// from the arrows
@@ -111,11 +118,13 @@ private void populateChoices(Box box) {
 	boxInformation.validate();
 	ButtonGroup group = new ButtonGroup();// groups the JButtons together for formatting in the gridLayout
 	for (Arrow arrow : box.getOutgoing()) {
-		JRadioButton button = new JRadioButton(arrow.getText());
-		group.add(button);// adds all the buttons to the middle
-		buttonList.add(button);
-		choicePanel.add(button);
-
+		if( arrow.satisfies(items) ) {
+			JRadioButton button = new JRadioButton(arrow.getText());
+			group.add(button);// adds all the buttons to the middle
+			buttonList.add(button);
+			arrowList.add(arrow);
+			choicePanel.add(button);
+		}
 	}
 	
 	boxInformation.setMaximumSize(new Dimension(2048, 400));

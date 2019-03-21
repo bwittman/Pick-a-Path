@@ -16,6 +16,16 @@ public class BooleanExpression {
 	private Item item;
 	private Kind kind;
 	
+	public String toString() {
+		switch(kind) {
+		case ITEM: return "" + item.getId();
+		case AND: return "(" + op1 + " AND " + op2 + ")";
+		case OR: return "(" + op1 + " OR " + op2 + ")";
+		case NOT: return "NOT (" + op1 + ")";
+		}
+		return "";
+	}
+	
 	public Kind getKind() {
 		return kind;
 	}

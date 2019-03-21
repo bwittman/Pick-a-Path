@@ -2,7 +2,6 @@ package pickapath;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -47,6 +46,7 @@ public class Main extends JFrame {
 	private JButton items;
 	private JSlider slider;
 	private JTextArea operatorField;
+	private JTextArea itemTextArea; 
 	private Font[] fonts;
 	private static final int MAX_SLIDER = 5;
 	private static final int MIN_SLIDER = 1;
@@ -135,8 +135,8 @@ public class Main extends JFrame {
 					List<Item> items = tableModel.getItems();
 					for(Item item: items ) {
 						if(item.getId() == itemNumber) {
-							canvas.setBooleanExpression(new BooleanExpression(item));
-							itemWindow.setVisible(false);
+							Arrow arrow = (Arrow)canvas.getSelected();
+							arrow.setBooleanExpression(new BooleanExpression(item));
 						}
 					}
 
@@ -146,7 +146,7 @@ public class Main extends JFrame {
 		});
 		
 		
-				panel.add(and);
+		panel.add(and);
 		panel.add(check);
 		panel.add(or);
 		
@@ -176,10 +176,19 @@ public class Main extends JFrame {
 		okCancel.setPreferredSize(new Dimension(300,100));
 		okCancel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		JButton ok = new JButton("OK");
+		ok.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				itemWindow.setVisible(false);
+				
+			}
+			
+		});
 		okCancel.add(ok);
 		okCancel.add(cancel);
 		
-		JTextArea itemTextArea = new JTextArea();
+		itemTextArea = new JTextArea();
 		itemTextArea.setEditable(false);
 		JPanel itemsGiven = new JPanel(new BorderLayout());//north
 		itemsGiven.setBorder(BorderFactory.createTitledBorder("Items Given"));
@@ -189,7 +198,32 @@ public class Main extends JFrame {
 		itemsGiven.add(itemTextArea,BorderLayout.CENTER);
 		JButton givenAdd = new JButton("Add");
 		givenAdd.setEnabled(false);
+		givenAdd.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Arrow arrow = (Arrow) canvas.getSelected();
+				for(int row:itemTable.getSelectedRows())
+					arrow.addItem(tableModel.getItems().get(row));
+				
+				itemTextArea.setText(arrow.heldItemText());
+			}
+			
+		});
 		JButton givenDelete = new JButton("Delete");
+		givenDelete.setEnabled(false);
+		givenDelete.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Arrow arrow = (Arrow) canvas.getSelected();
+				for(int row:itemTable.getSelectedRows())
+					arrow.removeItem(tableModel.getItems().get(row));
+				
+				itemTextArea.setText(arrow.heldItemText());
+			}
+			
+		});
 		JPanel givenButtons = new JPanel(new GridLayout(1,2));
 		givenButtons.add(givenAdd);
 		givenButtons.add(givenDelete);
@@ -301,6 +335,9 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				Arrow arrow = (Arrow)canvas.getSelected();
+				itemTextArea.setText(arrow.heldItemText());
+				operatorField.setText(arrow.getRequirementsText());
 				itemWindow.setVisible(true);
 
 			}
@@ -463,8 +500,8 @@ public class Main extends JFrame {
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
 					setVisible(false);
-					//new PlayerMode(startingBoxes.get(0), frame);
-					new PlayerMode_cli(startingBoxes.get(0));
+					new PlayerMode_gui(startingBoxes.get(0), Main.this);
+					//new PlayerMode_cli(startingBoxes.get(0));
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"You must have exactly one box with no incoming arrows before entering player mode!");

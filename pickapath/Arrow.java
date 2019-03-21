@@ -28,6 +28,20 @@ public class Arrow{
 		end.addIncoming(this);
 	}
 	
+	public String heldItemText() {
+		String text = "";
+		boolean first = true;
+		for(Item item: itemsHeld) {
+			if( first ) {
+				text += item;
+				first = false;
+			}
+			else
+				text += ", " + item;
+		}
+		return text;
+	}
+	
 	public Arrow(ObjectInputStream in, List<Box> boxes) throws IOException, ClassNotFoundException {
 		text = (String)in.readObject();
 		int startIndex = in.readInt();
@@ -106,7 +120,7 @@ public class Arrow{
 	public void setBooleanExpression(BooleanExpression expression) {
 		this.expression = expression;
 	}
-	public Set<Item> getItem(){
+	public Set<Item> getItems(){
 		return itemsHeld;
 	}
 	public void removeItem(Item item) {
@@ -114,6 +128,21 @@ public class Arrow{
 	}
 	public void addItem(Item item) {
 		itemsHeld.add(item);
+	}
+	
+	public boolean satisfies(Set<Item> items) {
+		if( expression == null )
+			return true;
+		else
+			return expression.isTrue(items);
+		
+	}
+
+	public String getRequirementsText() {
+		if( expression == null )
+			return "";
+		else		
+			return expression.toString();
 	}
 	
 }
