@@ -282,7 +282,7 @@ class Tests {
 		
 
 	}
-<<<<<<< HEAD
+
 	@Test 
 	public void scrollbarDefaultTest() {
 		
@@ -295,14 +295,9 @@ class Tests {
 	
 	@Test
 	public void resetBoundsTest() {
-		
+		}
 	}
-=======
 	
 	
 	
 
-	
-
->>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2
-}
