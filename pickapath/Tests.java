@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
-
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileFilter;
 
 import org.junit.Assert;
@@ -268,7 +268,36 @@ class Tests {
 	@Test
 	public void itemIdTest() {
 		ArrayList<Item> items = new ArrayList<>();
-		
+		items.add(new Item(7,"Sword"));
+		Assert.assertEquals("That is not the item ID",true,items.get(0).getId() == 7);
 
+	}
+	@Test
+	public void itemNameTest() {
+		ArrayList<Item> items = new ArrayList<>();
+		items.add(new Item(7,"Sword"));
+		Assert.assertEquals("That is not the item name",true,items.get(0).getName() =="Sword");
+	}
+	@Test
+	public void getColumnNameTest() {
+		ArrayList<Item> items = new ArrayList<>();
+		//Assert.assertEquals("That is not the column name", true, items.getClass().getName() == "Item Number" );
+	}
+	@Test
+	public void getRowCountTest() {
+		ArrayList<Item> items = new ArrayList<>();
+		items.add(new Item(7,"Sword"));
+		Assert.assertEquals("That is not the number of rows",true,items.size() == 1);
+	}
+	@Test
+	public void isCellEditableTest() {
+		ArrayList<Item> items = new ArrayList<>();
+		items.add(new Item(7,"Sword"));
+		//Assert.assertEquals("This cell is not editable",true,items.is);
+	}
+	public void addTableModelListenerTest() {
+		ArrayList<TableModelListener> listeners = new ArrayList<>();
+		//listeners.add(new TableModelListener listener());
+		//Assert.assertEquals("The listener was not added", true,);
 	}
 }
