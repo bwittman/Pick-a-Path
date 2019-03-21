@@ -71,7 +71,6 @@ class Tests {
 		int boxX =  boxes.get(0).getX();
 		int boxY = boxes.get(0).getY();
 		double zoom = 1.0;
-		//arrow.contains(boxX, boxY);
 		Assert.assertEquals("mouse X and Y not inside arrow", false, arrow.contains(boxX, boxY, zoom));
 	}
 	
@@ -270,5 +269,19 @@ class Tests {
 		ArrayList<Item> items = new ArrayList<>();
 		
 
+	}
+	@Test 
+	public void scrollbarDefaultTest() {
+		
+	}
+	
+	@Test
+	public void updateBoundsTest() {
+		
+	}
+	
+	@Test
+	public void resetBoundsTest() {
+		
 	}
 }
