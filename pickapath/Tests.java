@@ -64,8 +64,26 @@ class Tests {
 	}
 	
 	
-	//sucks
+	
 	@Test
+	public void addOutgoingTest1() {
+		Box box0 = new Box(40,60,100,50, "Olivia");
+		Box box1 = new Box(25,70,100,50, "Lucia");
+		Arrow arrow = new Arrow (box0, box1, "friends");
+		Assert.assertEquals("Outgoing arrow not added", 1, box0.getOutgoing().size());
+	}
+	
+	@Test
+	public void addOutgoingTest2() {
+		Box box0 = new Box(40,60,100,50, "Olivia");
+		Box box1 = new Box(25,70,100,50, "Lucia");
+		Box box2 = new Box(25,70,100,50, "Jimmy");
+		Arrow arrow0 = new Arrow (box1, box0, "friends");
+		Arrow arrow1 = new Arrow (box1, box2, "enemies");
+		Assert.assertEquals("Outgoing arrows not added", 2, box1.getOutgoing().size());
+	}
+	//sucks
+	/*@Test
 	public void addOutgoingTest() {
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> outgoing = new ArrayList<Arrow>();
@@ -73,7 +91,7 @@ class Tests {
 		boxes.add(new Box(25,70,100,50, "Lucia"));
 		outgoing.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
 		Assert.assertEquals("Outgoing arrow not added", true, outgoing.size() != 0);
-	}
+	} */
 	
 	@Test
 	public void boxContainsTest() {
@@ -84,7 +102,7 @@ class Tests {
 	}
 	
 	@Test
-	public void boxDoesntContainsTest() {
+	public void boxDoesntContainTest() {
 		int x = 45;
 		int y = 50;
 		Box box = new Box(40,60,100,50, "Olivia");
