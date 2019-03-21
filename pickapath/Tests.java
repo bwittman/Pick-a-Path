@@ -96,7 +96,6 @@ class Tests {
 	public void arrowContainsTest() {
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
-		//Canvas canvas = new Canvas(arrows, boxes, null);
 		boxes.add(new Box(40,60,100,50, "Olivia"));
 		boxes.add(new Box(25,70,100,50, "Lucia"));
 		arrows.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
@@ -209,12 +208,7 @@ class Tests {
 		int boxMaxY = 200;
 		int boxMinX = -100;
 		int boxMinY = -100;
-		List<Arrow> arrows = new ArrayList<Arrow>();
-		List<Box> boxes = new ArrayList<Box>();
-		boxes.add(new Box(40,60,100,50, "Olivia"));
-		boxes.add(new Box(25,70,100,50, "Lucia"));
-		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
-		Canvas canvas = new Canvas(arrows, boxes, null);
+
 		
 	}
 	
