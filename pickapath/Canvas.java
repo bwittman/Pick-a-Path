@@ -414,6 +414,19 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public List<Arrow> getArrows() {
 		return arrows;
 	}
+	
+	public int getMaxX() {
+		return boxMaxX;
+	}
+	public int getMaxY() {
+		return boxMaxY;
+	}
+	public int getMinX() {
+		return boxMinX;
+	}
+	public int getMinY() {
+		return boxMinY;
+	}
 
 
 }
