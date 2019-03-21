@@ -408,7 +408,20 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		}
 		
 	}
+	
+	public void addBox(Box box) {
+		boxes.add(box);
+		updateBounds(box);
+		repaint();
+	}
 
+	public List<Box> getBoxes() {
+		return boxes;
+	}
+	
+	public List<Arrow> getArrows() {
+		return arrows;
+	}
 
 
 }
