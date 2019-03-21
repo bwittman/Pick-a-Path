@@ -31,6 +31,18 @@ class Tests {
 		Assert.assertEquals("boxes not deleted", true, boxes.size()==0 && arrows.size()==0);
 	}
 	
+	@Test //not done
+	public void deleteAllBoxesTestDialogueBox() {
+		List<Arrow> arrows = new ArrayList<Arrow>();
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Logan"));
+		boxes.add(new Box(25,70,100,50, "Nagol"));
+		arrows.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
+		Canvas canvas = new Canvas(arrows, boxes, null);
+		canvas.deleteAllBoxes();
+		Assert.assertEquals("boxes not supposed to be deleted", true, boxes.size()==0 && arrows.size()==0);
+	}
+	
 	@Test
 	public void addIncomingTest() {
 		List<Box> boxes = new ArrayList<Box>();
@@ -71,7 +83,6 @@ class Tests {
 		int boxX =  boxes.get(0).getX();
 		int boxY = boxes.get(0).getY();
 		double zoom = 1.0;
-		//arrow.contains(boxX, boxY);
 		Assert.assertEquals("mouse X and Y not inside arrow", false, arrow.contains(boxX, boxY, zoom));
 	}
 	
@@ -272,6 +283,7 @@ class Tests {
 		Assert.assertEquals("That is not the item ID",true,items.get(0).getId() == 7);
 
 	}
+
 	@Test
 	public void itemNameTest() {
 		ArrayList<Item> items = new ArrayList<>();
@@ -296,8 +308,26 @@ class Tests {
 		//Assert.assertEquals("This cell is not editable",true,items.is);
 	}
 	public void addTableModelListenerTest() {
-		ArrayList<TableModelListener> listeners = new ArrayList<>();
+		//ArrayList<TableModelListener> listeners = new ArrayList<>();
 		//listeners.add(new TableModelListener listener());
 		//Assert.assertEquals("The listener was not added", true,);
 	}
-}
+
+	@Test 
+	public void scrollbarDefaultTest() {
+		
+	}
+	
+	@Test
+	public void updateBoundsTest() {
+		
+	}
+	
+	@Test
+	public void resetBoundsTest() {
+		}
+	}
+	
+	
+	
+

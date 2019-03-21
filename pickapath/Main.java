@@ -314,7 +314,7 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (JOptionPane.showConfirmDialog(Main.this, "Are you sure you want to delete all?", "Delete?",
+				if (JOptionPane.showConfirmDialog(Main.this, "Are you sure you want to delete all?", "",
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 				canvas.deleteAllBoxes();
 
