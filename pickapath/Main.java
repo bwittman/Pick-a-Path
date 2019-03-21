@@ -1,8 +1,8 @@
 package pickapath;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -70,8 +71,8 @@ public class Main extends JFrame {
 		itemWindow.setLayout(new BorderLayout());
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
-		JPanel itemsChecked = new JPanel(new BorderLayout());
-		JPanel itemsGiven = new JPanel(new BorderLayout());
+		JPanel mainPanel = new JPanel(new BorderLayout());
+
 		ItemTableModel tableModel = new ItemTableModel();
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
@@ -110,27 +111,18 @@ public class Main extends JFrame {
 		});
 		//Enables a row to be selected 
 		itemTable.setRowSelectionAllowed(true);
-		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			//Listener that enables delete button if a row is selected
-			@Override
-			public void valueChanged(ListSelectionEvent event) {
-					deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
-			}
-			
-		});
+		
 		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
 		tablePanel.add(tableScroll, BorderLayout.CENTER);
 		itemWindow.add(tablePanel, BorderLayout.WEST);
 		//End table stuff
 		
 		operatorField = new JTextArea();
-		JPanel panel = new JPanel(new GridLayout(3,2));
+		JPanel panel = new JPanel(new GridLayout(2,2));
 		JButton and = new JButton("AND");
 		JButton or = new JButton("OR");
 		JButton not = new JButton("NOT");
 		JButton check = new JButton("Check");
-		JButton cancel = new JButton("Cancel");
-		JButton delete = new JButton("Delete");
 		
 		//Listener for check button in the item window
 		check.addActionListener(new ActionListener() {
@@ -154,6 +146,15 @@ public class Main extends JFrame {
 			}
 		});
 		
+		
+				panel.add(and);
+		panel.add(check);
+		panel.add(or);
+		
+		panel.add(not);
+		
+		JButton cancel = new JButton("Cancel");
+		
 		//Listener for cancel button in item window  
 		cancel.addActionListener(new ActionListener() {
 			
@@ -165,27 +166,43 @@ public class Main extends JFrame {
 			
 		});
 		
-		//Listener for delete button in item window
-		delete.addActionListener(new ActionListener() {
+		
+		JPanel itemsChecked = new JPanel(new BorderLayout());
+		itemsChecked.setBorder(BorderFactory.createTitledBorder("Items Checked"));
+		itemsChecked.add(operatorField,BorderLayout.CENTER);
+		itemsChecked.add(panel,BorderLayout.SOUTH);
+		mainPanel.add(itemsChecked,BorderLayout.CENTER);
+		itemWindow.add(mainPanel, BorderLayout.CENTER);
+		JPanel okCancel = new JPanel(new GridLayout(1,2));//south
+		okCancel.setMinimumSize(new Dimension(300,100));
+		okCancel.setPreferredSize(new Dimension(300,100));
+		okCancel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		JButton ok = new JButton("OK");
+		okCancel.add(ok);
+		okCancel.add(cancel);
+		
+		JTextArea itemTextArea = new JTextArea();
+		itemTextArea.setEditable(false);
+		JPanel itemsGiven = new JPanel(new BorderLayout());//north
+		itemsGiven.setBorder(BorderFactory.createTitledBorder("Items Given"));
+		itemsGiven.setMinimumSize(new Dimension(300,200));
+		itemsGiven.setPreferredSize(new Dimension(300,200));
+		
+		itemsGiven.add(itemTextArea,BorderLayout.CENTER);
+		JButton givenAdd = new JButton("Add");
+		givenAdd.setEnabled(false);
+		JButton givenDelete = new JButton("Delete");
+		JPanel givenButtons = new JPanel(new GridLayout(1,2));
+		givenButtons.add(givenAdd);
+		givenButtons.add(givenDelete);
+		itemsGiven.add(givenButtons, BorderLayout.SOUTH);
+		mainPanel.add(itemsGiven, BorderLayout.NORTH);
+		
+		mainPanel.add(okCancel, BorderLayout.SOUTH);
+		
 
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-				itemWindow.setVisible(false);
-			}
-			
-		});
-		panel.add(and);
-		panel.add(check);
-		panel.add(or);
-		panel.add(cancel);
-		panel.add(not);
-		panel.add(delete);
-		JPanel centerPanel = new JPanel(new BorderLayout());
-		centerPanel.add(operatorField,BorderLayout.CENTER);
-		centerPanel.add(panel,BorderLayout.SOUTH);
-		itemWindow.add(centerPanel, BorderLayout.CENTER);
-		operatorField.setBackground(Color.LIGHT_GRAY);
+
+		//operatorField.setBackground(Color.LIGHT_GRAY);
 		itemWindow.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		itemWindow.addWindowListener(new WindowAdapter() {
 
@@ -196,6 +213,18 @@ public class Main extends JFrame {
 			}
 
 				
+		});
+		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			//Listener that enables delete button if a row is selected
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+					deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
+					givenAdd.setEnabled(itemTable.getSelectedRow() != -1);
+					givenDelete.setEnabled(itemTable.getSelectedRow() != -1);
+
+					
+			}
+			
 		});
 		itemWindow.pack();
 		return itemWindow;
