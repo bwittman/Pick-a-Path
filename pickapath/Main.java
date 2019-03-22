@@ -82,10 +82,10 @@ public class Main extends JFrame {
 		JButton addItem = new JButton("Add Item");
 		JButton deleteItem = new JButton("Delete Item");
 		buttonPanel.add(addItem);
-		
+
 		//Listener for add item button that creates a new item
 		addItem.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -124,17 +124,17 @@ public class Main extends JFrame {
 		JButton and = new JButton("AND");
 		JButton or = new JButton("OR");
 		JButton not = new JButton("NOT");
-		
-		
-		
-		
+
+
+
+
 		panel.add(and);
 		panel.add(or);
-		
+
 		panel.add(not);
-		
+
 		JButton exit = new JButton("Exit");
-		
+
 		exit.addActionListener(new ActionListener() {
 
 			@Override
@@ -144,8 +144,8 @@ public class Main extends JFrame {
 			}
 
 		});
-		
-		
+
+
 		JPanel itemsChecked = new JPanel(new BorderLayout());
 		itemsChecked.setBorder(BorderFactory.createTitledBorder("Items Checked"));
 		itemsChecked.add(operatorField,BorderLayout.CENTER);
@@ -158,36 +158,32 @@ public class Main extends JFrame {
 		okCancel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		JButton evaluate = new JButton("Evaluate");
 		//Listener for check button in the item window
-				evaluate.addActionListener(new ActionListener() {
+		evaluate.addActionListener(new ActionListener() {
 
-					@Override
-					public void actionPerformed(ActionEvent arg0) {
-						// read from text, convert to number, look through list,get it, then evaluate
-						String text = operatorField.getText().trim();
-						try {
-							int itemNumber = Integer.parseInt(text);
-							List<Item> items = tableModel.getItems();
-							for(Item item: items ) {
-								if(item.getId() == itemNumber) {
-									Arrow arrow = (Arrow)canvas.getSelected();
-									arrow.setBooleanExpression(new BooleanExpression(item));
-								}
-							}
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// read from text, convert to number, look through list,get it, then evaluate
+				String text = operatorField.getText().trim();
 
-						}
-						catch (NumberFormatException e) {}
-					}
-				});
+				if( !text.isEmpty() ) {
+					Arrow arrow = (Arrow)canvas.getSelected();
+
+					List<Item> items = tableModel.getItems();
+					arrow.setBooleanExpression(BooleanExpression.makeExpression(text, items));
+				}
+
+			}
+		});
 		okCancel.add(evaluate);
 		okCancel.add(exit);
-		
+
 		itemTextArea = new JTextArea();
 		itemTextArea.setEditable(false);
 		JPanel itemsGiven = new JPanel(new BorderLayout());//north
 		itemsGiven.setBorder(BorderFactory.createTitledBorder("Items Given"));
 		itemsGiven.setMinimumSize(new Dimension(300,200));
 		itemsGiven.setPreferredSize(new Dimension(300,200));
-		
+
 		itemsGiven.add(itemTextArea,BorderLayout.CENTER);
 		JButton givenAdd = new JButton("Add");
 		givenAdd.setEnabled(false);
@@ -198,10 +194,10 @@ public class Main extends JFrame {
 				Arrow arrow = (Arrow) canvas.getSelected();
 				for(int row:itemTable.getSelectedRows())
 					arrow.addItem(tableModel.getItems().get(row));
-				
+
 				itemTextArea.setText(arrow.heldItemText());
 			}
-			
+
 		});
 		JButton givenDelete = new JButton("Delete");
 		givenDelete.setEnabled(false);
@@ -212,17 +208,17 @@ public class Main extends JFrame {
 				Arrow arrow = (Arrow) canvas.getSelected();
 				for(int row:itemTable.getSelectedRows())
 					arrow.removeItem(tableModel.getItems().get(row));
-				
+
 				itemTextArea.setText(arrow.heldItemText());
 			}
-			
+
 		});
 		JPanel givenButtons = new JPanel(new GridLayout(1,2));
 		givenButtons.add(givenAdd);
 		givenButtons.add(givenDelete);
 		itemsGiven.add(givenButtons, BorderLayout.SOUTH);
 		mainPanel.add(itemsGiven, BorderLayout.NORTH);
-		
+
 		mainPanel.add(okCancel, BorderLayout.SOUTH);
 		itemWindow.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		itemWindow.addWindowListener(new WindowAdapter() {
@@ -239,13 +235,13 @@ public class Main extends JFrame {
 			//Listener that enables delete button if a row is selected
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
-					deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
-					givenAdd.setEnabled(itemTable.getSelectedRow() != -1);
-					givenDelete.setEnabled(itemTable.getSelectedRow() != -1);
+				deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
+				givenAdd.setEnabled(itemTable.getSelectedRow() != -1);
+				givenDelete.setEnabled(itemTable.getSelectedRow() != -1);
 
-					
+
 			}
-			
+
 		});
 		itemWindow.pack();
 		return itemWindow;
@@ -536,7 +532,7 @@ public class Main extends JFrame {
 	public void setItemsEnabled(boolean enabled) {
 		itemButton.setEnabled(enabled);
 	}
-	
+
 	public Canvas getCanvas() {
 		return canvas;
 	}

@@ -16,6 +16,7 @@ public class Arrow{
 	public final static int HEIGHT = 24;
 	public final static int HALF_WIDTH = 18;
 	private Set<Item> itemsHeld = new HashSet<Item>();
+	//private Item item;
 	
 
 	//Constructor for arrows
@@ -42,7 +43,7 @@ public class Arrow{
 		return text;
 	}
 	
-	public Arrow(ObjectInputStream in, List<Box> boxes) throws IOException, ClassNotFoundException {
+	public Arrow(ObjectInputStream in, List<Box> boxes, List<Item> items) throws IOException, ClassNotFoundException {
 		text = (String)in.readObject();
 		int startIndex = in.readInt();
 		int endIndex = in.readInt();
@@ -50,6 +51,20 @@ public class Arrow{
 		end = boxes.get(endIndex);
 		start.addOutgoing(this);
 		end.addIncoming(this);
+		int totalItems = in.readInt();
+		for(int i = 0; i < totalItems; ++i) {
+			int itemId = in.readInt();
+			for(Item item:items) {
+				if (itemId == item.getId()) {
+					itemsHeld.add(item);
+					break;
+				}
+			}
+		}
+		String expressionText = (String)in.readObject();
+		if (!expressionText.equals("")) {
+			expression = BooleanExpression.makeExpression(expressionText, items);
+		}
 	}
 	
 	public void write(ObjectOutputStream out, List<Box> boxes, List<Item> items) throws IOException {
@@ -66,7 +81,15 @@ public class Arrow{
 		}
 		out.writeInt(startIndex);
 		out.writeInt(endIndex);
-		out.writeObject(getItems());
+		out.writeInt(itemsHeld.size());
+		for(Item item: itemsHeld) {
+			out.writeInt(item.getId());
+		}
+		if(expression == null) {
+			out.writeObject("");
+		}else {
+			out.writeObject(expression.toString());
+		}
 	}
 	
 	public Box getStart() {

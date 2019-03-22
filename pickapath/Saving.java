@@ -22,16 +22,17 @@ public class Saving {
 			box.write(out);
 		}
 
+		out.writeInt(items.size());
+		for (Item item:items) {
+			item.write(out);
+		}
+		
 		out.writeInt(arrows.size());
 		for (Arrow arrow:arrows) {
 			arrow.write(out, boxes, items);
 			
 		}
 		
-		out.writeInt(items.size());
-		for (Item item:items) {
-			item.write(out, arrows);
-		}
 		out.close();
 		System.out.printf("Saved data is saved in " + selectedFile);
 	}
@@ -43,18 +44,19 @@ public class Saving {
 		for (int i = 0; i < boxCount; ++i ) {
 			boxes.add(new Box(in));
 		}
+
+		int itemCount = in.readInt();
+		items.clear();
+		for (int i = 0; i <  itemCount; ++i) {
+			items.add(new Item(in));
+		}
 		
 		int arrowCount = in.readInt();
 		arrows.clear();
 		for (int i = 0; i <  arrowCount; ++i) {
-			arrows.add(new Arrow(in, boxes));
+			arrows.add(new Arrow(in, boxes, items));
 		}
 		
-		int itemCount = in.readInt();
-		items.clear();
-		for (int i = 0; i <  itemCount; ++i) {
-			items.add(new Item(in, arrows));
-		}
 		in.close();
 		System.out.printf("Saved data is read from " + selectedFile);
 	}
