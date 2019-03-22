@@ -106,7 +106,7 @@ class Tests {
 		int x = 45;
 		int y = 50;
 		Box box = new Box(40,60,100,50, "Olivia");
-		Assert.assertEquals("points not contained in box", false, box.contains(30, 29, 1.0));
+		Assert.assertEquals("points are within box", false, box.contains(30, 29, 1.0));
 	}
 	
 	//sucks

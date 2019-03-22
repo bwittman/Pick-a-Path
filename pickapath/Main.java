@@ -43,7 +43,7 @@ public class Main extends JFrame {
 	private Canvas canvas;
 	private JTextArea textArea;
 	private JButton arrowButton;
-	private JButton items;
+	private JButton itemButton;
 	private JSlider slider;
 	private JTextArea operatorField;
 	private JTextArea itemTextArea; 
@@ -262,6 +262,7 @@ public class Main extends JFrame {
 		super("PICK A PATH");
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
+		List<Item> items = new ArrayList<Item>();
 
 		JPanel panel = new JPanel(new BorderLayout());
 		add(panel);
@@ -328,10 +329,10 @@ public class Main extends JFrame {
 		numbers.add(makeBox); // make box button
 		numbers.add(arrowButton); // make arrow button
 
-		items = new JButton("Items"); //create item button
-		items.setEnabled(false);
-		numbers.add(items);
-		items.addActionListener(new ActionListener() {
+		itemButton = new JButton("Items"); //create item button
+		itemButton.setEnabled(false);
+		numbers.add(itemButton);
+		itemButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -424,9 +425,9 @@ public class Main extends JFrame {
 				if (!boxes.isEmpty()) {
 					if (JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						Saving.saveFile(boxes, arrows);
+						Saving.saveFile(boxes, arrows, items);
 						canvas.deleteAllBoxes();
-						Saving.openFile(boxes, arrows);
+						Saving.openFile(boxes, arrows, items);
 						canvas.repaint();
 					} else {
 						canvas.deleteAllBoxes();
@@ -445,19 +446,19 @@ public class Main extends JFrame {
 					if (JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
-						Saving.saveFile(boxes, arrows);
+						Saving.saveFile(boxes, arrows, items);
 						canvas.deleteAllBoxes();
-						Saving.openFile(boxes, arrows);
+						Saving.openFile(boxes, arrows, items);
 						canvas.repaint();
 
 					} else {
 						canvas.deleteAllBoxes();
-						Saving.openFile(boxes, arrows);
+						Saving.openFile(boxes, arrows, items);
 						canvas.repaint();
 						// boxes = Saving.openFile().boxes;
 					}
 				} else {
-					Saving.openFile(boxes, arrows);
+					Saving.openFile(boxes, arrows, items);
 					canvas.repaint();
 				}
 			}
@@ -470,7 +471,7 @@ public class Main extends JFrame {
 		file.add(save);
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Saving.saveFile(boxes, arrows);
+				Saving.saveFile(boxes, arrows, items);
 			}
 		});
 
@@ -540,7 +541,7 @@ public class Main extends JFrame {
 	}
 
 	public void setItemsEnabled(boolean enabled) {
-		items.setEnabled(enabled);
+		itemButton.setEnabled(enabled);
 	}
 	
 	public Canvas getCanvas() {

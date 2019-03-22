@@ -9,12 +9,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 public class Saving {
 
-	public static void write(File selectedFile, List<Box> boxes, List<Arrow> arrows) throws FileNotFoundException, IOException{
+	public static void write(File selectedFile, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException{
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
 		out.writeInt(boxes.size());
 		for (Box box: boxes) {
@@ -24,12 +25,18 @@ public class Saving {
 		out.writeInt(arrows.size());
 		for (Arrow arrow:arrows) {
 			arrow.write(out, boxes);
+			
+		}
+		
+		out.writeInt(items.size());
+		for (Item item:items) {
+			item.write(out, arrows);
 		}
 		out.close();
 		System.out.printf("Saved data is saved in " + selectedFile);
 	}
 
-	public static void read(File selectedFile, List<Box> boxes, List<Arrow> arrows) throws FileNotFoundException, IOException, ClassNotFoundException{
+	public static void read(File selectedFile, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException, ClassNotFoundException{
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
 		int boxCount = in.readInt();
 		boxes.clear();
@@ -42,6 +49,12 @@ public class Saving {
 		for (int i = 0; i <  arrowCount; ++i) {
 			arrows.add(new Arrow(in, boxes));
 		}
+		
+		int itemCount = in.readInt();
+		items.clear();
+		for (int i = 0; i <  itemCount; ++i) {
+			items.add(new Item(in, arrows));
+		}
 		in.close();
 		System.out.printf("Saved data is read from " + selectedFile);
 	}
@@ -52,7 +65,7 @@ public class Saving {
 	//move below to main stop being static
 	
 	
-	public static void saveFile(List<Box> boxes, List<Arrow> arrows) {
+	public static void saveFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {
 
 		JFileChooser fileSelect = new JFileChooser();
 		fileSelect.setFileFilter(new FileFilter() {
@@ -73,7 +86,7 @@ public class Saving {
 				selectedFile = new File(path + ".pap");
 			}
 			try {
-				Saving.write(selectedFile, boxes, arrows);
+				Saving.write(selectedFile, boxes, arrows, items);
 			} catch (FileNotFoundException e1) {
 
 			} catch (IOException e1) {
@@ -83,7 +96,7 @@ public class Saving {
 		}
 	}
 
-	public static void openFile(List<Box> boxes, List<Arrow> arrows) {
+	public static void openFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {
 
 
 		JFileChooser fileSelect = new JFileChooser();
@@ -104,7 +117,7 @@ public class Saving {
 
 			try {
 				
-				Saving.read(selectedFile, boxes, arrows);
+				Saving.read(selectedFile, boxes, arrows, items);
 				
 				/*ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
 				List<Box> listbox = (List<Box>) in.readObject();
