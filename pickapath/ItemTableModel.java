@@ -49,7 +49,6 @@ public class ItemTableModel implements TableModel {
 	}
 
 	@Override
-	//Work in progress
 	public Object getValueAt(int row, int column) {
 		// TODO Auto-generated method stub
 		Item item = items.get(row);
@@ -63,7 +62,6 @@ public class ItemTableModel implements TableModel {
 	}
 	@Override
 	public boolean isCellEditable(int row, int column) {
-		// TODO Auto-generated method stub
 		if (column == 1 && row >= 0 && row < items.size()) 
 			return true;
 
@@ -72,14 +70,12 @@ public class ItemTableModel implements TableModel {
 
 	@Override
 	public void removeTableModelListener(TableModelListener listener) {
-		// TODO Auto-generated method stub
 		listeners.remove(listener);
 
 	}
 
 	@Override
 	public void setValueAt(Object object, int row, int column) {
-		// TODO Auto-generated method stub
 		Item item = items.get(row);
 
 		if (column == 1) {
