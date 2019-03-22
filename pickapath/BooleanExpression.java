@@ -1,5 +1,6 @@
 package pickapath;
 
+import java.util.List;
 import java.util.Set;
 
 public class BooleanExpression {
@@ -51,6 +52,16 @@ public class BooleanExpression {
 		this.op2 = op2;
 	}
 	
+	public static BooleanExpression makeExpression(String expressionText, List<Item> items) {
+		int id = Integer.parseInt(expressionText);
+		for( Item item : items) {
+			if( item.getId() == id )
+				return new BooleanExpression(item);
+		}
+		
+		return null;
+	}
+
 	public static BooleanExpression and(BooleanExpression op1, BooleanExpression op2) {
 		return new BooleanExpression(op1, op1, Kind.AND);
 	}

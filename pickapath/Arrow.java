@@ -51,8 +51,20 @@ public class Arrow{
 		end = boxes.get(endIndex);
 		start.addOutgoing(this);
 		end.addIncoming(this);
-		//item = in.readObject();
-		//somethingelse.addItem(something);
+		int totalItems = in.readInt();
+		for(int i = 0; i < totalItems; ++i) {
+			int itemId = in.readInt();
+			for(Item item:items) {
+				if (itemId == item.getId()) {
+					itemsHeld.add(item);
+					break;
+				}
+			}
+		}
+		String expressionText = (String)in.readObject();
+		if (!expressionText.equals("")) {
+			expression = BooleanExpression.makeExpression(expressionText, items);
+		}
 	}
 	
 	public void write(ObjectOutputStream out, List<Box> boxes, List<Item> items) throws IOException {
@@ -69,7 +81,15 @@ public class Arrow{
 		}
 		out.writeInt(startIndex);
 		out.writeInt(endIndex);
-		out.writeObject(getItems());
+		out.writeInt(itemsHeld.size());
+		for(Item item: itemsHeld) {
+			out.writeInt(item.getId());
+		}
+		if(expression == null) {
+			out.writeObject("");
+		}else {
+			out.writeObject(expression.toString());
+		}
 	}
 	
 	public Box getStart() {

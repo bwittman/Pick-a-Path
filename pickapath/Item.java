@@ -34,15 +34,17 @@ public class Item {
 		this.name = name;
 	}
 	
-	public Item(ObjectInputStream in, List<Arrow> arrows, List<Item> items) throws IOException, ClassNotFoundException {
-		name = (String)in.readObject();
+	public Item(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		id = in.readInt();
+		name = (String)in.readObject();
+		
 		
 	}
 	
-	public void write(ObjectOutputStream out, List<Arrow> arrows) throws IOException {
-		out.writeObject(name);
+	public void write(ObjectOutputStream out) throws IOException {
 		out.writeInt(id);
+		out.writeObject(name);
+		
 		
 /*		int startIndex = -1;
 		int endIndex = -1;
