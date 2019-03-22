@@ -78,7 +78,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		Graphics2D graphics = (Graphics2D) g;		
 		graphics.addRenderingHints(hints);
 		Stroke oldStroke = graphics.getStroke();
-		BasicStroke newStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
+		BasicStroke newStroke = new BasicStroke((float) (2f*zoom), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
 		for (Arrow arrow: arrows) {
 			Box start = arrow.getStart();
 			Box end = arrow.getEnd();
