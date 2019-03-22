@@ -157,6 +157,8 @@ public class Main extends JFrame {
 		okCancel.setPreferredSize(new Dimension(300,100));
 		okCancel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		JButton evaluate = new JButton("Evaluate");
+		okCancel.add(evaluate);
+		okCancel.add(exit);
 		//Listener for check button in the item window
 		evaluate.addActionListener(new ActionListener() {
 
@@ -174,8 +176,7 @@ public class Main extends JFrame {
 
 			}
 		});
-		okCancel.add(evaluate);
-		okCancel.add(exit);
+		
 
 		itemTextArea = new JTextArea();
 		itemTextArea.setEditable(false);
