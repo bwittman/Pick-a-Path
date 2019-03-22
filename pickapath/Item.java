@@ -34,7 +34,7 @@ public class Item {
 		this.name = name;
 	}
 	
-	public Item(ObjectInputStream in, List<Arrow> arrows) throws IOException, ClassNotFoundException {
+	public Item(ObjectInputStream in, List<Arrow> arrows, List<Item> items) throws IOException, ClassNotFoundException {
 		name = (String)in.readObject();
 		id = in.readInt();
 		

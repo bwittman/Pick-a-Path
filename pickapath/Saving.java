@@ -47,13 +47,13 @@ public class Saving {
 		int arrowCount = in.readInt();
 		arrows.clear();
 		for (int i = 0; i <  arrowCount; ++i) {
-			arrows.add(new Arrow(in, boxes));
+			arrows.add(new Arrow(in, boxes, items));
 		}
 		
 		int itemCount = in.readInt();
 		items.clear();
 		for (int i = 0; i <  itemCount; ++i) {
-			items.add(new Item(in, arrows));
+			//items.add(new Item(in, arrows));
 		}
 		in.close();
 		System.out.printf("Saved data is read from " + selectedFile);
