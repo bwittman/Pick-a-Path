@@ -5,86 +5,100 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 public class PlayerModeCLI {
-	
-	
-	public static void main(String[] args) {
 
 
-	}
-	
-public static void openFile(List<Box> boxes, List<Arrow> arrows) {
-		
+	public static void main(String[] args) throws IOException {
 
-		JFileChooser fileSelect = new JFileChooser();
-		fileSelect.setFileFilter(new FileFilter() {
+		System.out.println("Welcome to Pick a Path!");
 
-			@Override
-			public boolean accept(File file) {
-				return file.getName().toLowerCase().endsWith(".pap");
+		Scanner in = new Scanner(System.in);
+
+
+		//File file = new File("/Users/logan/Desktop/simple.pap");
+
+		List<Box> boxes = new ArrayList<Box>();
+		List<Arrow> arrows = new ArrayList<Arrow>();
+		List<Item> items = new ArrayList<Item>();
+		boolean successful = false;
+		while( !successful) {
+			System.out.print("Please enter a file to open: ");
+			String fileName = in.nextLine();
+			File file = new File(fileName);
+			if(file.exists()) {
+				try {
+					Saving.read(file, boxes, arrows, items);
+					successful = true;
+				} catch (ClassNotFoundException e) {
+					
+				}	
 			}
 
-			@Override
-			public String getDescription() {
-				return ".pap files";
-			}
-		});
-		if (fileSelect.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileSelect.getSelectedFile();
-
-			try {
-				ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
-				List<Box> listbox = (List<Box>) in.readObject();
-				boxes.clear();
-				boxes.addAll(listbox);
-				List<Arrow> listarrow = (List<Arrow>) in.readObject();
-				arrows.clear();
-				arrows.addAll(listarrow);
-				in.close();
-				System.out.printf("Serialized data is read from " + selectedFile);
-			} catch (FileNotFoundException e1) {
-
-			} catch (IOException e1) {
-
-			} catch (ClassNotFoundException e1) {
-
+			if(!successful) {
+				System.out.println("File missing or corrupted.");
 			}
 		}
+		
+		
+		List<Box> startingBoxes = Main.getStartingBoxes(boxes);
+		if (startingBoxes.size() == 1) {	
+			
+			new PlayerModeCLI(startingBoxes.get(0));
+			
+		} else {
+			System.out.println(
+					"This is an unplayable game because no starting point is indicated.");
+		};
+		 
+		
+		
+		/*       
+        Console console = Console.getConsole();
+        if(file.exists()) console.open(file);
+
+        else {
+        	 System.out.println("file failed to load");
+        }
+		 */
+
+
 	}
 
-
+	
 
 
 	//Console mode
-		public PlayerModeCLI(Box box) {
-			
-			Scanner in = new Scanner(System.in);
-		
-			System.out.println();
-			while(box.getOutgoing().size() > 0) {
-				int counter = 1;
-				System.out.println(box.getText());
-				for (Arrow arrow : box.getOutgoing()) {
-					System.out.println(counter+ ". " + arrow.getText());
-					counter++;
-					
+	public PlayerModeCLI(Box box) {
 
-				}
-				System.out.print("\nEnter choice: ");
-				int choice = in.nextInt() -1;
-				Arrow arrow = box.getOutgoing().get(choice);
-				box = arrow.getEnd();
-				
+		Scanner in = new Scanner(System.in);
+
+		System.out.println();
+		while(box.getOutgoing().size() > 0) {
+			int counter = 1;
+			System.out.println(box.getText());
+			for (Arrow arrow : box.getOutgoing()) {
+				System.out.println(counter+ ". " + arrow.getText());
+				counter++;
+
+
 			}
-			
-			
+			System.out.print("\nEnter choice: ");
+			int choice = in.nextInt() -1;
+			Arrow arrow = box.getOutgoing().get(choice);
+			box = arrow.getEnd();
+
 		}
 
-	
+
+	}
+
+
 }

@@ -519,7 +519,7 @@ public class Main extends JFrame {
 
 
 
-	protected List<Box> getStartingBoxes(List<Box> boxes) {
+	public static List<Box> getStartingBoxes(List<Box> boxes) {
 		List<Box> startingBoxes = new ArrayList<Box>();
 		for (Box box : boxes) {
 			if (box.getIncoming().isEmpty())
