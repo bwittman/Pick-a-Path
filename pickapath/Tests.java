@@ -193,11 +193,6 @@ class Tests {
 		Assert.assertEquals("That is not the item name",true,items.get(0).getName() =="Sword");
 	}
 	@Test
-	public void getColumnNameTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		//Assert.assertEquals("That is not the column name", true, items.getClass().getName() == "Item Number" );
-	}
-	@Test
 	public void getRowCountTest() {
 		ArrayList<Item> items = new ArrayList<>();
 		items.add(new Item(7,"Sword"));

@@ -118,43 +118,22 @@ public class Main extends JFrame {
 		//End table stuff
 
 		operatorField = new JTextArea();
-		JPanel panel = new JPanel(new GridLayout(2,2));
+		JPanel panel = new JPanel(new GridLayout(1,3));
 		JButton and = new JButton("AND");
 		JButton or = new JButton("OR");
 		JButton not = new JButton("NOT");
-		JButton check = new JButton("Check");
-		//Listener for check button in the item window
-		check.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// read from text, convert to number, look through list,get it, then evaluate
-				String text = operatorField.getText().trim();
-				try {
-					int itemNumber = Integer.parseInt(text);
-					List<Item> items = tableModel.getItems();
-					for(Item item: items ) {
-						if(item.getId() == itemNumber) {
-							Arrow arrow = (Arrow)canvas.getSelected();
-							arrow.setBooleanExpression(new BooleanExpression(item));
-						}
-					}
-
-				}
-				catch (NumberFormatException e) {}
-			}
-		});
+		
+		
 		
 		
 		panel.add(and);
-		panel.add(check);
 		panel.add(or);
 		
 		panel.add(not);
 		
-		JButton cancel = new JButton("Cancel");
+		JButton exit = new JButton("Exit");
 		
-		cancel.addActionListener(new ActionListener() {
+		exit.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -175,18 +154,30 @@ public class Main extends JFrame {
 		okCancel.setMinimumSize(new Dimension(300,100));
 		okCancel.setPreferredSize(new Dimension(300,100));
 		okCancel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		JButton ok = new JButton("OK");
-		ok.addActionListener(new ActionListener() {
+		JButton evaluate = new JButton("Evaluate");
+		//Listener for check button in the item window
+				evaluate.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				itemWindow.setVisible(false);
-				
-			}
-			
-		});
-		okCancel.add(ok);
-		okCancel.add(cancel);
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						// read from text, convert to number, look through list,get it, then evaluate
+						String text = operatorField.getText().trim();
+						try {
+							int itemNumber = Integer.parseInt(text);
+							List<Item> items = tableModel.getItems();
+							for(Item item: items ) {
+								if(item.getId() == itemNumber) {
+									Arrow arrow = (Arrow)canvas.getSelected();
+									arrow.setBooleanExpression(new BooleanExpression(item));
+								}
+							}
+
+						}
+						catch (NumberFormatException e) {}
+					}
+				});
+		okCancel.add(evaluate);
+		okCancel.add(exit);
 		
 		itemTextArea = new JTextArea();
 		itemTextArea.setEditable(false);
@@ -236,7 +227,7 @@ public class Main extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				cancel.doClick();
+				exit.doClick();
 
 			}
 
