@@ -500,7 +500,7 @@ public class Main extends JFrame {
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
 					setVisible(false);
-					new PlayerMode_gui(startingBoxes.get(0), Main.this);
+					new PlayerModeGUI(startingBoxes.get(0), Main.this);
 					//new PlayerMode_cli(startingBoxes.get(0));
 				} else {
 					JOptionPane.showMessageDialog(null,

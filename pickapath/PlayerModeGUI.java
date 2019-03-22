@@ -23,7 +23,7 @@ import javax.swing.JTextArea;
 
 
 
-public class PlayerMode_gui {
+public class PlayerModeGUI {
 
 	private JPanel choicePanel;
 	private JFrame playerMode;
@@ -34,7 +34,7 @@ public class PlayerMode_gui {
 	private List<Arrow> arrowList;
 
 
-public PlayerMode_gui(Box startingBox, JFrame frame) {
+public PlayerModeGUI(Box startingBox, JFrame frame) {
 
 	items = new HashSet<Item>();
 	buttonList = new ArrayList<JRadioButton>();

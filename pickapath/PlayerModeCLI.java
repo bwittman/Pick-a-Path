@@ -9,19 +9,10 @@ import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextArea;
 import javax.swing.filechooser.FileFilter;
 
-public class PlayerMode_cli {
+public class PlayerModeCLI {
 	
-	private JPanel choicePanel;
-	private JFrame playerMode;
-	private JTextArea boxInformation;
-	private List<JRadioButton> buttonList;
-	private Box situation;
 	
 	public static void main(String[] args) {
 
@@ -71,7 +62,7 @@ public static void openFile(List<Box> boxes, List<Arrow> arrows) {
 
 
 	//Console mode
-		public PlayerMode_cli(Box box) {
+		public PlayerModeCLI(Box box) {
 			
 			Scanner in = new Scanner(System.in);
 		
