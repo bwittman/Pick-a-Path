@@ -82,8 +82,10 @@ public class Main extends JFrame {
 		JButton addItem = new JButton("Add Item");
 		JButton deleteItem = new JButton("Delete Item");
 		buttonPanel.add(addItem);
+		
+		//Listener for add item button that creates a new item
 		addItem.addActionListener(new ActionListener() {
-			//Listener for add item button that creates a new item
+			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
