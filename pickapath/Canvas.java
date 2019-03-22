@@ -400,6 +400,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		// TODO Auto-generated method stub
 		return 1;
 	}
+
+	public void setBooleanExpression(BooleanExpression expression) {
+		if (selected != null && selected instanceof Arrow) {
+			Arrow arrow = (Arrow) selected;
+			arrow.setBooleanExpression(expression);
+		}
+		
+	}
 	
 	public void addBox(Box box) {
 		boxes.add(box);

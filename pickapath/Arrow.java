@@ -52,7 +52,7 @@ public class Arrow{
 		end.addIncoming(this);
 	}
 	
-	public void write(ObjectOutputStream out, List<Box> boxes) throws IOException {
+	public void write(ObjectOutputStream out, List<Box> boxes, List<Item> items) throws IOException {
 		out.writeObject(text);
 		int startIndex = -1;
 		int endIndex = -1;
@@ -66,6 +66,7 @@ public class Arrow{
 		}
 		out.writeInt(startIndex);
 		out.writeInt(endIndex);
+		out.writeObject(getItems());
 	}
 	
 	public Box getStart() {

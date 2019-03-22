@@ -24,7 +24,7 @@ public class Saving {
 
 		out.writeInt(arrows.size());
 		for (Arrow arrow:arrows) {
-			arrow.write(out, boxes);
+			arrow.write(out, boxes, items);
 			
 		}
 		
