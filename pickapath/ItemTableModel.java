@@ -10,8 +10,20 @@ import javax.swing.table.TableModel;
 public class ItemTableModel implements TableModel {
 
 	private ArrayList<TableModelListener> listeners = new ArrayList<>();
-	private ArrayList<Item> items = new ArrayList<>();
+	private List<Item> items;
 	private int itemIdCount = 1;
+
+	public ItemTableModel(List<Item> items) {
+		setItemList(items);
+	}
+	
+	public void setItemList(List<Item> items) {
+		if( items.size() == 0 )
+			itemIdCount = 1;
+		else
+			itemIdCount = items.get(items.size() - 1).getId() + 1;
+		this.items = items;
+	}
 
 	@Override
 	public void addTableModelListener(TableModelListener listener) {

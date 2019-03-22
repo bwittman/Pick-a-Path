@@ -41,6 +41,7 @@ import javax.swing.event.ListSelectionListener;
 public class Main extends JFrame {
 
 	private Canvas canvas;
+	private ItemTableModel tableModel;
 	private JTextArea textArea;
 	private JButton arrowButton;
 	private JButton itemButton;
@@ -74,7 +75,7 @@ public class Main extends JFrame {
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
 		JPanel mainPanel = new JPanel(new BorderLayout());
 
-		ItemTableModel tableModel = new ItemTableModel();
+		
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
 		JScrollPane tableScroll = new JScrollPane(itemTable);
@@ -265,6 +266,7 @@ public class Main extends JFrame {
 
 
 		panel.add(scrollPane, BorderLayout.CENTER);
+		tableModel = new ItemTableModel(items);
 		JDialog itemWindow = makeItemDialog();
 
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
@@ -417,6 +419,7 @@ public class Main extends JFrame {
 						Saving.saveFile(boxes, arrows, items);
 						canvas.deleteAllBoxes();
 						Saving.openFile(boxes, arrows, items);
+						tableModel.setItemList(items);
 						canvas.repaint();
 					} else {
 						canvas.deleteAllBoxes();
@@ -438,16 +441,20 @@ public class Main extends JFrame {
 						Saving.saveFile(boxes, arrows, items);
 						canvas.deleteAllBoxes();
 						Saving.openFile(boxes, arrows, items);
+						tableModel.setItemList(items);
+						
 						canvas.repaint();
 
 					} else {
 						canvas.deleteAllBoxes();
 						Saving.openFile(boxes, arrows, items);
+						tableModel.setItemList(items);
 						canvas.repaint();
 						// boxes = Saving.openFile().boxes;
 					}
 				} else {
 					Saving.openFile(boxes, arrows, items);
+					tableModel.setItemList(items);
 					canvas.repaint();
 				}
 			}
