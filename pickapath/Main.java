@@ -9,6 +9,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,6 +19,7 @@ import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -37,6 +41,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 
 public class Main extends JFrame {
 
@@ -248,6 +253,72 @@ public class Main extends JFrame {
 		itemWindow.pack();
 		return itemWindow;
 	}
+	
+	public void saveFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {   //save current work to a file
+
+		JFileChooser fileSelect = new JFileChooser();
+		fileSelect.setFileFilter(new FileFilter() {
+			@Override
+			public boolean accept(File file) {
+				return file.getName().toLowerCase().endsWith(".pap");
+			}
+
+			@Override
+			public String getDescription() {
+				return ".pap files";
+			}
+		});
+		if (fileSelect.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileSelect.getSelectedFile();
+			String path = selectedFile.getAbsolutePath();
+			if (!path.toLowerCase().endsWith(".pap")) {
+				selectedFile = new File(path + ".pap");
+			}
+			try {
+				Saving.write(selectedFile, boxes, arrows, items);
+			} catch (FileNotFoundException e1) {
+
+			} catch (IOException e1) {
+
+			}
+
+		}
+	}
+	
+
+	public void openFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {  //open a saved file
+
+
+		JFileChooser fileSelect = new JFileChooser();
+		fileSelect.setFileFilter(new FileFilter() {
+
+			@Override
+			public boolean accept(File file) {
+				return file.getName().toLowerCase().endsWith(".pap");
+			}
+
+			@Override
+			public String getDescription() {
+				return ".pap files";
+			}
+		});
+		if (fileSelect.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileSelect.getSelectedFile();
+
+			try {
+				
+				Saving.read(selectedFile, boxes, arrows, items);
+				
+			} catch (FileNotFoundException e1) {
+
+			} catch (IOException e1) {
+
+			} catch (ClassNotFoundException e1) {
+
+			}
+		}
+	}
+	
 
 	public Main() {
 		super("PICK A PATH");
@@ -263,6 +334,7 @@ public class Main extends JFrame {
 		extra.setOpaque(true);
 		extra.add(canvas, BorderLayout.CENTER);
 		JScrollPane scrollPane = new JScrollPane(extra); //adding the scrollpane to our canvas
+		
 		canvas.setViewport(scrollPane.getViewport());
 
 
@@ -415,14 +487,18 @@ public class Main extends JFrame {
 		nproject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
-					if (JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
-							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						Saving.saveFile(boxes, arrows, items);
+					int ask = JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
+							JOptionPane.YES_NO_OPTION);
+					if (ask == JOptionPane.YES_OPTION) {
+						saveFile(boxes, arrows, items);
 						canvas.deleteAllBoxes();
-						Saving.openFile(boxes, arrows, items);
+						openFile(boxes, arrows, items);
 						tableModel.setItemList(items);
 						canvas.repaint();
+					}else if (ask == JOptionPane.CLOSED_OPTION) {
+						JOptionPane.showMessageDialog(null, "no new file has been opened", "alert", JOptionPane.ERROR_MESSAGE);
 					} else {
+						JOptionPane.showMessageDialog(null, "work was not saved", "alert", JOptionPane.ERROR_MESSAGE);
 						canvas.deleteAllBoxes();
 					}
 				}
@@ -436,25 +512,27 @@ public class Main extends JFrame {
 		openp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
-					if (JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
-							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					int ask = JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
+							JOptionPane.YES_NO_OPTION);
+					if (ask == JOptionPane.YES_OPTION) {
 
-						Saving.saveFile(boxes, arrows, items);
+						saveFile(boxes, arrows, items);
 						canvas.deleteAllBoxes();
-						Saving.openFile(boxes, arrows, items);
-						tableModel.setItemList(items);
-						
-						canvas.repaint();
-
-					} else {
-						canvas.deleteAllBoxes();
-						Saving.openFile(boxes, arrows, items);
+						openFile(boxes, arrows, items);
 						tableModel.setItemList(items);
 						canvas.repaint();
-						// boxes = Saving.openFile().boxes;
+
+					}else if (ask == JOptionPane.CLOSED_OPTION) {
+						JOptionPane.showMessageDialog(null, "no new file has been opened", "alert", JOptionPane.ERROR_MESSAGE);
+					}else {
+						JOptionPane.showMessageDialog(null, "work was not saved", "alert", JOptionPane.ERROR_MESSAGE);
+						canvas.deleteAllBoxes();
+						openFile(boxes, arrows, items);
+						tableModel.setItemList(items);
+						canvas.repaint();
 					}
 				} else {
-					Saving.openFile(boxes, arrows, items);
+					openFile(boxes, arrows, items);
 					tableModel.setItemList(items);
 					canvas.repaint();
 				}
@@ -468,7 +546,7 @@ public class Main extends JFrame {
 		file.add(save);
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Saving.saveFile(boxes, arrows, items);
+				saveFile(boxes, arrows, items);
 			}
 		});
 
@@ -499,7 +577,6 @@ public class Main extends JFrame {
 				if (startingBoxes.size() == 1) {					
 					setVisible(false);
 					new PlayerModeGUI(startingBoxes.get(0), Main.this);
-					//new PlayerMode_cli(startingBoxes.get(0));
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"You must have exactly one box with no incoming arrows before entering player mode!");

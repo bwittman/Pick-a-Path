@@ -1,17 +1,10 @@
 package pickapath;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
 
 public class PlayerModeCLI {
 
@@ -94,8 +87,16 @@ public class PlayerModeCLI {
 			int choice = in.nextInt() -1;
 			Arrow arrow = box.getOutgoing().get(choice);
 			box = arrow.getEnd();
+			
+	/*		if (choice != counter) {
+				
+				System.out.print("\ninvalid input");
+				
+			} */
 
 		}
+	
+		System.out.println(box.getText());
 
 
 	}

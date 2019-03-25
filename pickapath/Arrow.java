@@ -16,7 +16,6 @@ public class Arrow{
 	public final static int HEIGHT = 24;
 	public final static int HALF_WIDTH = 18;
 	private Set<Item> itemsHeld = new HashSet<Item>();
-	//private Item item;
 	
 
 	//Constructor for arrows
@@ -43,7 +42,7 @@ public class Arrow{
 		return text;
 	}
 	
-	public Arrow(ObjectInputStream in, List<Box> boxes, List<Item> items) throws IOException, ClassNotFoundException {
+	public Arrow(ObjectInputStream in, List<Box> boxes, List<Item> items) throws IOException, ClassNotFoundException {	//populate info from saved file
 		text = (String)in.readObject();
 		int startIndex = in.readInt();
 		int endIndex = in.readInt();
@@ -67,7 +66,7 @@ public class Arrow{
 		}
 	}
 	
-	public void write(ObjectOutputStream out, List<Box> boxes, List<Item> items) throws IOException {
+	public void write(ObjectOutputStream out, List<Box> boxes, List<Item> items) throws IOException {	//write arrow information to a file
 		out.writeObject(text);
 		int startIndex = -1;
 		int endIndex = -1;
