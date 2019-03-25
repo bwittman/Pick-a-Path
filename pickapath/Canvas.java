@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
@@ -17,7 +18,6 @@ import java.awt.event.MouseMotionListener;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
@@ -62,6 +62,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	
 	public void setViewport(JViewport viewport) {
 		this.viewport = viewport;
+		
 		//viewport.setOpaque(false);
 	}
 	
@@ -129,8 +130,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			int width = (int)Math.round(zoom*box.getWidth());
 			int height = (int)Math.round(zoom*box.getHeight());
 			
-			this.setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
-			this.revalidate(); 
+			//this.setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
+			//this.revalidate(); 
 			//Sets colors for arrow and selected arrow
 			g.fillRect(x, y, width, height);
 			if (box == selected) {
@@ -246,12 +247,23 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 
 	public void resetBounds() {
+		
 		boxMaxX = Integer.MIN_VALUE;
 		boxMaxY = Integer.MIN_VALUE;
 		boxMinX = Integer.MAX_VALUE;
 		boxMinY = Integer.MAX_VALUE;
-		for (Box box: boxes) {
-			updateBounds(box);
+		
+		
+		if( boxes.size() == 0 ) {
+			setPreferredSize(viewport.getExtentSize());
+			viewport.setViewPosition(new Point(0,0));
+			revalidate(); 
+		}
+		else {
+			
+			for (Box box: boxes) {
+				updateBounds(box);
+			}
 		}
 	}
 	@Override

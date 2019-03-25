@@ -34,30 +34,16 @@ public class Item {
 		this.name = name;
 	}
 	
-	public Item(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public Item(ObjectInputStream in) throws IOException, ClassNotFoundException {	//read in item info from a file
 		id = in.readInt();
 		name = (String)in.readObject();
 		
 		
 	}
 	
-	public void write(ObjectOutputStream out) throws IOException {
+	public void write(ObjectOutputStream out) throws IOException {	//write out item info to file
 		out.writeInt(id);
 		out.writeObject(name);
-		
-		
-/*		int startIndex = -1;
-		int endIndex = -1;
-		for(int i = 0; i < arrows.size(); i++) {
-			if (arrows.get(i) == start) {
-				startIndex = i;
-			}
-			if (boxes.get(i) == end) {
-				endIndex = i;
-			}
-		}*/
-/*		out.writeInt(startIndex);
-		out.writeInt(endIndex);*/
 	}
 
 
