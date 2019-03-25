@@ -1,6 +1,10 @@
 package pickapath;
 
+
 import java.awt.Dimension;
+
+import java.awt.Point;
+
 import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,17 +12,21 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
-
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 class Tests {
 
 	@Test
-	public void deleteAllBoxesTest() {
+
+
+
+	public void deleteAllBoxesTest() { //test to see if all boxes are successfully deleted from the canvas
+		
 
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
@@ -42,7 +50,7 @@ class Tests {
 
 
 	@Test
-	public void addIncomingTest1() {
+	public void addIncomingTest1() { //test to check if a box has an arrow incoming from another box
 		Box box0 = new Box(40,60,100,50, "Olivia");
 		Box box1 = new Box(25,70,100,50, "Lucia");
 		Arrow arrow = new Arrow (box0, box1, "friends");
@@ -51,7 +59,7 @@ class Tests {
 
 
 	@Test
-	public void addIncomingTest2() {
+	public void addIncomingTest2() { //test to check that a box has two arrows incoming from two other boxes
 		Box box0 = new Box(40,60,100,50, "Olivia");
 		Box box1 = new Box(25,70,100,50, "Lucia");
 		Box box2 = new Box(25,70,100,50, "Jimmy");
@@ -63,7 +71,7 @@ class Tests {
 
 
 	@Test
-	public void addOutgoingTest1() {
+	public void addOutgoingTest1() { //test to check if a box has an outgoing arrow connecting it to another box
 		Box box0 = new Box(40,60,100,50, "Olivia");
 		Box box1 = new Box(25,70,100,50, "Lucia");
 		Arrow arrow = new Arrow (box0, box1, "friends");
@@ -71,7 +79,7 @@ class Tests {
 	}
 
 	@Test
-	public void addOutgoingTest2() {
+	public void addOutgoingTest2() { //test to check if a box has two outgoing arrows connecting to different boxes
 		Box box0 = new Box(40,60,100,50, "Olivia");
 		Box box1 = new Box(25,70,100,50, "Lucia");
 		Box box2 = new Box(25,70,100,50, "Jimmy");
@@ -81,7 +89,7 @@ class Tests {
 	}
 
 	@Test
-	public void boxContainsTest() {
+	public void boxContainsTest() { //test to check if the specified box contains the specified points
 		int x = 45;
 		int y = 50;
 		Box box = new Box(40,60,100,50, "Olivia");
@@ -89,7 +97,7 @@ class Tests {
 	}
 
 	@Test
-	public void boxDoesntContainTest() {
+	public void boxDoesntContainTest() { //test to check that a random set of points are outside of a specific box
 		int x = 45;
 		int y = 50;
 		Box box = new Box(40,60,100,50, "Olivia");
@@ -98,7 +106,7 @@ class Tests {
 
 	//sucks
 	@Test
-	public void arrowContainsTest() {
+	public void arrowContainsTest() { //test to check if an arrow is made to connect box x and box y
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
 		boxes.add(new Box(40,60,100,50, "Olivia"));
@@ -114,7 +122,11 @@ class Tests {
 
 
 	@Test
-	public void deleteButtonTest() {
+
+
+
+
+	public void deleteButtonTest() { //test to check if the delete button deletes a selected box
 
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
@@ -136,40 +148,121 @@ class Tests {
 	}
 
 
+
+
+
+	
+	
+
+
 	@Test
+	public void boxXTest(){
+		List<Box> boxes = new ArrayList<Box>();
+		boxes.add(new Box(40,60,100,50, "Logan"));
+		Assert.assertEquals("That is not the width",true,boxes.get(0).getX() == 40);
+		
+		}
+	
+	@Test
+	public void boxYTest(){
+		Box box = new Box(40,60,100,50, "Logan");
+		Assert.assertEquals("That is not the y location",60,box.getY());
+		
+		}
+	@Test // Checks to make sure an item knows its ID number
 	public void itemIdTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		items.add(new Item(7,"Sword"));
-		Assert.assertEquals("That is not the item ID",true,items.get(0).getId() == 7);
-
+		Item item = new Item(7,"Sword");
+		Assert.assertEquals("That is not the item name",7,item.getId());
 	}
 
-	@Test
+	@Test // Checks to make sure an item knows its name
 	public void itemNameTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		items.add(new Item(7,"Sword"));
-		Assert.assertEquals("That is not the item name",true,items.get(0).getName() =="Sword");
+		Item item = new Item(7,"Sword");
+		Assert.assertEquals("That is not the item name","Sword",item.getName());
 	}
-	@Test
-	public void getRowCountTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		items.add(new Item(7,"Sword"));
-		Assert.assertEquals("That is not the number of rows",true,items.size() == 1);
+
+	@Test // Checks if a cell is selected and editable from item table model
+	public void isItemNameEditableTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		model.addItem("Item 3");
+
+		Assert.assertEquals("This cell is not editable",true,model.isCellEditable(2, 1));
 	}
-	@Test
-	public void isCellEditableTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		items.add(new Item(7,"Sword"));
-		//Assert.assertEquals("This cell is not editable",true,items.is);
+	
+	@Test // Checks if a cell is selected and editable from item table model
+	public void isItemIdEditableTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		model.addItem("Item 3");
+
+		Assert.assertEquals("This cell is not editable",false,model.isCellEditable(2, 0));
 	}
-	public void addTableModelListenerTest() {
-		//ArrayList<TableModelListener> listeners = new ArrayList<>();
-		//listeners.add(new TableModelListener listener());
-		//Assert.assertEquals("The listener was not added", true,);
+
+	@Test // Checks if the add item function from the item table model works
+	public void addItemTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		model.addItem("Item 3");
+
+		
+		Assert.assertEquals("We didn't add the items right", 3, model.getRowCount());
+	}
+	@Test // Checks if the remove item function from the item table model works
+	public void removeItemTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		model.addItem("Item 3");
+		model.deleteItem(1);
+		
+		Assert.assertEquals("We didn't remove the right item", "Item 3", model.getValueAt(1, 1));
+	}
+	
+	@Test // Checks if the get item function from the table model works
+	public void getItemTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+		model.addItem("Item");
+		
+		Assert.assertEquals("We didn't get the right item", "Item", model.getValueAt(0, 1));
+	}
+	@Test // Checks if the table model can update listeners when there is a new TableModelEvent
+	public void updateTableModelListenerTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+		int[] value = new int[1];
+		
+		TableModelListener listener = new TableModelListener() {
+
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				value[0]++;
+			}
+			
+			
+		};
+		
+		model.addTableModelListener(listener);
+		
+		
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		
+		model.removeTableModelListener(listener);
+		
+		model.addItem("Item 3");
+		Assert.assertEquals("Table listener not updated", 2, value[0]);
+		
 	}
 
 	@Test 
-	public void scrollbarDefaultTest() {
+	public void scrollbarDefaultTest() { //tests to see if the scroll bar is visible when it's not supposed to be (when boxes are in the default viewing area)
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
 
@@ -183,21 +276,40 @@ class Tests {
 	}
 
 	@Test 
-	public void scrollbarIsVisibleTest() {
+	public void scrollbarIsVisibleTest() { //tests to see if the scroll bar is visible when a box is created outside of the viewing area
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
+		
+		Box boxy = new Box(200,100,100,50, "Boxy"); //creating a new box within the default viewing area
+		canvas.addBox(boxy);
+		
+		Box boxy2 = new Box(2000,1000,100,50, "Boxy"); //creating a new box outside of default viewing area
+		canvas.addBox(boxy2);
 
+		
 		JViewport viewport = canvas.getViewport();
+
 		JScrollPane pane = (JScrollPane) viewport.getParent();
 
 		Assert.assertEquals("Scrollbars are visible (but shouldn't be)", false, pane.getVerticalScrollBar().isVisible() || pane.getHorizontalScrollBar().isVisible());
+
+		//JScrollPane pane = (JScrollPane) viewport.getParent();	
+
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		Assert.assertEquals("Scrollbars are not visible (but should be)", true, pane.getVerticalScrollBar().isVisible() || pane.getHorizontalScrollBar().isVisible());
+
 		main.dispose();
 
 
 	} 
 
 	@Test
-	public void updateBoundsTest() {
+	public void updateBoundsTest() { //tests to see if the scroll bar is visible when it's not supposed to be (when boxes are in the default viewing area)
 
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
@@ -213,7 +325,7 @@ class Tests {
 	}
 
 	@Test
-	public void resetBoundsTest() {
+	public void resetBoundsTest() { //test to check if the bounds were reset after removing the last box in the canvas
 
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
@@ -231,15 +343,31 @@ class Tests {
 	}
 
 
-	@Test
-	public void newBoxInBounds() {
 
-		List<Box> boxes = new ArrayList<Box>();
+
+
+	public void newBoxInBounds() { //tests to make sure that a new box populates within the viewing area
 
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
 
-		Box boxy = new Box(200,100,100,50, "Boxy");
+
+
+
+
+		
+
+		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
+		canvas.addBox(boxy);
+		Dimension currentBounds = canvas.getPreferredSize();
+		
+		Box randomLocationBox = new Box((int)Math.random(),(int)Math.random(),100,50, "randomLocationBox"); //creates a new box at random coordinates in the canvas 
+		
+		 
+		Assert.assertEquals("The box was not created within bounds", true, canvas.contains(new Point(randomLocationBox.getX(), randomLocationBox.getY())));
+		main.dispose();
+
+		
 
 	}
 
