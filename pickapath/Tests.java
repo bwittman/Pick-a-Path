@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -234,8 +235,36 @@ class Tests {
 		List<Arrow> arrows = new ArrayList<Arrow>();
 		List<Box> boxes = new ArrayList<Box>();
 		}
+	
+	@Test
+	public void invalidInputTest(Box box) {
+		Scanner in = new Scanner(System.in);
+
+		System.out.println();
+		while(box.getOutgoing().size() > 0) {
+			int counter = 1;
+			System.out.println(box.getText());
+			for (Arrow arrow : box.getOutgoing()) {
+				System.out.println(counter+ ". " + arrow.getText());
+				counter++;
+
+
+			}
+		System.out.print("\nEnter choice: ");
+		int choice = in.nextInt() -1;
+		Arrow arrow = box.getOutgoing().get(choice);
+		box = arrow.getEnd();
+		
+		choice = 18;
+		
+		//if (choice != counter???) {
+			Assert.assertEquals("That is not a valid numerical input",false);
+			
+		}
 	}
 	
+	}
+
 	
 	
 
