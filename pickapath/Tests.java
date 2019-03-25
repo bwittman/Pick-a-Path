@@ -2,11 +2,9 @@ package pickapath;
 
 
 import java.awt.Dimension;
-<<<<<<< HEAD
-import java.awt.Point;
-=======
 
->>>>>>> branch 'master' of https://github.com/bwittman/comp3100-fall2018-2
+import java.awt.Point;
+
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
