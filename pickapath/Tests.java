@@ -1,19 +1,12 @@
 package pickapath;
 
-import static org.junit.Assert.fail;
-
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
+import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.filechooser.FileFilter;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -173,41 +166,100 @@ class Tests {
 	
 	@Test
 	public void boxYTest(){
-		List<Box> boxes = new ArrayList<Box>();
-		boxes.add(new Box(40,60,100,50, "Logan"));
-		Assert.assertEquals("That is not the width",true,boxes.get(0).getY() == 60);
+		Box box = new Box(40,60,100,50, "Logan");
+		Assert.assertEquals("That is not the y location",60,box.getY());
 		
 		}
-	@Test
+	@Test // Checks to make sure an item knows its ID number
 	public void itemIdTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		items.add(new Item(7,"Sword"));
-		Assert.assertEquals("That is not the item ID",true,items.get(0).getId() == 7);
-
+		Item item = new Item(7,"Sword");
+		Assert.assertEquals("That is not the item name",7,item.getId());
 	}
 
-	@Test
+	@Test // Checks to make sure an item knows its name
 	public void itemNameTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		items.add(new Item(7,"Sword"));
-		Assert.assertEquals("That is not the item name",true,items.get(0).getName() =="Sword");
+		Item item = new Item(7,"Sword");
+		Assert.assertEquals("That is not the item name","Sword",item.getName());
 	}
-	@Test
-	public void getRowCountTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		items.add(new Item(7,"Sword"));
-		Assert.assertEquals("That is not the number of rows",true,items.size() == 1);
+
+	@Test // Checks if a cell is selected and editable from item table model
+	public void isItemNameEditableTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		model.addItem("Item 3");
+
+		Assert.assertEquals("This cell is not editable",true,model.isCellEditable(2, 1));
 	}
-	@Test
-	public void isCellEditableTest() {
-		ArrayList<Item> items = new ArrayList<>();
-		items.add(new Item(7,"Sword"));
-		//Assert.assertEquals("This cell is not editable",true,items.is);
+	
+	@Test // Checks if a cell is selected and editable from item table model
+	public void isItemIdEditableTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		model.addItem("Item 3");
+
+		Assert.assertEquals("This cell is not editable",false,model.isCellEditable(2, 0));
 	}
-	public void addTableModelListenerTest() {
-		//ArrayList<TableModelListener> listeners = new ArrayList<>();
-		//listeners.add(new TableModelListener listener());
-		//Assert.assertEquals("The listener was not added", true,);
+
+	@Test // Checks if the add item function from the item table model works
+	public void addItemTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		model.addItem("Item 3");
+
+		
+		Assert.assertEquals("We didn't add the items right", 3, model.getRowCount());
+	}
+	@Test // Checks if the remove item function from the item table model works
+	public void removeItemTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		model.addItem("Item 3");
+		model.deleteItem(1);
+		
+		Assert.assertEquals("We didn't remove the right item", "Item 3", model.getValueAt(1, 1));
+	}
+	
+	@Test // Checks if the get item function from the table model works
+	public void getItemTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+		model.addItem("Item");
+		
+		Assert.assertEquals("We didn't get the right item", "Item", model.getValueAt(0, 1));
+	}
+	@Test // Checks if the table model can update listeners when there is a new TableModelEvent
+	public void updateTableModelListenerTest() {
+		ItemTableModel model  = new ItemTableModel(new ArrayList<Item>());
+		int[] value = new int[1];
+		
+		TableModelListener listener = new TableModelListener() {
+
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				value[0]++;
+			}
+			
+			
+		};
+		
+		model.addTableModelListener(listener);
+		
+		
+		model.addItem("Item 1");
+		model.addItem("Item 2");
+		
+		model.removeTableModelListener(listener);
+		
+		model.addItem("Item 3");
+		Assert.assertEquals("Table listener not updated", 2, value[0]);
+		
 	}
 
 	@Test 
