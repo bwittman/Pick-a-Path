@@ -223,7 +223,7 @@ class Tests {
 		int boxMinY = -100;
 
 		
-	}
+	} 
 	
 	@Test
 	public void resetBoundsTest() {

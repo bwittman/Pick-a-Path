@@ -27,7 +27,7 @@ public class Box{
 		this.text = text;
 	}
 
-	public Box(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public Box(ObjectInputStream in) throws IOException, ClassNotFoundException {	//read in box info from a file
 		incoming = new ArrayList<Arrow>();
 		outgoing = new ArrayList<Arrow>();
 		text = (String)in.readObject();
@@ -37,7 +37,7 @@ public class Box{
 		height = in.readInt();
 	}
 	
-	public void write(ObjectOutputStream out) throws IOException {
+	public void write(ObjectOutputStream out) throws IOException {	//write out box info to a file
 		out.writeObject(text);
 		out.writeInt(x);
 		out.writeInt(y);
