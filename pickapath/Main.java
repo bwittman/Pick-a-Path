@@ -334,6 +334,7 @@ public class Main extends JFrame {
 		extra.setOpaque(true);
 		extra.add(canvas, BorderLayout.CENTER);
 		JScrollPane scrollPane = new JScrollPane(extra); //adding the scrollpane to our canvas
+		
 		canvas.setViewport(scrollPane.getViewport());
 
 
