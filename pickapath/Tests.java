@@ -1,19 +1,12 @@
 package pickapath;
 
-import static org.junit.Assert.fail;
-
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.event.TableModelListener;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -82,16 +75,6 @@ class Tests {
 		Arrow arrow1 = new Arrow (box1, box2, "enemies");
 		Assert.assertEquals("Outgoing arrows not added", 2, box1.getOutgoing().size());
 	}
-	//sucks
-	/*@Test
-	public void addOutgoingTest() {
-		List<Box> boxes = new ArrayList<Box>();
-		List<Arrow> outgoing = new ArrayList<Arrow>();
-		boxes.add(new Box(40,60,100,50, "Olivia"));
-		boxes.add(new Box(25,70,100,50, "Lucia"));
-		outgoing.add(new Arrow (boxes.get(0), boxes.get(1), "friends"));
-		Assert.assertEquals("Outgoing arrow not added", true, outgoing.size() != 0);
-	} */
 	
 	@Test
 	public void boxContainsTest() {
@@ -148,36 +131,7 @@ class Tests {
 		Assert.assertEquals("box not deleted", true, boxes.size() == 1 && arrows.size() == 0);
 	}
 	
-	@Test
-	public void boxHeightTest(){
-		Box box = new Box(40,60,100,50, "Logan");
-		Assert.assertEquals("That is not the height",50,box.getHeight());
-		
-		}
 	
-	/*@Test
-	public void boxWidthTest(){
-		List<Box> boxes = new ArrayList<Box>();
-		Box box = new Box(40,60,100,50, "Logan");
-		Assert.assertEquals("That is not the width",true,boxes.get(0).getWidth() == 100);
-		
-		} */
-	
-	@Test
-	public void boxXTest(){
-		List<Box> boxes = new ArrayList<Box>();
-		boxes.add(new Box(40,60,100,50, "Logan"));
-		Assert.assertEquals("That is not the width",true,boxes.get(0).getX() == 40);
-		
-		}
-	
-	@Test
-	public void boxYTest(){
-		List<Box> boxes = new ArrayList<Box>();
-		boxes.add(new Box(40,60,100,50, "Logan"));
-		Assert.assertEquals("That is not the width",true,boxes.get(0).getY() == 60);
-		
-		}
 	@Test
 	public void itemIdTest() {
 		ArrayList<Item> items = new ArrayList<>();
@@ -212,28 +166,77 @@ class Tests {
 
 	@Test 
 	public void scrollbarDefaultTest() {
+		Main main = new Main();
+		Canvas canvas = main.getCanvas();
 
+		JViewport viewport = canvas.getViewport();
+		JScrollPane pane = (JScrollPane) viewport.getParent();
+		 
+		Assert.assertEquals("Scrollbars are visible (but shouldn't be)", false, pane.getVerticalScrollBar().isVisible() || pane.getHorizontalScrollBar().isVisible());
+		main.dispose();
+
+		
 	}
 	
-	@Test
-	public void updateBoundsTest() {
-		int boxMaxX = 200;
-		int boxMaxY = 200;
-		int boxMinX = -100;
-		int boxMinY = -100;
+	@Test 
+	public void scrollbarIsVisibleTest() {
+		Main main = new Main();
+		Canvas canvas = main.getCanvas();
+
+		JViewport viewport = canvas.getViewport();
+		JScrollPane pane = (JScrollPane) viewport.getParent();
+		 
+		Assert.assertEquals("Scrollbars are visible (but shouldn't be)", false, pane.getVerticalScrollBar().isVisible() || pane.getHorizontalScrollBar().isVisible());
+		main.dispose();
 
 		
 	}
 	
 	@Test
+	public void updateBoundsTest() {
+
+		Main main = new Main();
+		Canvas canvas = main.getCanvas();
+		
+		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
+		canvas.addBox(boxy);
+		Dimension currentBounds = canvas.getPreferredSize();
+			
+		 
+		Assert.assertEquals("The bounds were not updated", new Dimension(2050, 1025), currentBounds);
+		main.dispose();
+		
+	}
+	
+	@Test
 	public void resetBoundsTest() {
-		int boxMaxX = 200;
-		int boxMaxY = 200;
-		int boxMinX = -100;
-		int boxMinY = -100;
-		List<Arrow> arrows = new ArrayList<Arrow>();
-		List<Box> boxes = new ArrayList<Box>();
+
+		Main main = new Main();
+		Canvas canvas = main.getCanvas();
+		
+		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
+		canvas.addBox(boxy);
+		canvas.mousePressed(new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, System.nanoTime(), 0, 2010, 1005, 1, false));
+		canvas.deleteBox();
+		Dimension currentBounds = canvas.getPreferredSize();
+		
+		 
+		Assert.assertEquals("The bounds were not reset", canvas.getViewport().getExtentSize(), currentBounds);
+		main.dispose();
+		
 		}
+	
+	@Test
+	public void newBoxInBounds() {
+		
+		List<Box> boxes = new ArrayList<Box>();
+
+		Main main = new Main();
+		Canvas canvas = main.getCanvas();
+		
+		Box boxy = new Box(200,100,100,50, "Boxy");
+		
+	}
 	}
 	
 	
