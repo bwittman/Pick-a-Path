@@ -2,6 +2,9 @@ package pickapath;
 
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -13,23 +16,23 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 class Tests {
-			
+
 	@Test
 	public void deleteAllBoxesTest() {
-		
+
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
-		
+
 		Box box1 = new Box(40,60,100,50, "Olivia");
 		canvas.addBox(box1);
 		Box box2 = new Box(25,70,100,50, "Lucia");
 		canvas.addBox(box2);
-		
+
 		List<Arrow> arrows = canvas.getArrows();
 		arrows.add(new Arrow (box1, box2, "friends"));
-		
+
 		List<Box> boxes = canvas.getBoxes();
-		
+
 		canvas.mousePressed(new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, System.nanoTime(), 0, 30, 75, 1, false));
 		canvas.deleteBox();
 		main.dispose();
@@ -37,7 +40,7 @@ class Tests {
 		Assert.assertEquals("boxes not deleted", true, boxes.size()==0 && arrows.size()==0);
 	}
 
-	
+
 	@Test
 	public void addIncomingTest1() {
 		Box box0 = new Box(40,60,100,50, "Olivia");
@@ -45,7 +48,7 @@ class Tests {
 		Arrow arrow = new Arrow (box0, box1, "friends");
 		Assert.assertEquals("Incoming arrow not added", 1, box1.getIncoming().size());
 	}
-	
+
 
 	@Test
 	public void addIncomingTest2() {
@@ -56,9 +59,9 @@ class Tests {
 		Arrow arrow1 = new Arrow (box2, box1, "enemies");
 		Assert.assertEquals("Incoming arrows not added", 2, box1.getIncoming().size());
 	}
-	
-	
-	
+
+
+
 	@Test
 	public void addOutgoingTest1() {
 		Box box0 = new Box(40,60,100,50, "Olivia");
@@ -66,7 +69,7 @@ class Tests {
 		Arrow arrow = new Arrow (box0, box1, "friends");
 		Assert.assertEquals("Outgoing arrow not added", 1, box0.getOutgoing().size());
 	}
-	
+
 	@Test
 	public void addOutgoingTest2() {
 		Box box0 = new Box(40,60,100,50, "Olivia");
@@ -76,7 +79,7 @@ class Tests {
 		Arrow arrow1 = new Arrow (box1, box2, "enemies");
 		Assert.assertEquals("Outgoing arrows not added", 2, box1.getOutgoing().size());
 	}
-	
+
 	@Test
 	public void boxContainsTest() {
 		int x = 45;
@@ -84,7 +87,7 @@ class Tests {
 		Box box = new Box(40,60,100,50, "Olivia");
 		Assert.assertEquals("points not contained in box", true, box.contains(x, y, 1.0));
 	}
-	
+
 	@Test
 	public void boxDoesntContainTest() {
 		int x = 45;
@@ -92,7 +95,7 @@ class Tests {
 		Box box = new Box(40,60,100,50, "Olivia");
 		Assert.assertEquals("points are within box", false, box.contains(30, 29, 1.0));
 	}
-	
+
 	//sucks
 	@Test
 	public void arrowContainsTest() {
@@ -107,32 +110,32 @@ class Tests {
 
 		Assert.assertEquals("mouse X and Y not inside arrow", false, arrow.contains(boxX, boxY, 1.0));
 	}
-	
-	
-	
+
+
+
 	@Test
 	public void deleteButtonTest() {
-		
+
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
-		
+
 		Box box1 = new Box(40,60,100,50, "Olivia");
 		canvas.addBox(box1);
 		Box box2 = new Box(25,70,100,50, "Lucia");
 		canvas.addBox(box2);
-		
+
 		List<Arrow> arrows = canvas.getArrows();
 		arrows.add(new Arrow (box1, box2, "friends"));
-		
+
 		List<Box> boxes = canvas.getBoxes();
-		
+
 		canvas.mousePressed(new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, System.nanoTime(), 0, 30, 75, 1, false));
 		canvas.deleteBox();
 		main.dispose();
 		Assert.assertEquals("box not deleted", true, boxes.size() == 1 && arrows.size() == 0);
 	}
-	
-	
+
+
 	@Test
 	public void itemIdTest() {
 		ArrayList<Item> items = new ArrayList<>();
@@ -172,13 +175,13 @@ class Tests {
 
 		JViewport viewport = canvas.getViewport();
 		JScrollPane pane = (JScrollPane) viewport.getParent();
-		 
+
 		Assert.assertEquals("Scrollbars are visible (but shouldn't be)", false, pane.getVerticalScrollBar().isVisible() || pane.getHorizontalScrollBar().isVisible());
 		main.dispose();
 
-		
+
 	}
-	
+
 	@Test 
 	public void scrollbarIsVisibleTest() {
 		Main main = new Main();
@@ -186,91 +189,95 @@ class Tests {
 
 		JViewport viewport = canvas.getViewport();
 		JScrollPane pane = (JScrollPane) viewport.getParent();
-		 
+
 		Assert.assertEquals("Scrollbars are visible (but shouldn't be)", false, pane.getVerticalScrollBar().isVisible() || pane.getHorizontalScrollBar().isVisible());
 		main.dispose();
 
-		
+
 	} 
-	
+
 	@Test
 	public void updateBoundsTest() {
 
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
-		
+
 		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
 		canvas.addBox(boxy);
 		Dimension currentBounds = canvas.getPreferredSize();
-			
-		 
+
+
 		Assert.assertEquals("The bounds were not updated", new Dimension(2050, 1025), currentBounds);
 		main.dispose();
-		
+
 	}
-	
+
 	@Test
 	public void resetBoundsTest() {
 
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
-		
+
 		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
 		canvas.addBox(boxy);
 		canvas.mousePressed(new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, System.nanoTime(), 0, 2010, 1005, 1, false));
 		canvas.deleteBox();
 		Dimension currentBounds = canvas.getPreferredSize();
-		
-		 
+
+
 		Assert.assertEquals("The bounds were not reset", canvas.getViewport().getExtentSize(), currentBounds);
 		main.dispose();
-		
-		}
 
-	
+	}
+
+
 	@Test
 	public void newBoxInBounds() {
-		
+
 		List<Box> boxes = new ArrayList<Box>();
 
 		Main main = new Main();
 		Canvas canvas = main.getCanvas();
-		
+
 		Box boxy = new Box(200,100,100,50, "Boxy");
-		
-	}
-	
 
-	
+	}
+
+
+
 	@Test
-	public void invalidInputTest(Box box) {
-		Scanner in = new Scanner(System.in);
+	public void validInputTest() {
+		String line = System.lineSeparator();
+		String input = "simple.pap" + line + "1" + line;
+		String expected = "Welcome to Pick a Path!" + line
+				+ "Please enter a file to open: " + line +
+				"pick choice 1" + line + 
+				"1. choice 1" + line + line +
+				"Enter choice: " + 
+				"succesful" + line;
 
-		System.out.println();
-		while(box.getOutgoing().size() > 0) {
-			int counter = 1;
-			System.out.println(box.getText());
-			for (Arrow arrow : box.getOutgoing()) {
-				System.out.println(counter+ ". " + arrow.getText());
-				counter++;
 
-
-			}
-		System.out.print("\nEnter choice: ");
-		int choice = in.nextInt() -1;
-		Arrow arrow = box.getOutgoing().get(choice);
-		box = arrow.getEnd();
+		// set stdin
+		System.setIn(new ByteArrayInputStream(input.getBytes()));
 		
-		choice = 18;
+
+		// set stdout
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
+		System.setOut(ps);
 		
+		PlayerModeCLI.main(new String[0]);
+
+
+
 		//if (choice != counter???) {
-			Assert.assertEquals("That is not a valid numerical input",false);
-			
-		}
-	}
-	
-	}
+		Assert.assertEquals("Unexpected output",expected,baos.toString());
 
-	
-	
+	}
+}
+
+
+
+
+
 
