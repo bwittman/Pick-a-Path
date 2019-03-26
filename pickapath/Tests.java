@@ -2,20 +2,19 @@ package pickapath;
 
 
 import java.awt.Dimension;
-
 import java.awt.Point;
-
 import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
@@ -383,6 +382,35 @@ class Tests {
 				"1. choice 1" + line + line +
 				"Enter choice: " + 
 				"succesful" + line;
+		// set stdin
+		System.setIn(new ByteArrayInputStream(input.getBytes()));
+		// set stdout
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
+		System.setOut(ps);
+		
+		PlayerModeCLI.main(new String[0]);
+		Assert.assertEquals("Unexpected output",expected,baos.toString());
+	}
+	
+	@Test
+	public void invalidInput() {
+		String line = System.lineSeparator();
+		String input = "simple.pap" + line + "goat" + line + "1";
+		String expected = "Welcome to Pick a Path!" + line
+				+ "Please enter a file to open: " + line +
+				"pick choice 1" + line + 
+				"1. choice 1" + line + line +
+				
+				"Enter choice: " + 
+				"Invalid choice. Please enter another one." + line +
+				"pick choice 1" + line +
+				"pick choice 1" + line +
+				
+				"1. choice 1" + line + line +
+				"Enter choice: " + 
+				"succesful" + line;
+		
 
 
 		// set stdin
@@ -398,7 +426,7 @@ class Tests {
 
 
 
-		//if (choice != counter???) {
+
 		Assert.assertEquals("Unexpected output",expected,baos.toString());
 
 	}
