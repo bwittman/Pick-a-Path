@@ -88,6 +88,7 @@ public class Main extends JFrame {
 		JButton addItem = new JButton("Add Item");
 		JButton deleteItem = new JButton("Delete Item");
 		buttonPanel.add(addItem);
+		addItem.setToolTipText("Add an item to the list");
 
 		//Listener for add item button that creates a new item
 		addItem.addActionListener(new ActionListener() {
@@ -101,6 +102,7 @@ public class Main extends JFrame {
 		});
 		// Adding delete item button to the button panel
 		buttonPanel.add(deleteItem);
+		deleteItem.setToolTipText("Delete the selected item(s) from the list");
 		deleteItem.setEnabled(false);
 		deleteItem.addActionListener(new ActionListener() {
 			// Listener for delete button that checks if the user wants to delete the item
@@ -132,14 +134,18 @@ public class Main extends JFrame {
 		JButton not = new JButton("NOT");
 
 
-
-
 		panel.add(and);
+		and.setToolTipText("Makes the arrow path require two items. "
+				+ "It should be used between two items");
 		panel.add(or);
-
+		or.setToolTipText("Makes the arrow path require either of the two items being compared. "
+				+ "It should be used between two items");
 		panel.add(not);
+		not.setToolTipText("Used for negating operations and opens up more complex item "
+				+ "requirements. It should be used in front of an operation.");
 
 		JButton exit = new JButton("Exit");
+		exit.setToolTipText("Exits the item window. Make sure to evaluate before leaving!");
 
 		exit.addActionListener(new ActionListener() {
 
@@ -164,6 +170,8 @@ public class Main extends JFrame {
 		okCancel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		JButton evaluate = new JButton("Evaluate");
 		okCancel.add(evaluate);
+		evaluate.setToolTipText("Evaluates the expression in the 'Items Checked' field. "
+				+ "If the expression is valid then it saves it to the arrow.");
 		okCancel.add(exit);
 		//Listener for check button in the item window
 		evaluate.addActionListener(new ActionListener() {
@@ -193,6 +201,7 @@ public class Main extends JFrame {
 
 		itemsGiven.add(itemTextArea,BorderLayout.CENTER);
 		JButton givenAdd = new JButton("Add");
+		givenAdd.setToolTipText("Add an item to be given to the player when they use the arrow path.");
 		givenAdd.setEnabled(false);
 		givenAdd.addActionListener(new ActionListener() {
 
@@ -208,6 +217,8 @@ public class Main extends JFrame {
 		});
 		JButton givenDelete = new JButton("Delete");
 		givenDelete.setEnabled(false);
+		givenDelete.setToolTipText("Deletes the selected item from the Item Table in the Items "
+				+ "Given field.");
 		givenDelete.addActionListener(new ActionListener() {
 
 			@Override
