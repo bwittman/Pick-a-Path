@@ -114,11 +114,11 @@ public class PlayerModeCLI {
 
 			}
 
-			System.out.println(box.getText());
+
 
 
 		}
-
+		System.out.println(box.getText());
 
 	}
 }
