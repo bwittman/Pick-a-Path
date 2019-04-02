@@ -34,7 +34,6 @@ public class Saving {
 		}
 		
 		out.close();
-		System.out.printf("Saved data is saved in " + selectedFile);
 	}
 
 	public static void read(File selectedFile, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException, ClassNotFoundException{  //read in from a file
@@ -58,7 +57,6 @@ public class Saving {
 		}
 		
 		in.close();
-		System.out.printf("Saved data is read from " + selectedFile);
 
 	}
 	
