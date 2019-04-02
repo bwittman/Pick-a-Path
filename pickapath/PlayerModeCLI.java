@@ -12,6 +12,10 @@ public class PlayerModeCLI {
 	public static void main(String[] args) {
 
 		System.out.println("Welcome to Pick a Path!");
+		System.out.println("To play, enter the number that corresponds to the choice you would like to make.");
+		System.out.println("To display your items, enter I");
+		System.out.println("To save the current state of your game, enter S");
+		
 
 		Scanner in = new Scanner(System.in);
 
@@ -61,6 +65,7 @@ public class PlayerModeCLI {
         	 System.out.println("file failed to load");
         }
 		 */
+		
 
 
 	}
