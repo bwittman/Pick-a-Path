@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
+import javax.swing.ToolTipManager;
 
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable {
 	private List<Box> boxes;
@@ -46,7 +47,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	//Canvas constructor 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
 		// TODO Auto-generated constructor stub
-		
+		ToolTipManager.sharedInstance().setInitialDelay(100);
+		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 		this.setBackground(new Color(185,185,185));
 		this.boxes = boxes;
 		this.arrows = arrows;
@@ -130,8 +132,6 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			int width = (int)Math.round(zoom*box.getWidth());
 			int height = (int)Math.round(zoom*box.getHeight());
 			
-			//this.setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
-			//this.revalidate(); 
 			//Sets colors for arrow and selected arrow
 			g.fillRect(x, y, width, height);
 			if (box == selected) {
@@ -268,6 +268,24 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 	@Override
 	public void mouseMoved(MouseEvent e) {
+		Arrow hoverArrow = null;
+		int mouseX = e.getX();
+		int mouseY = e.getY();
+		
+		for (Arrow arrow: arrows) {
+
+			if (arrow.contains(mouseX, mouseY, zoom)) {
+				hoverArrow = arrow;
+				
+				
+			}
+		}
+		if (hoverArrow != null) {
+			
+			setToolTipText(hoverArrow.getText());
+		} else {
+			setToolTipText("");
+		}
 	}
 
 	@Override
@@ -335,6 +353,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				for (Arrow arrow: arrows) {
 					if (arrow.contains(mouseX, mouseY, zoom)) {
 						selected = arrow;
+						
 					}
 				}
 				if (selected != null) {

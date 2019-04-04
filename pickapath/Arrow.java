@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Arrow{
+import javax.swing.JComponent;
+
+public class Arrow {
 
 	private String text;
 	private Box start;
