@@ -271,12 +271,13 @@ public class Main extends JFrame {
 		fileSelect.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
-				return file.getName().toLowerCase().endsWith(".pap");
+				return file.getName() != null;
 			}
 
 			@Override
 			public String getDescription() {
 				return ".pap files";
+				//return null;
 			}
 		});
 		if (fileSelect.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -305,12 +306,13 @@ public class Main extends JFrame {
 
 			@Override
 			public boolean accept(File file) {
-				return file.getName().toLowerCase().endsWith(".pap");
+				return file.getName() != null;
 			}
 
 			@Override
 			public String getDescription() {
 				return ".pap files";
+				//return null;
 			}
 		});
 		if (fileSelect.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
