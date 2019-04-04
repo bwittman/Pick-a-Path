@@ -269,9 +269,11 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		Arrow hoverArrow = null;
+		Box hoverBox = null;
 		int mouseX = e.getX();
 		int mouseY = e.getY();
-		
+
+
 		for (Arrow arrow: arrows) {
 
 			if (arrow.contains(mouseX, mouseY, zoom)) {
@@ -285,6 +287,18 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			setToolTipText(hoverArrow.getText());
 		} else {
 			setToolTipText("");
+		}
+		
+		for (Box box: boxes) {
+
+		if (box.contains(mouseX, mouseY, zoom)) {
+			hoverBox = box;
+		}
+	}
+	
+	if (hoverBox != null) {
+		
+		setToolTipText(hoverBox.getText());
 		}
 	}
 
