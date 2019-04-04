@@ -376,8 +376,11 @@ class Tests {
 	public void validInputTest() {
 		String line = System.lineSeparator();
 		String input = "simple.pap" + line + "1" + line;
-		String expected = "Welcome to Pick a Path!" + line
-				+ "Please enter a file to open: " + line +
+		String expected = "Welcome to Pick a Path!" + line +
+				"To play, enter the number that corresponds to the choice you would like to make." + line +
+				"To display your items, enter I" + line +
+				"To save the current state of your game, enter S" + line +
+				 "Please enter a file to open: " + line +
 				"pick choice 1" + line + 
 				"1. choice 1" + line + line +
 				"Enter choice: " + 
@@ -397,15 +400,19 @@ class Tests {
 	public void invalidInput() {
 		String line = System.lineSeparator();
 		String input = "simple.pap" + line + "goat" + line + "1";
-		String expected = "Welcome to Pick a Path!" + line
-				+ "Please enter a file to open: " + line +
+		String expected = "Welcome to Pick a Path!" + line +
+				"To play, enter the number that corresponds to the choice you would like to make." + line +
+				"To display your items, enter I" + line +
+				"To save the current state of your game, enter S" + line +
+				
+				 "Please enter a file to open: " + line +
 				"pick choice 1" + line + 
 				"1. choice 1" + line + line +
 				
 				"Enter choice: " + 
 				"Invalid choice. Please enter another one." + line +
 				"pick choice 1" + line +
-				"pick choice 1" + line +
+				//"pick choice 1" + line +
 				
 				"1. choice 1" + line + line +
 				"Enter choice: " + 
