@@ -64,7 +64,11 @@ public class Arrow {
 		}
 		String expressionText = (String)in.readObject();
 		if (!expressionText.equals("")) {
-			expression = BooleanExpression.makeExpression(expressionText, items);
+			try {
+				expression = BooleanExpression.makeExpression(expressionText, items);
+			} catch (BooleanExpressionException e) {
+				//expression is still null
+			}
 		}
 	}
 	

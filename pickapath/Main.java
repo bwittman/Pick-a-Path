@@ -144,18 +144,6 @@ public class Main extends JFrame {
 		not.setToolTipText("Used for negating operations and opens up more complex item "
 				+ "requirements. It should be used in front of an operation.");
 
-		JButton exit = new JButton("Exit");
-		exit.setToolTipText("Exits the item window. Make sure to evaluate before leaving!");
-
-		exit.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-				itemWindow.setVisible(false);
-			}
-
-		});
 
 
 		JPanel itemsChecked = new JPanel(new BorderLayout());
@@ -164,29 +152,36 @@ public class Main extends JFrame {
 		itemsChecked.add(panel,BorderLayout.SOUTH);
 		mainPanel.add(itemsChecked,BorderLayout.CENTER);
 		itemWindow.add(mainPanel, BorderLayout.CENTER);
-		JPanel okCancel = new JPanel(new GridLayout(1,2));//south
+		JPanel okCancel = new JPanel(new GridLayout(1,1));//south
 		okCancel.setMinimumSize(new Dimension(300,100));
 		okCancel.setPreferredSize(new Dimension(300,100));
 		okCancel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		JButton evaluate = new JButton("Evaluate");
-		okCancel.add(evaluate);
-		evaluate.setToolTipText("Evaluates the expression in the 'Items Checked' field. "
+		JButton saveClose = new JButton("Save and Close");
+		okCancel.add(saveClose);
+		saveClose.setToolTipText("Evaluates the expression in the Items Checked field. "
 				+ "If the expression is valid then it saves it to the arrow.");
-		okCancel.add(exit);
 		//Listener for check button in the item window
-		evaluate.addActionListener(new ActionListener() {
+		saveClose.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// read from text, convert to number, look through list,get it, then evaluate
 				String text = operatorField.getText().trim();
+				
 
 				if( !text.isEmpty() ) {
 					Arrow arrow = (Arrow)canvas.getSelected();
 
 					List<Item> items = tableModel.getItems();
-					arrow.setBooleanExpression(BooleanExpression.makeExpression(text, items));
+					try {
+						arrow.setBooleanExpression(BooleanExpression.makeExpression(text, items));
+					} catch (BooleanExpressionException e) {
+						JOptionPane.showMessageDialog(itemWindow, "Your expression describing item requirements was invalid.", "Invalid Item Requirements!", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
 				}
+				
+				itemWindow.setVisible(false);
 
 			}
 		});
@@ -217,8 +212,7 @@ public class Main extends JFrame {
 		});
 		JButton givenDelete = new JButton("Delete");
 		givenDelete.setEnabled(false);
-		givenDelete.setToolTipText("Deletes the selected item from the Item Table in the Items "
-				+ "Given field.");
+		givenDelete.setToolTipText("Deletes the selected item from the Items Given field.");
 		givenDelete.addActionListener(new ActionListener() {
 
 			@Override
@@ -243,7 +237,7 @@ public class Main extends JFrame {
 
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				exit.doClick();
+				itemWindow.setVisible(false);
 
 			}
 

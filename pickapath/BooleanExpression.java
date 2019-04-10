@@ -1,22 +1,24 @@
 package pickapath;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
 public class BooleanExpression {
-	
+
 	enum Kind {
 		ITEM,
 		AND,
 		OR,
 		NOT	
 	}
-	
+
 	private BooleanExpression op1;
 	private BooleanExpression op2;
 	private Item item;
 	private Kind kind;
-	
+
 	public String toString() {
 		switch(kind) {
 		case ITEM: return "" + item.getId();
@@ -26,11 +28,11 @@ public class BooleanExpression {
 		}
 		return "";
 	}
-	
+
 	public Kind getKind() {
 		return kind;
 	}
-	
+
 	public boolean isTrue(Set<Item> items) {
 		switch(kind) {
 		case ITEM: return items.contains(item);
@@ -40,37 +42,83 @@ public class BooleanExpression {
 		}
 		return false;
 	}
-	
+
 	public BooleanExpression(Item item) {
 		kind = Kind.ITEM;
 		this.item = item;		
 	}
-	
+
 	private BooleanExpression(BooleanExpression op1, BooleanExpression op2, Kind kind) {
 		this.kind = kind;
 		this.op1 = op1;
 		this.op2 = op2;
 	}
-	
-	public static BooleanExpression makeExpression(String expressionText, List<Item> items) {
-		int id = Integer.parseInt(expressionText);
-		for( Item item : items) {
-			if( item.getId() == id )
-				return new BooleanExpression(item);
+
+
+	public static BooleanExpression makeExpression(String expressionText, List<Item> items) throws BooleanExpressionException {
+		return makeExpression(expressionText.toUpperCase(), items, 0, null);
+	}
+	private static BooleanExpression makeExpression(String expressionText, List<Item> items, int i, BooleanExpression previous) throws BooleanExpressionException {
+		while(i < expressionText.length() && Character.isWhitespace(expressionText.charAt(i)))
+			i++;
+
+		if( i < expressionText.length() ) {
+
+			char c = expressionText.charAt(i);
+			if (c == '(') {
+				return makeExpression(expressionText, items, i + 1, previous);
+			} else if (c ==')') {
+				return previous;
+			} 
+			else if (Character.isDigit(c)) {	
+				String number = "";
+				while (i < expressionText.length() && Character.isDigit(expressionText.charAt(i))) {
+					number += expressionText.charAt(i);
+					i++;
+				}
+
+
+
+				try {
+
+					int id = Integer.parseInt(number);
+
+					for( Item item : items) {
+						if( item.getId() == id ) 
+							return makeExpression(expressionText, items, i,  new BooleanExpression(item));
+
+					}
+				}
+				catch(NumberFormatException e) {}
+				throw new BooleanExpressionException();
+			}
+			else if(i + 2 < expressionText.length() && expressionText.substring(i, i + 3).equals("AND")) {
+				return and(previous, makeExpression(expressionText, items, i + 3, previous));
+			}
+			else if(i + 1 < expressionText.length() && expressionText.substring(i, i + 2).equals("OR")) {
+				return or(previous, makeExpression(expressionText, items, i + 2, previous));
+			}
+			else if(i + 2 < expressionText.length() && expressionText.substring(i, i + 3).equals("NOT")) {
+				return not( makeExpression(expressionText, items, i + 3, previous));
+			} else {
+				throw new BooleanExpressionException();
+			}
+
+
 		}
-		
-		return null;
+
+		return previous;
 	}
 
 	public static BooleanExpression and(BooleanExpression op1, BooleanExpression op2) {
-		return new BooleanExpression(op1, op1, Kind.AND);
+		return new BooleanExpression(op1, op2, Kind.AND);
 	}
-	
+
 	public static BooleanExpression or(BooleanExpression op1, BooleanExpression op2) {
-		return new BooleanExpression(op1, op1, Kind.OR);
+		return new BooleanExpression(op1, op2, Kind.OR);
 	}
-	
-	public static BooleanExpression or(BooleanExpression op) {
+
+	public static BooleanExpression not(BooleanExpression op) {
 		return new BooleanExpression(op, null, Kind.NOT);
 	}
 }
