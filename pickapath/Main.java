@@ -510,6 +510,11 @@ public class Main extends JFrame {
 		JMenu file = new JMenu("File"); // file button
 
 		bar.add(file);
+		
+		JMenu edit = new JMenu("Edit"); // file button
+		JMenuItem makebox = new JMenuItem("Make Box"); //another way to make box
+		edit.add(makebox);
+	    bar.add(edit);
 
 		JMenuItem nproject = new JMenuItem("New Project"); // new project button
 
