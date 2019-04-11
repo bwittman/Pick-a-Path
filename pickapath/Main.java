@@ -80,7 +80,7 @@ public class Main extends JFrame {
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
 		JPanel mainPanel = new JPanel(new BorderLayout());
 
-		
+
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
 		JScrollPane tableScroll = new JScrollPane(itemTable);
@@ -113,9 +113,16 @@ public class Main extends JFrame {
 				if(itemTable.getSelectedRow()!= -1) {
 					if(JOptionPane.showConfirmDialog(itemWindow, "Are you sure you want to delete " + 
 							tableModel.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
-							JOptionPane.YES_NO_OPTION)== JOptionPane.YES_OPTION)
-						tableModel.deleteItem(itemTable.getSelectedRow());
+							JOptionPane.YES_NO_OPTION)== JOptionPane.YES_OPTION) {
 
+						Arrow selected = (Arrow) canvas.getSelected();
+						Item item = tableModel.getItems().get(itemTable.getSelectedRow());
+						for(Arrow arrow : canvas.getArrows()) 
+							arrow.removeItem(item);
+						itemTextArea.setText(selected.heldItemText());
+						operatorField.setText(selected.getRequirementsText());
+						tableModel.deleteItem(itemTable.getSelectedRow());
+					}	
 				}
 			}
 
@@ -137,37 +144,37 @@ public class Main extends JFrame {
 		panel.add(and);
 		and.setToolTipText("Makes the arrow path require two items. "
 				+ "It should be used between two items");
-		
+
 		and.addActionListener(new ActionListener() {
-			// Listener for delete button that checks if the user wants to delete the item
+			// Listener for AND button that adds text to the items checked field 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				operatorField.append("AND");
+				operatorField.append(" AND ");
 			}
 		});
-		
+
 		panel.add(or);
 		or.setToolTipText("Makes the arrow path require either of the two items being compared. "
 				+ "It should be used between two items");
-		
+
 		or.addActionListener(new ActionListener() {
-			// Listener for delete button that checks if the user wants to delete the item
+			// Listener for OR button that adds text to the items checked field 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				operatorField.append("OR");
+				operatorField.append(" OR ");
 			}
 		});
-		
+
 		panel.add(not);
 		not.setToolTipText("Used for negating operations and opens up more complex item "
 				+ "requirements. It should be used in front of an operation.");
-		
-		
+
+
 		not.addActionListener(new ActionListener() {
-			// Listener for delete button that checks if the user wants to delete the item
+			// Listener for NOT button that adds text to the items checked field 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				operatorField.append("NOT");
+				operatorField.append("NOT ");
 			}
 		});
 
@@ -194,7 +201,7 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				// read from text, convert to number, look through list,get it, then evaluate
 				String text = operatorField.getText().trim();
-				
+
 
 				if( !text.isEmpty() ) {
 					Arrow arrow = (Arrow)canvas.getSelected();
@@ -207,12 +214,12 @@ public class Main extends JFrame {
 						return;
 					}
 				}
-				
+
 				itemWindow.setVisible(false);
 
 			}
 		});
-		
+
 
 		itemTextArea = new JTextArea();
 		itemTextArea.setEditable(false);
@@ -285,7 +292,7 @@ public class Main extends JFrame {
 		itemWindow.pack();
 		return itemWindow;
 	}
-	
+
 	public void saveFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {   //save current work to a file
 
 		JFileChooser fileSelect = new JFileChooser();
@@ -316,7 +323,7 @@ public class Main extends JFrame {
 
 		}
 	}
-	
+
 
 	public void openFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {  //open a saved file
 
@@ -338,9 +345,9 @@ public class Main extends JFrame {
 			File selectedFile = fileSelect.getSelectedFile();
 
 			try {
-				
+
 				Saving.read(selectedFile, boxes, arrows, items);
-				
+
 			} catch (FileNotFoundException e1) {
 
 			} catch (IOException e1) {
@@ -350,7 +357,7 @@ public class Main extends JFrame {
 			}
 		}
 	}
-	
+
 
 	public Main() {
 		super("PICK A PATH");
@@ -366,7 +373,7 @@ public class Main extends JFrame {
 		extra.setOpaque(true);
 		extra.add(canvas, BorderLayout.CENTER);
 		JScrollPane scrollPane = new JScrollPane(extra); //adding the scrollpane to our canvas
-		
+
 		canvas.setViewport(scrollPane.getViewport());
 
 
