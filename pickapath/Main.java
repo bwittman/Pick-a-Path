@@ -245,7 +245,7 @@ public class Main extends JFrame {
 		});
 		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			//Listener that enables delete button if a row is selected
-			@Override
+ 			@Override
 			public void valueChanged(ListSelectionEvent event) {
 				deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
 				givenAdd.setEnabled(itemTable.getSelectedRow() != -1);
@@ -265,7 +265,7 @@ public class Main extends JFrame {
 		fileSelect.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
-				return file.getName() != null;
+				return file.getName().toLowerCase().endsWith(".pap")||file.isDirectory();
 			}
 
 			@Override
@@ -300,7 +300,7 @@ public class Main extends JFrame {
 
 			@Override
 			public boolean accept(File file) {
-				return file.getName() != null;
+				return file.getName().toLowerCase().endsWith(".pap")||file.isDirectory();
 			}
 
 			@Override
