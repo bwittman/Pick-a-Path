@@ -137,12 +137,39 @@ public class Main extends JFrame {
 		panel.add(and);
 		and.setToolTipText("Makes the arrow path require two items. "
 				+ "It should be used between two items");
+		
+		and.addActionListener(new ActionListener() {
+			// Listener for delete button that checks if the user wants to delete the item
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				operatorField.append("AND");
+			}
+		});
+		
 		panel.add(or);
 		or.setToolTipText("Makes the arrow path require either of the two items being compared. "
 				+ "It should be used between two items");
+		
+		or.addActionListener(new ActionListener() {
+			// Listener for delete button that checks if the user wants to delete the item
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				operatorField.append("OR");
+			}
+		});
+		
 		panel.add(not);
 		not.setToolTipText("Used for negating operations and opens up more complex item "
 				+ "requirements. It should be used in front of an operation.");
+		
+		
+		not.addActionListener(new ActionListener() {
+			// Listener for delete button that checks if the user wants to delete the item
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				operatorField.append("NOT");
+			}
+		});
 
 
 
