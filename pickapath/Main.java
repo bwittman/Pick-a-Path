@@ -298,7 +298,6 @@ public class Main extends JFrame {
 			@Override
 			public String getDescription() {
 				return ".pap files";
-				//return null;
 			}
 		});
 		if (fileSelect.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -333,7 +332,6 @@ public class Main extends JFrame {
 			@Override
 			public String getDescription() {
 				return ".pap files";
-				//return null;
 			}
 		});
 		if (fileSelect.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
