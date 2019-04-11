@@ -520,7 +520,18 @@ public class Main extends JFrame {
 		
 		JMenu edit = new JMenu("Edit"); // file button
 		JMenuItem makebox = new JMenuItem("Make Box"); //another way to make box
+		KeyStroke keyStrokeToNewBox = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK); 
+		makebox.setAccelerator(keyStrokeToNewBox); //hotkey to create a new project
 		edit.add(makebox);
+		makebox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JViewport viewport = canvas.getViewport();
+				Dimension size = viewport.getExtentSize();
+				canvas.addBox(new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), 100, 50, ""));
+			}
+		});
 	    bar.add(edit);
 
 		JMenuItem nproject = new JMenuItem("New Project"); // new project button
