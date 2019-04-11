@@ -338,6 +338,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			if(otherBox != null) {
 				Arrow arrow = new Arrow(selectedBox,otherBox,"");
 				arrows.add(arrow);
+				selected = null;
 			} else {
 				selected = null;
 			}
