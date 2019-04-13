@@ -49,7 +49,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		// TODO Auto-generated constructor stub
 		ToolTipManager.sharedInstance().setInitialDelay(100);
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
-		this.setBackground(new Color(185,185,185));
+		this.setBackground(new Color(0x4E,0x45,0x8C));
 		this.boxes = boxes;
 		this.arrows = arrows;
 		addMouseListener(this);
@@ -86,7 +86,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			Box start = arrow.getStart();
 			Box end = arrow.getEnd();
 			if(arrow == selected) {
-				g.setColor(Color.WHITE);
+				g.setColor(new Color(0xF2,0x99,0x99));
 			} else {
 				g.setColor(Color.BLACK);
 			}
@@ -123,9 +123,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		//Sets color for the boxes and their outline
 		for (Box box: boxes) {
 			if (box == selected) {
-				g.setColor(new Color(35,6,200));
+				g.setColor(new Color(0xF2,0x99,0x99));
 			} else {
-			g.setColor(new Color(194,211,250));
+			g.setColor(new Color(0xF2,0xD3,0xAC));
 			}
 			int x = (int)Math.round(zoom*(box.getX() - box.getWidth()/2));
 			int y = (int)Math.round(zoom*(box.getY() - box.getHeight()/2));
