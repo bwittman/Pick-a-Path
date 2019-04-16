@@ -23,7 +23,10 @@ import javax.swing.JTextArea;
 
 
 
+
 public class PlayerModeGUI {
+
+
 
 	private JPanel choicePanel;
 	private JFrame playerMode;
@@ -33,104 +36,109 @@ public class PlayerModeGUI {
 	private Set<Item> items;
 	private List<Arrow> arrowList;
 
+	public static void main(String[] args) {
 
-public PlayerModeGUI(Box startingBox, JFrame frame) {
+		
+		
+	}
 
-	items = new HashSet<Item>();
-	buttonList = new ArrayList<JRadioButton>();
-	arrowList = new ArrayList<Arrow>();
-	playerMode = new JFrame("PlayerMode");
-	choicePanel = new JPanel();
-	boxInformation = new JTextArea("Situation");
-	boxInformation.setEditable(false);
+	public PlayerModeGUI(Box startingBox, JFrame frame) {
 
-	boxInformation.setLineWrap(true);
-	JScrollPane scrolling = new JScrollPane(boxInformation);
+		items = new HashSet<Item>();
+		buttonList = new ArrayList<JRadioButton>();
+		arrowList = new ArrayList<Arrow>();
+		playerMode = new JFrame("PlayerMode");
+		choicePanel = new JPanel();
+		boxInformation = new JTextArea("Situation");
+		boxInformation.setEditable(false);
 
-	scrolling.setPreferredSize(new Dimension(400, 200));		
-	scrolling.setMaximumSize(new Dimension(2048, 400));
-	playerMode.add(scrolling, BorderLayout.NORTH);
+		boxInformation.setLineWrap(true);
+		JScrollPane scrolling = new JScrollPane(boxInformation);
 
-
-
-	JPanel bottom = new JPanel(new FlowLayout());
-	JPanel center = new JPanel(new FlowLayout());
+		scrolling.setPreferredSize(new Dimension(400, 200));		
+		scrolling.setMaximumSize(new Dimension(2048, 400));
+		playerMode.add(scrolling, BorderLayout.NORTH);
 
 
-	JButton submitButton = new JButton("Submit");
-	submitButton.addActionListener(new ActionListener() {
 
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			if (arrowList.size() > 0) {
-				Arrow arrow = null;
+		JPanel bottom = new JPanel(new FlowLayout());
+		JPanel center = new JPanel(new FlowLayout());
 
-				for (int i = 0; i < buttonList.size(); i++) {
-					if (buttonList.get(i).isSelected())
-						arrow = arrowList.get(i);
+
+		JButton submitButton = new JButton("Submit");
+		submitButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (arrowList.size() > 0) {
+					Arrow arrow = null;
+
+					for (int i = 0; i < buttonList.size(); i++) {
+						if (buttonList.get(i).isSelected())
+							arrow = arrowList.get(i);
+					}
+					if (arrow != null) {
+						items.addAll(arrow.getItems());
+						Box next = arrow.getEnd();
+						populateChoices(next);
+
+					}
+				} else {
+					if( frame != null )
+						frame.setVisible(true);
+					playerMode.setVisible(false);
+					playerMode.dispose();
 				}
-				if (arrow != null) {
-					items.addAll(arrow.getItems());
-					Box next = arrow.getEnd();
-					populateChoices(next);
 
-				}
-			} else {
-				if( frame != null )
-					frame.setVisible(true);
-				playerMode.setVisible(false);
-				playerMode.dispose();
 			}
 
-		}
+		});
+		bottom.add(submitButton);
+		playerMode.add(bottom, BorderLayout.SOUTH);
+		center.add(choicePanel);
+		playerMode.add(center, BorderLayout.CENTER);
 
-	});
-	bottom.add(submitButton);
-	playerMode.add(bottom, BorderLayout.SOUTH);
-	center.add(choicePanel);
-	playerMode.add(center, BorderLayout.CENTER);
-
-	playerMode.setSize(800, 700);
-	playerMode.setMinimumSize(new Dimension(350,350));
-	playerMode.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	playerMode.addWindowListener(new WindowAdapter() {
-		@Override
-		public void windowClosing(WindowEvent e) {
-			frame.setVisible(true);
-			playerMode.setVisible(false);
-		}
-	});
+		playerMode.setSize(800, 700);
+		playerMode.setMinimumSize(new Dimension(350,350));
+		playerMode.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		playerMode.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				frame.setVisible(true);
+				playerMode.setVisible(false);
+			}
+		});
 
 
-	populateChoices(startingBox);
-	playerMode.setVisible(true);
+		populateChoices(startingBox);
+		playerMode.setVisible(true);
 
-}
-
-private void populateChoices(Box box) {
-	situation = box;
-	buttonList.clear();
-	arrowList.clear();
-	choicePanel.removeAll();
-	choicePanel.setLayout(new GridLayout(box.getOutgoing().size(), 1));// where the JRadio Button info is formed
-	// from the arrows
-	boxInformation.setText(box.getText()); // text in the boxes
-	boxInformation.validate();
-	ButtonGroup group = new ButtonGroup();// groups the JButtons together for formatting in the gridLayout
-	for (Arrow arrow : box.getOutgoing()) {
-		if( arrow.satisfies(items) ) {
-			JRadioButton button = new JRadioButton(arrow.getText());
-			group.add(button);// adds all the buttons to the middle
-			buttonList.add(button);
-			arrowList.add(arrow);
-			choicePanel.add(button);
-		}
 	}
-	
-	boxInformation.setMaximumSize(new Dimension(2048, 400));
-	playerMode.validate();
-	playerMode.pack();
-}
+
+	private void populateChoices(Box box) {
+		situation = box;
+		buttonList.clear();
+		arrowList.clear();
+		choicePanel.removeAll();
+		choicePanel.setLayout(new GridLayout(box.getOutgoing().size(), 1));// where the JRadio Button info is formed
+		// from the arrows
+		boxInformation.setText(box.getText()); // text in the boxes
+		boxInformation.validate();
+		ButtonGroup group = new ButtonGroup();// groups the JButtons together for formatting in the gridLayout
+		for (Arrow arrow : box.getOutgoing()) {
+			if( arrow.satisfies(items) ) {
+				JRadioButton button = new JRadioButton(arrow.getText());
+				group.add(button);// adds all the buttons to the middle
+				buttonList.add(button);
+				arrowList.add(arrow);
+				choicePanel.add(button);
+			}
+		}
+
+		boxInformation.setMaximumSize(new Dimension(2048, 400));
+		playerMode.validate();
+		playerMode.pack();
+	}
 
 
 
@@ -138,3 +146,4 @@ private void populateChoices(Box box) {
 
 
 }
+

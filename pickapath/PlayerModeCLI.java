@@ -22,6 +22,7 @@ public class PlayerModeCLI {
 		System.out.println("To display your items, enter I");
 		System.out.println("To save the current state of your game, enter S");
 		System.out.println("To load a saved game, enter L");
+		System.out.println("To stop playing a game, enter Q");
 
 
 		Scanner in = new Scanner(System.in);
@@ -119,7 +120,7 @@ public class PlayerModeCLI {
 			}
 			
 			else if( input.equals("Q")) {
-				System.exit(0);
+				return;
 		}
 
 			else if( input.equals("I")) {
