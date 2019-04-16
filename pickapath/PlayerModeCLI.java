@@ -105,8 +105,8 @@ public class PlayerModeCLI {
 			System.out.println("Or enter I for items, S for save, L for load, Q to quit.");
 			System.out.println();
 			System.out.print("Enter choice: ");
-			
 			String input = in.next().toUpperCase();
+			System.out.println();
 
 			if( input.equals("S")) {
 				//do save
