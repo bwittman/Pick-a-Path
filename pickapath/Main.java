@@ -10,8 +10,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -316,7 +320,9 @@ public class Main extends JFrame {
 
 			}
 			try {
-				Saving.write(selectedFile, boxes, arrows, items);
+				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
+				Saving.write(out, boxes, arrows, items);
+				out.close();
 			} catch (FileNotFoundException e1) {
 
 			} catch (IOException e1) {
@@ -348,8 +354,9 @@ public class Main extends JFrame {
 			File selectedFile = fileSelect.getSelectedFile();
 
 			try {
-
-				Saving.read(selectedFile, boxes, arrows, items);
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
+				Saving.read(in, boxes, arrows, items);
+				in.close();
 
 			} catch (FileNotFoundException e1) {
 

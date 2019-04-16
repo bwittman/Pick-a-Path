@@ -1,7 +1,9 @@
 package pickapath;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +42,9 @@ public class PlayerModeCLI {
 			File file = new File(fileName);
 			if(file.exists()) {
 				try {
-					Saving.read(file, boxes, arrows, items);
+					ObjectInputStream input = new ObjectInputStream(new FileInputStream(file));
+					Saving.read(input, boxes, arrows, items);
+					in.close();
 					successful = true;
 				} catch (ClassNotFoundException | IOException e) {
 
