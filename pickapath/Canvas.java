@@ -49,7 +49,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		// TODO Auto-generated constructor stub
 		ToolTipManager.sharedInstance().setInitialDelay(100);
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
-		this.setBackground(new Color(0x4E,0x45,0x8C));
+		this.setBackground(new Color(0x6e,0x64,0xaf));
 		this.boxes = boxes;
 		this.arrows = arrows;
 		addMouseListener(this);
