@@ -404,10 +404,11 @@ public class Main extends JFrame {
 
 
 		JButton makeBox = new JButton("Make Box");
-
+		makeBox.setToolTipText("create a new box");
 		Random random = new Random();
 
 		arrowButton = new JButton("Make Arrow");
+		arrowButton.setToolTipText("create a new arrow. Select a box, click 'make arrow', then choose your end box");
 		arrowButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -435,6 +436,7 @@ public class Main extends JFrame {
 		numbers.add(arrowButton); // make arrow button
 
 		itemButton = new JButton("Items"); //create item button
+		itemButton.setToolTipText("manage your item inventory and item assingments");
 		itemButton.setEnabled(false);
 		numbers.add(itemButton);
 		itemButton.addActionListener(new ActionListener() {
@@ -454,6 +456,7 @@ public class Main extends JFrame {
 
 		JButton delete = new JButton("Delete");
 		numbers.add(delete); // delete button (for boxes and arrows)
+		delete.setToolTipText("delete the selected box or arrow from the canvas");
 		delete.addActionListener(new ActionListener() {
 
 			@Override
@@ -466,9 +469,10 @@ public class Main extends JFrame {
 		}
 
 				);
-		// numbers.add(new JButton("Add Text")); // add text button
+
 		JButton deleteAll = new JButton("Delete All"); // delete all button
 		numbers.add(deleteAll);
+		deleteAll.setToolTipText("deletes all boxes and arrows from the canvas");
 		deleteAll.addActionListener(new ActionListener() {
 
 			@Override
