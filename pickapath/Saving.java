@@ -1,22 +1,16 @@
 package pickapath;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
+import java.util.Set;
 
 public class Saving {
 
-	public static void write(File selectedFile, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException{ //write out to a file
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
+	public static void write(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException{ //write out to a file
+		
 		out.writeInt(boxes.size());
 		for (Box box: boxes) {	
 			box.write(out);
@@ -32,12 +26,46 @@ public class Saving {
 			arrow.write(out, boxes, items);
 			
 		}
-		
-		out.close();
 	}
+	
+	public static void writeProgress(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items, Box current, Set<Item> itemsHeld) throws FileNotFoundException, IOException {
+		write(out,boxes,arrows,items);
+		 for (int i = 0; i < boxes.size(); i++) {
+			if (boxes.get(i) == current) {
+				out.writeInt(i);
+				break;
+			}
+			
+		}
+		out.writeInt(itemsHeld.size());
+		for(Item item : itemsHeld) {
+			for (int i = 0; i < items.size(); i++) {
+				if (items.get(i) == item) {
+					out.writeInt(i);
+					break;
+				}
+				
+			}
+		}
+	
+	
+	
+	}
+	
+	public static Box readProgress(ObjectInputStream in, List<Box> boxes, List<Arrow> arrows, List<Item> items , Set<Item> itemsHeld) throws FileNotFoundException, IOException, ClassNotFoundException { 
+		read(in,boxes,arrows,items);
+		int boxNumber = in.readInt();
+		int totalItems = in.readInt();
+		for (int i =0;  i < totalItems; i ++) {
+			int itemNumber = in.readInt();
+			itemsHeld.add(items.get(itemNumber));
+		}
+		return boxes.get(boxNumber);
+	}
+	
 
-	public static void read(File selectedFile, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException, ClassNotFoundException{  //read in from a file
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
+	public static void read(ObjectInputStream in, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException, ClassNotFoundException{  //read in from a file
+		
 		int boxCount = in.readInt();
 		boxes.clear();
 		for (int i = 0; i < boxCount; ++i ) {
@@ -55,8 +83,7 @@ public class Saving {
 		for (int i = 0; i <  arrowCount; ++i) {
 			arrows.add(new Arrow(in, boxes, items));
 		}
-		
-		in.close();
+	
 
 	}
 	

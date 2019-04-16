@@ -154,6 +154,8 @@ public class Arrow {
 	}
 	public void removeItem(Item item) {
 		itemsHeld.remove(item);
+		if(expression != null)
+			expression = expression.removeItem(item);
 	}
 	public void addItem(Item item) {
 		itemsHeld.add(item);
@@ -172,6 +174,12 @@ public class Arrow {
 			return "";
 		else		
 			return expression.toString();
+	}
+	public boolean givesItem() {
+		return itemsHeld.size() > 0;
+	}
+	public boolean requiresItem() {
+		return expression != null;
 	}
 	
 }

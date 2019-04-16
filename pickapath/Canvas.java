@@ -86,7 +86,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			Box start = arrow.getStart();
 			Box end = arrow.getEnd();
 			if(arrow == selected) {
-				g.setColor(new Color(0xF2,0x99,0x99));
+				g.setColor(Color.WHITE);
+				//g.setColor(new Color(0xF2,0x99,0x99));
+			} else if (arrow.givesItem() && arrow.requiresItem()) {
+				g.setColor(Color.ORANGE);
+			} else if (arrow.givesItem()) {
+				g.setColor(Color.GREEN);
+			} else if (arrow.requiresItem()) {
+				g.setColor(Color.RED);
 			} else {
 				g.setColor(Color.BLACK);
 			}
