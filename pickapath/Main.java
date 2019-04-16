@@ -370,7 +370,7 @@ public class Main extends JFrame {
 
 
 	public Main() {
-		super("PICK A PATH");
+		super("Pick-a-Path");
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
 		List<Item> items = new ArrayList<Item>();
