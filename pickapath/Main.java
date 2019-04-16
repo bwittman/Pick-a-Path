@@ -279,7 +279,7 @@ public class Main extends JFrame {
 		});
 		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			//Listener that enables delete button if a row is selected
- 			@Override
+			@Override
 			public void valueChanged(ListSelectionEvent event) {
 				deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
 				givenAdd.setEnabled(itemTable.getSelectedRow() != -1);
@@ -293,7 +293,7 @@ public class Main extends JFrame {
 		return itemWindow;
 	}
 
-	public void saveFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {   //save current work to a file
+	public boolean saveFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {   //save current work to a file
 
 		JFileChooser fileSelect = new JFileChooser();
 		fileSelect.setFileFilter(new FileFilter() {
@@ -312,6 +312,8 @@ public class Main extends JFrame {
 			String path = selectedFile.getAbsolutePath();
 			if (!path.toLowerCase().endsWith(".pap")) {
 				selectedFile = new File(path + ".pap");
+
+
 			}
 			try {
 				Saving.write(selectedFile, boxes, arrows, items);
@@ -320,8 +322,9 @@ public class Main extends JFrame {
 			} catch (IOException e1) {
 
 			}
-
+			return true;
 		}
+		return false;
 	}
 
 
@@ -516,7 +519,7 @@ public class Main extends JFrame {
 		JMenu file = new JMenu("File"); // file button
 
 		bar.add(file);
-		
+
 		JMenu edit = new JMenu("Edit"); // file button
 		JMenuItem makebox = new JMenuItem("Make Box"); //another way to make box
 		KeyStroke keyStrokeToNewBox = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK); 
@@ -531,7 +534,7 @@ public class Main extends JFrame {
 				canvas.addBox(new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), 100, 50, ""));
 			}
 		});
-	    bar.add(edit);
+		bar.add(edit);
 
 		JMenuItem nproject = new JMenuItem("New Project"); // new project button
 
@@ -542,18 +545,17 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
 					int ask = JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
-							JOptionPane.YES_NO_OPTION);
+							JOptionPane.YES_NO_CANCEL_OPTION);
 					if (ask == JOptionPane.YES_OPTION) {
-						saveFile(boxes, arrows, items);
+						if (saveFile(boxes, arrows, items)) {
+							canvas.deleteAllBoxes();
+							openFile(boxes, arrows, items);
+							tableModel.setItemList(items);
+							canvas.repaint();
+						}
+					}else if (ask == JOptionPane.NO_OPTION) {
 						canvas.deleteAllBoxes();
-						openFile(boxes, arrows, items);
-						tableModel.setItemList(items);
-						canvas.repaint();
-					}else if (ask == JOptionPane.CLOSED_OPTION) {
-						JOptionPane.showMessageDialog(null, "no new file has been opened", "alert", JOptionPane.ERROR_MESSAGE);
-					} else {
-						JOptionPane.showMessageDialog(null, "work was not saved", "alert", JOptionPane.ERROR_MESSAGE);
-						canvas.deleteAllBoxes();
+
 					}
 				}
 			}
@@ -567,19 +569,17 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
 					int ask = JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
-							JOptionPane.YES_NO_OPTION);
+							JOptionPane.YES_NO_CANCEL_OPTION);
 					if (ask == JOptionPane.YES_OPTION) {
 
-						saveFile(boxes, arrows, items);
+						if (saveFile(boxes, arrows, items)) {
 						canvas.deleteAllBoxes();
 						openFile(boxes, arrows, items);
 						tableModel.setItemList(items);
 						canvas.repaint();
+						}
 
-					}else if (ask == JOptionPane.CLOSED_OPTION) {
-						JOptionPane.showMessageDialog(null, "no new file has been opened", "alert", JOptionPane.ERROR_MESSAGE);
-					}else {
-						JOptionPane.showMessageDialog(null, "work was not saved", "alert", JOptionPane.ERROR_MESSAGE);
+					}else if (ask == JOptionPane.NO_OPTION) {
 						canvas.deleteAllBoxes();
 						openFile(boxes, arrows, items);
 						tableModel.setItemList(items);
