@@ -3,19 +3,15 @@ package pickapath;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextArea;
-
 public class PlayerModeCLI {
-	
-	private Set<Item> items;
-     
+
+	private Set<Item> items = new HashSet<Item>();
+
 
 
 
@@ -26,7 +22,7 @@ public class PlayerModeCLI {
 		System.out.println("To display your items, enter I");
 		System.out.println("To save the current state of your game, enter S");
 		System.out.println("To load a saved game, enter L");
-		
+
 
 		Scanner in = new Scanner(System.in);
 
@@ -76,7 +72,7 @@ public class PlayerModeCLI {
         	 System.out.println("file failed to load");
         }
 		 */
-		
+
 
 
 	}
@@ -86,8 +82,8 @@ public class PlayerModeCLI {
 
 	//Console mode
 	public PlayerModeCLI(Box box, Scanner in) {
-		
-		
+
+
 		List<Arrow> choices = new ArrayList<Arrow>();
 		System.out.println();
 		while(box.getOutgoing().size() > 0) {
@@ -95,37 +91,48 @@ public class PlayerModeCLI {
 			int counter = 1;
 			System.out.println(box.getText());
 			for (Arrow arrow : box.getOutgoing()) {
-				
+
 				//if statement for list of items 
 				if( arrow.satisfies(items) ) {
 					choices.add(arrow);
 					System.out.println(counter+ ". " + arrow.getText());
 					counter++;
-			//		 = new JRadioButton(arrow.getText());  //i dont think this is right
+					//		 = new JRadioButton(arrow.getText());  //i dont think this is right
 				}
 
 
 			}
-			System.out.println("Or enter I for items, S for save, L for load.");
+			System.out.println("Or enter I for items, S for save, L for load, Q to quit.");
 			System.out.println();
 			System.out.print("Enter choice: ");
-			String input = in.next().toLowerCase();
+			
+			String input = in.next().toUpperCase();
 
 			if( input.equals("S")) {
 				//do save
-				
+
 			}
-			
+
 			else if(input.equals("L")) {
 				//do load
-				
+
 			}
 			
+			else if( input.equals("Q")) {
+				System.exit(0);
+		}
+
 			else if( input.equals("I")) {
-				System.out.println("Items:");
-				for (Item item: items) {
-					System.out.println("\t"+ item.getName());
+
+				if( items.size() > 0 ) {				
+					System.out.println("Items:");
+					for (Item item: items) {
+						System.out.println("\t"+ item.getName());
+					}
 				}
+				else
+					System.out.println("You have no items.");
+				System.out.println();
 			}
 			else {
 				try {		
@@ -133,8 +140,8 @@ public class PlayerModeCLI {
 					if( choice >= 0 && choice < choices.size() ) {
 						Arrow arrow = choices.get(choice);
 						Set<Item> arrowItems = arrow.getItems();
-						if( arrowItems != null )
-							items.addAll(arrowItems);
+
+						items.addAll(arrowItems);
 						box = arrow.getEnd();
 					}
 					else
