@@ -122,8 +122,8 @@ public class Arrow {
 		Box start = getStart();
 		Box end = getEnd();
 		double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
-		double midX = (start.getX() + end.getX())/2.0;
-		double midY = (start.getY() + end.getY())/2.0;
+		double midX = .45*start.getX() + .55*end.getX();
+		double midY = .45*start.getY() + .55*end.getY();
 		double aX = midX - HEIGHT*Math.sin(theta-Math.PI/2);
 		double aY = midY + HEIGHT*Math.cos(theta-Math.PI/2);
 		double bX = midX + HALF_WIDTH*Math.cos(theta-Math.PI/2);
