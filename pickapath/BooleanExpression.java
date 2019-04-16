@@ -1,7 +1,5 @@
 package pickapath;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
@@ -120,5 +118,32 @@ public class BooleanExpression {
 
 	public static BooleanExpression not(BooleanExpression op) {
 		return new BooleanExpression(op, null, Kind.NOT);
+	}
+	public BooleanExpression removeItem (Item item) {
+		switch(kind) {
+		case ITEM: 
+			if(this.item.getId() == item.getId())
+			return null;
+			else
+				return this;
+		case AND:
+		case OR:
+			op1 = op1.removeItem(item);
+			op2 = op2.removeItem(item);
+			if (op1 == null)
+				return op2;
+			else if (op2 == null)
+				return op1;
+			else
+				return this;
+			
+		case NOT: 
+			op1 = op1.removeItem(item);
+			if (op1 == null)
+				return null;
+			else 
+				return this;
+		}
+		return this;
 	}
 }

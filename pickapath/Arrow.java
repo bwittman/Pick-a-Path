@@ -122,8 +122,8 @@ public class Arrow {
 		Box start = getStart();
 		Box end = getEnd();
 		double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
-		double midX = (start.getX() + end.getX())/2.0;
-		double midY = (start.getY() + end.getY())/2.0;
+		double midX = .45*start.getX() + .55*end.getX();
+		double midY = .45*start.getY() + .55*end.getY();
 		double aX = midX - HEIGHT*Math.sin(theta-Math.PI/2);
 		double aY = midY + HEIGHT*Math.cos(theta-Math.PI/2);
 		double bX = midX + HALF_WIDTH*Math.cos(theta-Math.PI/2);
@@ -154,6 +154,8 @@ public class Arrow {
 	}
 	public void removeItem(Item item) {
 		itemsHeld.remove(item);
+		if(expression != null)
+			expression = expression.removeItem(item);
 	}
 	public void addItem(Item item) {
 		itemsHeld.add(item);
@@ -172,6 +174,12 @@ public class Arrow {
 			return "";
 		else		
 			return expression.toString();
+	}
+	public boolean givesItem() {
+		return itemsHeld.size() > 0;
+	}
+	public boolean requiresItem() {
+		return expression != null;
 	}
 	
 }
