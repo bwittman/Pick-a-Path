@@ -2,8 +2,10 @@ package pickapath;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -12,21 +14,48 @@ import java.util.Set;
 
 public class PlayerModeCLI {
 
-	private Set<Item> items;
+	private List<Box> boxes = new ArrayList<Box>();
+	private List<Arrow> arrows = new ArrayList<Arrow>();
+	private List<Item> items = new ArrayList<Item>();
+	private Set<Item> itemsHeld = new HashSet<Item>();
 
-	private static File openFile(Scanner in) {
+	private Box loadGame(Scanner in) {
 
-		while( true) {
+
+		while(true) {
 			System.out.print("Please enter a file to open: ");
 			String fileName = in.nextLine().trim();
 			File file = new File(fileName);
-			if(file.exists() && (fileName.toLowerCase().endsWith(".pap") || fileName.toLowerCase().endsWith(".ppp")) ) {
-				return file;
+			if((fileName.toLowerCase().endsWith(".pap") || fileName.toLowerCase().endsWith(".ppp")) ) {
+				try {
+					ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
+					if( file.toString().toLowerCase().endsWith(".ppp")) {
+						return Saving.readProgress(stream, boxes, arrows, items, itemsHeld);
+
+					}
+					else {
+						Saving.read(stream, boxes, arrows, items);
+						List<Box> startingBoxes = Main.getStartingBoxes(boxes);
+						if (startingBoxes.size() == 1) {	
+
+							return startingBoxes.get(0);
+
+
+						} else {
+							System.out.println(
+									"This is an unplayable game because no starting point is indicated.");
+
+						}
+					}
+
+				} catch(IOException | ClassNotFoundException e) {
+					System.out.println("File missing or corrupted.");
+				}
+
 			}
-
-
-			System.out.println("File missing or corrupted.");
-
+			else {
+				System.out.println("File name does not end with .ppp or .pap.");
+			}
 		}
 	}
 
@@ -43,68 +72,20 @@ public class PlayerModeCLI {
 		System.out.println("To stop playing a game, enter Q");
 
 
-		Scanner in = new Scanner(System.in);
 
-
-		//File file = new File("/Users/logan/Desktop/simple.pap");
-
-		List<Box> boxes = new ArrayList<Box>();
-		List<Arrow> arrows = new ArrayList<Arrow>();
-		List<Item> items = new ArrayList<Item>();
-		Set<Item> itemsHeld = new HashSet<Item>();
-		File file = openFile(in);
-		try {
-			ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
-			Box box = null;
-			if( file.toString().toLowerCase().endsWith(".ppp"))
-					box = Saving.readProgress(stream, boxes, arrows, items, itemsHeld);
-			else {
-					Saving.read(stream, boxes, arrows, items);
-					List<Box> startingBoxes = Main.getStartingBoxes(boxes);
-					if (startingBoxes.size() == 1) {	
-
-						box = startingBoxes.get(0);
-
-					} else {
-						System.out.println(
-								"This is an unplayable game because no starting point is indicated.");
-						return;
-					}
-
-			}
-			
-			new PlayerModeCLI(box, in, itemsHeld);
-		
-		} catch (IOException | ClassNotFoundException e) {
-			System.out.println("Corrupted file.");
-			return;
-		}
-		
-		
-		
-		
-		
-
-
-		/*       
-        Console console = Console.getConsole();
-        if(file.exists()) console.open(file);
-
-        else {
-        	 System.out.println("file failed to load");
-        }
-		 */
-
-
+		new PlayerModeCLI();
 
 	}
 
 
 	//Console mode
-	public PlayerModeCLI(Box box, Scanner in, Set<Item> itemsHeld) {
+	public PlayerModeCLI() {
+
+		Scanner in = new Scanner(System.in);
+
+		Box box = loadGame(in);
 
 
-		items = itemsHeld;
 		List<Arrow> choices = new ArrayList<Arrow>();
 		System.out.println();
 		while(box.getOutgoing().size() > 0) {
@@ -114,7 +95,7 @@ public class PlayerModeCLI {
 			for (Arrow arrow : box.getOutgoing()) {
 
 				//if statement for list of items 
-				if( arrow.satisfies(items) ) {
+				if( arrow.satisfies(itemsHeld) ) {
 					choices.add(arrow);
 					System.out.println(counter+ ". " + arrow.getText());
 					counter++;
@@ -130,41 +111,17 @@ public class PlayerModeCLI {
 			System.out.println();
 
 			if( input.equals("S")) {
-				//do save
+				saveGame(in,box);
+
 
 			}
 
 			else if(input.equals("L")) {
-				File file = openFile(in);
-				List<Box> boxes = new ArrayList<Box>();
-				List<Arrow> arrows = new ArrayList<Arrow>();
-				List<Item> items = new ArrayList<Item>();
-				this.items.clear();
-				
-				try {
-					ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
-					if( file.toString().toLowerCase().endsWith(".ppp"))
-							box = Saving.readProgress(stream, boxes, arrows, items, this.items);
-					else {
-							Saving.read(stream, boxes, arrows, items);
-							List<Box> startingBoxes = Main.getStartingBoxes(boxes);
-							if (startingBoxes.size() == 1) {	
-
-								box = startingBoxes.get(0);
-
-							} else {
-								System.out.println(
-										"This is an unplayable game because no starting point is indicated.");
-								return;
-							}
-
-					}
-					
-				
-				} catch (IOException | ClassNotFoundException e) {
-					System.out.println("Corrupted file.");
-					return;
-				}
+				items.clear();
+				boxes.clear();
+				arrows.clear();
+				itemsHeld.clear();
+				box = loadGame(in);
 
 
 			}
@@ -175,9 +132,9 @@ public class PlayerModeCLI {
 
 			else if( input.equals("I")) {
 
-				if( items.size() > 0 ) {				
+				if( itemsHeld.size() > 0 ) {				
 					System.out.println("Items:");
-					for (Item item: items) {
+					for (Item item: itemsHeld) {
 						System.out.println("\t"+ item.getName());
 					}
 				}
@@ -192,7 +149,7 @@ public class PlayerModeCLI {
 						Arrow arrow = choices.get(choice);
 						Set<Item> arrowItems = arrow.getItems();
 
-						items.addAll(arrowItems);
+						itemsHeld.addAll(arrowItems);
 						box = arrow.getEnd();
 					}
 					else
@@ -213,4 +170,49 @@ public class PlayerModeCLI {
 		System.out.println(box.getText());
 
 	}
+
+
+
+
+	private void saveGame(Scanner in, Box box) {
+		while(true) {
+			System.out.print("Please enter a file to save to: ");
+			String fileName = in.nextLine().trim();
+
+			if(!fileName.toLowerCase().endsWith(".ppp") ) {
+				fileName += ".ppp";
+
+			}
+			File file = new File(fileName);
+			boolean safe = true;
+			if(file.exists()) {
+				System.out.print("Are you sure you want to save over " + fileName + "? (y/n) ");
+				String answer = in.nextLine().toLowerCase().trim();
+				if(!answer.equals("yes") && !answer.equals("y")) {
+					safe = false;
+				}
+				
+			}
+			if (safe) {
+				try {
+					ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
+					Saving.writeProgress(stream, boxes, arrows, items, box, itemsHeld);
+					stream.close();
+					System.out.println("Game successfully saved.");
+					System.out.println();
+					return;
+
+
+
+				} catch(IOException e) {
+					System.out.println("Unable to write to file.");
+				}
+			}
+			
+			
+		}
+		
+	}
+
 }
+
