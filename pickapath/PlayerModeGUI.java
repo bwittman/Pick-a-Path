@@ -22,6 +22,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -98,10 +101,12 @@ public class PlayerModeGUI {
 
 			}
 		}
+		
+
 	}
 
 	public PlayerModeGUI(Box startingBox, JFrame frame) {
-		this(startingBox, null, new HashSet<Item>());
+		this(startingBox, frame, new HashSet<Item>());
 	}
 
 	public PlayerModeGUI(Box startingBox, JFrame frame, Set<Item> items) {
@@ -115,6 +120,11 @@ public class PlayerModeGUI {
 		boxInformation.setEditable(false);
 
 		boxInformation.setLineWrap(true);
+		
+
+		
+
+		
 		JScrollPane scrolling = new JScrollPane(boxInformation);
 
 		scrolling.setPreferredSize(new Dimension(400, 200));		
@@ -159,16 +169,27 @@ public class PlayerModeGUI {
 		playerMode.add(bottom, BorderLayout.SOUTH);
 		center.add(choicePanel);
 		playerMode.add(center, BorderLayout.CENTER);
+		
+		JMenuBar bar = new JMenuBar(); // menu bar
+		JMenu file = new JMenu("File"); // file button
+
+		bar.add(file);
+		JMenuItem save = new JMenuItem("Save");
+		file.add(save);
+	    playerMode.add(bar, BorderLayout.NORTH);
+	    
+	    
 
 		playerMode.setSize(800, 700);
 		playerMode.setMinimumSize(new Dimension(350,350));
-		playerMode.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		playerMode.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		playerMode.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				if( frame != null )
 					frame.setVisible(true);
 				playerMode.setVisible(false);
+				playerMode.dispose();
 			}
 		});
 
