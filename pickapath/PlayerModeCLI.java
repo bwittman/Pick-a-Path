@@ -68,7 +68,7 @@ public class PlayerModeCLI {
 		System.out.println("To play, enter the number that corresponds to the choice you would like to make.");
 		System.out.println("To display your items, enter I");
 		System.out.println("To save the current state of your game, enter S");
-		System.out.println("To load a saved game, enter L");
+		System.out.println("To open a saved game, enter O");
 		System.out.println("To stop playing a game, enter Q");
 
 
@@ -104,7 +104,7 @@ public class PlayerModeCLI {
 
 
 			}
-			System.out.println("Or enter I for items, S for save, L for load, Q to quit.");
+			System.out.println("Or enter I for items, S for save, O for open, Q to quit.");
 			System.out.println();
 			System.out.print("Enter choice: ");
 			String input = in.nextLine().toUpperCase();
@@ -116,7 +116,7 @@ public class PlayerModeCLI {
 
 			}
 
-			else if(input.equals("L")) {
+			else if(input.equals("O")) {
 				items.clear();
 				boxes.clear();
 				arrows.clear();
@@ -205,7 +205,7 @@ public class PlayerModeCLI {
 
 
 				} catch(IOException e) {
-					System.out.println("Unable to write to file.");
+					System.out.println("Unable to save to file.");
 				}
 			}
 			

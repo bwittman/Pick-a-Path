@@ -642,7 +642,7 @@ public class Main extends JFrame {
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
 					setVisible(false);
-					new PlayerModeGUI(startingBoxes.get(0), Main.this);
+					new PlayerModeGUI(startingBoxes.get(0), Main.this, boxes, arrows, items);
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"You must have exactly one box with no incoming arrows before entering player mode!");
