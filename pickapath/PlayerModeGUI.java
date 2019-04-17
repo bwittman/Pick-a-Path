@@ -166,7 +166,8 @@ public class PlayerModeGUI {
 		playerMode.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				frame.setVisible(true);
+				if( frame != null )
+					frame.setVisible(true);
 				playerMode.setVisible(false);
 			}
 		});
