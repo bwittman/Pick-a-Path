@@ -531,6 +531,7 @@ public class Main extends JFrame {
 
 		bar.add(file);
 
+
 		JMenu edit = new JMenu("Edit"); // file button
 		JMenuItem makebox = new JMenuItem("Make Box"); //another way to make box
 		KeyStroke keyStrokeToNewBox = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK); 
