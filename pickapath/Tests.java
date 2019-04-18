@@ -380,10 +380,14 @@ class Tests {
 				"To play, enter the number that corresponds to the choice you would like to make." + line +
 				"To display your items, enter I" + line +
 				"To save the current state of your game, enter S" + line +
-				 "Please enter a file to open: " + line +
+				"To open a saved game, enter O" + line +
+				"To stop playing a game, enter Q" + line +
+				 "Please enter a file to open: " + line + 
+				 
 				"pick choice 1" + line + 
-				"1. choice 1" + line + line +
-				"Enter choice: " + 
+				"1. choice 1" + line +
+				"Or enter I for items, S for save, O for open, Q to quit." + line + line + 
+				"Enter choice: " + line + 
 				"succesful" + line;
 		// set stdin
 		System.setIn(new ByteArrayInputStream(input.getBytes()));
@@ -404,18 +408,23 @@ class Tests {
 				"To play, enter the number that corresponds to the choice you would like to make." + line +
 				"To display your items, enter I" + line +
 				"To save the current state of your game, enter S" + line +
-				
+				"To open a saved game, enter O" + line +
+				"To stop playing a game, enter Q" + line +
 				 "Please enter a file to open: " + line +
+				 
 				"pick choice 1" + line + 
-				"1. choice 1" + line + line +
+				"1. choice 1" + line +
 				
-				"Enter choice: " + 
+				"Or enter I for items, S for save, O for open, Q to quit." + line + line +
+				
+				"Enter choice: " + line +
 				"Invalid choice. Please enter another one." + line +
 				"pick choice 1" + line +
 				//"pick choice 1" + line +
 				
-				"1. choice 1" + line + line +
-				"Enter choice: " + 
+				"1. choice 1" + line +
+				"Or enter I for items, S for save, O for open, Q to quit." + line + line +
+				"Enter choice: " + line +
 				"succesful" + line;
 		
 
