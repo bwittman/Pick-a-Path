@@ -38,9 +38,9 @@ class Tests {
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box box1 = new Box(40,60,100,50, "Olivia");
+		Box box1 = new Box(40,60,"Olivia");
 		canvas.addBox(box1);
-		Box box2 = new Box(25,70,100,50, "Lucia");
+		Box box2 = new Box(25,70, "Lucia");
 		canvas.addBox(box2);
 
 		List<Arrow> arrows = canvas.getArrows();
@@ -58,8 +58,8 @@ class Tests {
 
 	@Test
 	public void addIncomingTest1() { //test to check if a box has an arrow incoming from another box
-		Box box0 = new Box(40,60,100,50, "Olivia");
-		Box box1 = new Box(25,70,100,50, "Lucia");
+		Box box0 = new Box(40,60,"Olivia");
+		Box box1 = new Box(25,70,"Lucia");
 		Arrow arrow = new Arrow (box0, box1, "friends");
 		Assert.assertEquals("Incoming arrow not added", 1, box1.getIncoming().size());
 	}
@@ -67,9 +67,9 @@ class Tests {
 
 	@Test
 	public void addIncomingTest2() { //test to check that a box has two arrows incoming from two other boxes
-		Box box0 = new Box(40,60,100,50, "Olivia");
-		Box box1 = new Box(25,70,100,50, "Lucia");
-		Box box2 = new Box(25,70,100,50, "Jimmy");
+		Box box0 = new Box(40,60,"Olivia");
+		Box box1 = new Box(25,70,"Lucia");
+		Box box2 = new Box(25,70,"Jimmy");
 		Arrow arrow0 = new Arrow (box0, box1, "friends");
 		Arrow arrow1 = new Arrow (box2, box1, "enemies");
 		Assert.assertEquals("Incoming arrows not added", 2, box1.getIncoming().size());
@@ -79,17 +79,17 @@ class Tests {
 
 	@Test
 	public void addOutgoingTest1() { //test to check if a box has an outgoing arrow connecting it to another box
-		Box box0 = new Box(40,60,100,50, "Olivia");
-		Box box1 = new Box(25,70,100,50, "Lucia");
+		Box box0 = new Box(40,60,"Olivia");
+		Box box1 = new Box(25,70,"Lucia");
 		Arrow arrow = new Arrow (box0, box1, "friends");
 		Assert.assertEquals("Outgoing arrow not added", 1, box0.getOutgoing().size());
 	}
 
 	@Test
 	public void addOutgoingTest2() { //test to check if a box has two outgoing arrows connecting to different boxes
-		Box box0 = new Box(40,60,100,50, "Olivia");
-		Box box1 = new Box(25,70,100,50, "Lucia");
-		Box box2 = new Box(25,70,100,50, "Jimmy");
+		Box box0 = new Box(40,60,"Olivia");
+		Box box1 = new Box(25,70,"Lucia");
+		Box box2 = new Box(25,70,"Jimmy");
 		Arrow arrow0 = new Arrow (box1, box0, "friends");
 		Arrow arrow1 = new Arrow (box1, box2, "enemies");
 		Assert.assertEquals("Outgoing arrows not added", 2, box1.getOutgoing().size());
@@ -99,7 +99,7 @@ class Tests {
 	public void boxContainsTest() { //test to check if the specified box contains the specified points
 		int x = 45;
 		int y = 50;
-		Box box = new Box(40,60,100,50, "Olivia");
+		Box box = new Box(40,60,"Olivia");
 		Assert.assertEquals("points not contained in box", true, box.contains(x, y, 1.0));
 	}
 
@@ -107,7 +107,7 @@ class Tests {
 	public void boxDoesntContainTest() { //test to check that a random set of points are outside of a specific box
 		int x = 45;
 		int y = 50;
-		Box box = new Box(40,60,100,50, "Olivia");
+		Box box = new Box(40,60,"Olivia");
 		Assert.assertEquals("points are within box", false, box.contains(30, 29, 1.0));
 	}
 
@@ -116,8 +116,8 @@ class Tests {
 	public void arrowContainsTest() { //test to check if an arrow is made to connect box x and box y
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
-		boxes.add(new Box(40,60,100,50, "Olivia"));
-		boxes.add(new Box(25,70,100,50, "Lucia"));
+		boxes.add(new Box(40,60,"Olivia"));
+		boxes.add(new Box(25,70,"Lucia"));
 		arrows.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
 		Arrow arrow = new Arrow(boxes.get(0), boxes.get(1), null);
 		int boxX =  boxes.get(0).getX();
@@ -138,9 +138,9 @@ class Tests {
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box box1 = new Box(40,60,100,50, "Olivia");
+		Box box1 = new Box(40,60,"Olivia");
 		canvas.addBox(box1);
-		Box box2 = new Box(25,70,100,50, "Lucia");
+		Box box2 = new Box(25,70,"Lucia");
 		canvas.addBox(box2);
 
 		List<Arrow> arrows = canvas.getArrows();
@@ -165,14 +165,14 @@ class Tests {
 	@Test
 	public void boxXTest(){
 		List<Box> boxes = new ArrayList<Box>();
-		boxes.add(new Box(40,60,100,50, "Logan"));
+		boxes.add(new Box(40,60,"Logan"));
 		Assert.assertEquals("That is not the width",true,boxes.get(0).getX() == 40);
 		
 		}
 	
 	@Test
 	public void boxYTest(){
-		Box box = new Box(40,60,100,50, "Logan");
+		Box box = new Box(40,60,"Logan");
 		Assert.assertEquals("That is not the y location",60,box.getY());
 		
 		}
@@ -287,10 +287,10 @@ class Tests {
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 		
-		Box boxy = new Box(200,100,100,50, "Boxy"); //creating a new box within the default viewing area
+		Box boxy = new Box(200,100,"Boxy"); //creating a new box within the default viewing area
 		canvas.addBox(boxy);
 		
-		Box boxy2 = new Box(2000,1000,100,50, "Boxy"); //creating a new box outside of default viewing area
+		Box boxy2 = new Box(2000,1000,"Boxy"); //creating a new box outside of default viewing area
 		canvas.addBox(boxy2);
 
 		
@@ -321,7 +321,7 @@ class Tests {
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
+		Box boxy = new Box(2000,1000,"Boxy"); //creating a new box out of default viewing area
 		canvas.addBox(boxy);
 		Dimension currentBounds = canvas.getPreferredSize();
 
@@ -337,7 +337,7 @@ class Tests {
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
+		Box boxy = new Box(2000,1000,"Boxy"); //creating a new box out of default viewing area
 		canvas.addBox(boxy);
 		canvas.mousePressed(new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, System.nanoTime(), 0, 2010, 1005, 1, false));
 		canvas.deleteBox();
@@ -355,11 +355,10 @@ class Tests {
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
+		Box boxy = new Box(2000,1000,"Boxy"); //creating a new box out of default viewing area
 		canvas.addBox(boxy);
-		Dimension currentBounds = canvas.getPreferredSize();
 		
-		Box randomLocationBox = new Box((int)Math.random(),(int)Math.random(),100,50, "randomLocationBox"); //creates a new box at random coordinates in the canvas 
+		Box randomLocationBox = new Box((int)Math.random(),(int)Math.random(),"randomLocationBox"); //creates a new box at random coordinates in the canvas 
 		
 		 
 		Assert.assertEquals("The box was not created within bounds", true, canvas.contains(new Point(randomLocationBox.getX(), randomLocationBox.getY())));

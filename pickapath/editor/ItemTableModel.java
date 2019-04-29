@@ -30,7 +30,6 @@ public class ItemTableModel implements TableModel {
 	@Override
 	public void addTableModelListener(TableModelListener listener) {
 		listeners.add(listener);
-
 	}
 
 	@Override
@@ -58,13 +57,11 @@ public class ItemTableModel implements TableModel {
 
 	@Override
 	public int getRowCount() {
-		// TODO Auto-generated method stub
 		return items.size();
 	}
 
 	@Override
 	public Object getValueAt(int row, int column) {
-		// TODO Auto-generated method stub
 		Item item = items.get(row);
 		if (column ==0) {
 			return item.getId();
@@ -76,16 +73,12 @@ public class ItemTableModel implements TableModel {
 	}
 	@Override
 	public boolean isCellEditable(int row, int column) {
-		if (column == 1 && row >= 0 && row < items.size()) 
-			return true;
-
-		return false;
+		return column == 1 && row >= 0 && row < items.size();
 	}
 
 	@Override
 	public void removeTableModelListener(TableModelListener listener) {
 		listeners.remove(listener);
-
 	}
 
 	@Override
@@ -100,7 +93,8 @@ public class ItemTableModel implements TableModel {
 				listener.tableChanged(event);
 		}
 	}
-	//itemIdCount
+	
+	//Increments itemIdCount
 	public void addItem (String item) {
 		Item addedItem = new Item(itemIdCount,item);
 		items.add(addedItem);

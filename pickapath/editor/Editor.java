@@ -443,7 +443,7 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JViewport viewport = canvas.getViewport();
 				Dimension size = viewport.getExtentSize();
-				canvas.addBox(new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), 100, 50, ""));
+				canvas.addBox(new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), ""));
 			}
 		}
 				);
@@ -552,7 +552,7 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JViewport viewport = canvas.getViewport();
 				Dimension size = viewport.getExtentSize();
-				canvas.addBox(new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), 100, 50, ""));
+				canvas.addBox(new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), ""));
 			}
 		});
 		bar.add(edit);

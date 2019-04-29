@@ -1,17 +1,13 @@
 package pickapath.editor;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -26,12 +22,13 @@ import javax.swing.ToolTipManager;
 import pickapath.Arrow;
 import pickapath.BooleanExpression;
 import pickapath.Box;
+import pickapath.CanvasObject;
 
 @SuppressWarnings("serial")
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable {
 	private List<Box> boxes;
 	private List<Arrow> arrows;
-	private Object selected = null;
+	private CanvasObject selected = null;
 	private int startXBox;
 	private int startYBox;
 	private int startXDrag;
@@ -48,13 +45,29 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private int boxMinY;
 	private JViewport viewport = null;
 
-	
+	private static final Color BOX_FILL = Color.WHITE;
+	private static final Color SELECTED_BOX_FILL = Color.BLACK;
+	private static final Color OUTLINE = Color.BLACK;
+	private static final Color SELECTED_OUTLINE = Color.WHITE;
+	private static final Color GIVING_ITEMS_ARROW = Color.BLUE;
+	private static final Color REQUIRING_ITEMS_ARROW = Color.RED;
+	private static final Color GIVING_AND_REQUIRING_ITEMS_ARROW =  new Color(128, 0, 128); //purple
+	private static final Color SELECTED_GIVING_ITEMS_ARROW = new Color(191, 191, 255); //light blue
+	private static final Color SELECTED_REQUIRING_ITEMS_ARROW = new Color(255, 191, 191); //light red (pink)
+	private static final Color SELECTED_GIVING_AND_REQUIRING_ITEMS_ARROW = new Color(255, 191, 255);  //light purple
+	private static final Color REQUIRING_CURRENCY_ARROW = Color.ORANGE;
+	private static final Color SELECTED_REQUIRING_CURRENCY_ARROW = new Color(255, 223, 191); //light orange
+	private static final Color GIVING_CURRENCY_ARROW = Color.GREEN;
+	private static final Color SELECTED_GIVING_CURRENCY_ARROW = new Color(191, 255, 191); //light green
+
+
+
 	//Canvas constructor 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Editor main) {
-		// TODO Auto-generated constructor stub
 		ToolTipManager.sharedInstance().setInitialDelay(100);
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
-		this.setBackground(new Color(0x6e,0x64,0xaf));
+		//this.setBackground(new Color(0x6e,0x64,0xaf));
+		setBackground(Color.GRAY);
 		this.boxes = boxes;
 		this.arrows = arrows;
 		addMouseListener(this);
@@ -63,119 +76,67 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		
-		
 	}
-	
+
 	public void setViewport(JViewport viewport) {
 		this.viewport = viewport;
-		
+
 		//viewport.setOpaque(false);
 	}
-	
+
 	public JViewport  getViewport() {
 		return viewport;
 		//viewport.setOpaque(false);
 	}
-	
+
 	@Override
 	//Paints the boxes arrows
 	public void paint(Graphics g) {
 		super.paint(g);
-		
+		Color fill, outline;
+
 		Graphics2D graphics = (Graphics2D) g;		
 		graphics.addRenderingHints(hints);
-		Stroke oldStroke = graphics.getStroke();
-		BasicStroke newStroke = new BasicStroke((float) (2f*zoom), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
+
 		for (Arrow arrow: arrows) {
-			Box start = arrow.getStart();
-			Box end = arrow.getEnd();
 			if(arrow == selected) {
-				g.setColor(Color.WHITE);
-				//g.setColor(new Color(0xF2,0x99,0x99));
-			} else if (arrow.givesItem() && arrow.requiresItem()) {
-				g.setColor(Color.ORANGE);
-			} else if (arrow.givesItem()) {
-				g.setColor(Color.GREEN);
-			} else if (arrow.requiresItem()) {
-				g.setColor(Color.RED);
-			} else {
-				g.setColor(Color.BLACK);
+				if (arrow.givesItem() && arrow.requiresItem())
+					outline = SELECTED_GIVING_AND_REQUIRING_ITEMS_ARROW;
+				else if (arrow.givesItem())
+					outline = SELECTED_GIVING_ITEMS_ARROW;
+				else if (arrow.requiresItem())
+					outline = SELECTED_REQUIRING_ITEMS_ARROW;
+				else 
+					outline = SELECTED_OUTLINE;
+				
+				fill = OUTLINE;
 			}
-			//Variables to draw boxes and arrows
-			int startX = (int) Math.round(zoom*start.getX());
-			int startY = (int) Math.round(zoom*start.getY());
-			int endX = (int) Math.round(zoom*end.getX());
-			int endY = (int) Math.round(zoom*end.getY());
-			graphics.setStroke(newStroke);
-			g.drawLine(startX, startY, endX, endY);
-			graphics.setStroke(oldStroke);
-			double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
-			double midX = .45*start.getX() + .55*end.getX();
-			double midY = .45*start.getY() + .55*end.getY();
-			double tipX = midX - Arrow.HEIGHT*Math.sin(theta-Math.PI/2);
-			double tipY = midY + Arrow.HEIGHT*Math.cos(theta-Math.PI/2);
-			double leftX = midX + Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2);
-			double leftY = midY + Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
-			double rightX = midX -Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2);
-			double rightY = midY - Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
-			//zoom variables
-
-			int tipYZoom = (int) Math.round(zoom*tipY);
-			int tipXZoom = (int) Math.round(zoom*tipX);
-			int leftXZoom = (int) Math.round(zoom*leftX);
-			int leftYZoom = (int) Math.round(zoom*leftY);
-			int rightXZoom = (int) Math.round(zoom*rightX);
-			int rightYZoom = (int) Math.round(zoom*rightY);
-
-			int[] xPoints = {leftXZoom, tipXZoom, rightXZoom};
-			int[] yPoints = {leftYZoom, tipYZoom, rightYZoom};
-			g.fillPolygon(xPoints, yPoints, 3);
+			else {
+				if (arrow.givesItem() && arrow.requiresItem())
+					outline = GIVING_AND_REQUIRING_ITEMS_ARROW;
+				else if (arrow.givesItem())
+					outline = GIVING_ITEMS_ARROW;
+				else if (arrow.requiresItem())
+					outline = REQUIRING_ITEMS_ARROW;
+				else 
+					outline = OUTLINE;
+				
+				fill = SELECTED_OUTLINE;
+			}
+			
+			arrow.draw(graphics, fill, outline, font, zoom);
 		}
 		//Sets color for the boxes and their outline
 		for (Box box: boxes) {
 			if (box == selected) {
-				g.setColor(new Color(0xF2,0x99,0x99));
+				fill = SELECTED_BOX_FILL;
+				outline = SELECTED_OUTLINE;
 			} else {
-			g.setColor(new Color(0xF2,0xD3,0xAC));
+				fill = BOX_FILL;
+				outline = OUTLINE;		
 			}
-			int x = (int)Math.round(zoom*(box.getX() - box.getWidth()/2));
-			int y = (int)Math.round(zoom*(box.getY() - box.getHeight()/2));
-			int width = (int)Math.round(zoom*box.getWidth());
-			int height = (int)Math.round(zoom*box.getHeight());
-			
-			//Sets colors for arrow and selected arrow
-			g.fillRect(x, y, width, height);
-			if (box == selected) {
-				g.setColor(Color.BLUE);
-			} else {
-				g.setColor(Color.BLACK);
-			}
-			//Draws text characters in the box
-			g.drawRect(x, y, width, height);
-			Shape oldClip = g.getClip();
-			g.setClip(x, y, width, height);
-			int textX = (int)Math.round(zoom*(box.getX()));
-			int textY = (int)Math.round(zoom*box.getY());
-			FontMetrics metrics;
-			if( font != null ) {
-				g.setFont(font);
-				metrics = g.getFontMetrics(font); 
-			}
-			else
-				metrics = g.getFontMetrics(); 
 
-			int stringLength = metrics.stringWidth(box.getText());
-			int stringHeight = metrics.getAscent();
-			String text = box.getText();
-			if( stringLength > box.getWidth() ) {
-				int space = text.indexOf(' ');
-				text = text.substring(0, Math.min(space < 0 ? text.length() : space,10))+ "...";
-				stringLength = metrics.stringWidth(text);
-
-			}
-			g.drawString(text, textX - (stringLength/2), textY + stringHeight/2);
-			g.setClip(oldClip);		
+			box.draw(graphics, fill, outline, font, zoom);
 		}
 
 	}
@@ -184,16 +145,17 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		if (selected != null && selected instanceof Box) {
 			Box selectedBox = (Box) selected;
 			boxes.remove(selected);
-			for(Arrow arrow: selectedBox.getIncoming()) {
+			for(Arrow arrow: selectedBox.getIncoming()) 
 				arrows.remove(arrow);
-			}
-			for(Arrow arrow: selectedBox.getOutgoing()) {
+			
+			for(Arrow arrow: selectedBox.getOutgoing())
 				arrows.remove(arrow);
-			}
+			
 			selected = null;
 			resetBounds();
 			repaint();
-		}}
+		}
+	}
 	//Deletes selected arrow
 	public void deleteArrow() {	
 		if (selected != null && selected instanceof Arrow) {
@@ -208,13 +170,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	//Allows boxes and arrows to contain text 
 	public void updateText(String text) {
 		if (selected != null) {
-			if (selected instanceof Box) {
-				Box selectedBox = (Box) selected;
-				selectedBox.setText(text);
-			} else if (selected instanceof Arrow) {
-				Arrow selectedArrow = (Arrow) selected;
-				selectedArrow.setText(text);
-			}
+			selected.setText(text);
 			repaint();
 		}
 	}
@@ -233,46 +189,38 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				selectedBox.setX(startXBox + deltaX, zoom);
 				selectedBox.setY(startYBox + deltaY, zoom);
 				updateBounds(selectedBox);
-			
 			}
 			repaint();
 		}
 	}
-	
+
 	public void updateBounds(Box box) {
-		if ((box.getX()-box.getWidth()/2)* zoom < boxMinX) {
-			boxMinX = (int) Math.floor((box.getX()-box.getWidth()/2)* zoom);
-		}
-		if ((box.getX()+box.getWidth()/2)* zoom > boxMaxX) {
-			boxMaxX = (int) Math.ceil((box.getX()+box.getWidth()/2)* zoom);
-		}
-		if ((box.getY()-box.getHeight()/2)* zoom < boxMinY) {
-			boxMinY = (int) Math.floor((box.getY()-box.getHeight()/2)* zoom);
-		}
-		if ((box.getY()+box.getHeight()/2)* zoom > boxMaxY) {
-			boxMaxY = (int) Math.ceil((box.getY()+box.getHeight()/2)* zoom);
-		} 
-		
+		if ((box.getX()-Box.WIDTH/2)* zoom < boxMinX)
+			boxMinX = (int) Math.floor((box.getX()-Box.WIDTH/2)* zoom);
+		if ((box.getX()+Box.WIDTH/2)* zoom > boxMaxX)
+			boxMaxX = (int) Math.ceil((box.getX()+Box.WIDTH/2)* zoom);
+		if ((box.getY()-Box.HEIGHT/2)* zoom < boxMinY)
+			boxMinY = (int) Math.floor((box.getY()-Box.HEIGHT/2)* zoom);
+		if ((box.getY()+Box.HEIGHT/2)* zoom > boxMaxY)
+			boxMaxY = (int) Math.ceil((box.getY()+Box.HEIGHT/2)* zoom);
+
 		setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
 		revalidate(); 
 	}
 
 
 	public void resetBounds() {
-		
 		boxMaxX = Integer.MIN_VALUE;
 		boxMaxY = Integer.MIN_VALUE;
 		boxMinX = Integer.MAX_VALUE;
 		boxMinY = Integer.MAX_VALUE;
-		
-		
+
 		if( boxes.size() == 0 ) {
 			setPreferredSize(viewport.getExtentSize());
 			viewport.setViewPosition(new Point(0,0));
 			revalidate(); 
 		}
 		else {
-			
 			for (Box box: boxes) {
 				updateBounds(box);
 			}
@@ -285,32 +233,28 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		int mouseX = e.getX();
 		int mouseY = e.getY();
 
-
 		for (Arrow arrow: arrows) {
 
 			if (arrow.contains(mouseX, mouseY, zoom)) {
 				hoverArrow = arrow;
-				
-				
 			}
 		}
 		if (hoverArrow != null) {
-			
+
 			setToolTipText(hoverArrow.getText());
 		} else {
 			setToolTipText("");
 		}
-		
-		for (Box box: boxes) {
 
-		if (box.contains(mouseX, mouseY, zoom)) {
-			hoverBox = box;
+		for (Box box: boxes) {
+			if (box.contains(mouseX, mouseY, zoom)) {
+				hoverBox = box;
+			}
 		}
-	}
-	
-	if (hoverBox != null) {
-		
-		setToolTipText(hoverBox.getText());
+
+		if (hoverBox != null) {
+
+			setToolTipText(hoverBox.getText());
 		}
 	}
 
@@ -320,15 +264,12 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
+	
 	public void startArrowCheck() {
 		arrowCheck = true;
 	}
@@ -356,8 +297,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			}
 			arrowCheck = false;
 			main.setMakeArrowEnabled(false);
-			
-			repaint();
+
 		} else {
 			selected = null;
 			for (Box box: boxes) {
@@ -365,43 +305,39 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 					selected = box;
 					startXDrag = mouseX;
 					startYDrag = mouseY;
-					startXBox = (int)Math.round(zoom*box.getX());
-					startYBox = (int)Math.round(zoom*box.getY());
+					startXBox = box.getX(zoom);
+					startYBox = box.getY(zoom);
 				}
 			}
 			if (selected != null) {
 				Box selectedBox = (Box) selected;
 				main.setText(selectedBox.getText());
-				if(boxes.size()>= 2) {
+				if( boxes.size() >= 2 )
 					main.setMakeArrowEnabled(true);
-
-				} 
 			} else {
 				for (Arrow arrow: arrows) {
-					if (arrow.contains(mouseX, mouseY, zoom)) {
+					if (arrow.contains(mouseX, mouseY, zoom))
 						selected = arrow;
-						
-					}
 				}
 				if (selected != null) {
 					main.setText(((Arrow) selected).getText());
 					main.setItemsEnabled(true);
 				}
 			}
-			repaint();
+			
 		}
+		
+		repaint();
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
+	public void mouseReleased(MouseEvent event) {
 	}
-	
+
 	public Object getSelected() {
 		return selected;
 	}
-	
+
 	//Deletes all boxes on the canvas
 	public void deleteAllBoxes() {
 		boxes.clear();
@@ -433,8 +369,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	@Override
 	public int getScrollableBlockIncrement(Rectangle visibleRect,
-            int orientation,
-            int direction) {
+			int orientation,
+			int direction) {
 		if( orientation == SwingConstants.HORIZONTAL )
 			return (boxMaxX  - boxMinX) / 5;
 		else
@@ -443,19 +379,16 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	@Override
 	public boolean getScrollableTracksViewportHeight() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean getScrollableTracksViewportWidth() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public int getScrollableUnitIncrement(Rectangle arg0, int arg1, int arg2) {
-		// TODO Auto-generated method stub
 		return 1;
 	}
 
@@ -464,9 +397,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			Arrow arrow = (Arrow) selected;
 			arrow.setBooleanExpression(expression);
 		}
-		
+
 	}
-	
+
 	public void addBox(Box box) {
 		boxes.add(box);
 		updateBounds(box);
@@ -476,11 +409,11 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public List<Box> getBoxes() {
 		return boxes;
 	}
-	
+
 	public List<Arrow> getArrows() {
 		return arrows;
 	}
-	
+
 	public int getMaxX() {
 		return boxMaxX;
 	}
