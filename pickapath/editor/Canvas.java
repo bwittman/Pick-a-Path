@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.editor;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -23,6 +23,11 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 
+import pickapath.Arrow;
+import pickapath.BooleanExpression;
+import pickapath.Box;
+
+@SuppressWarnings("serial")
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable {
 	private List<Box> boxes;
 	private List<Arrow> arrows;
@@ -32,7 +37,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private int startXDrag;
 	private int startYDrag;
 	boolean mouseDragged;
-	private Main main;
+	private Editor main;
 	boolean arrowCheck;
 	private double zoom = 1.0;
 	private RenderingHints hints;
@@ -45,7 +50,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	
 	//Canvas constructor 
-	public Canvas(List<Arrow> arrows, List<Box> boxes, Main main) {
+	public Canvas(List<Arrow> arrows, List<Box> boxes, Editor main) {
 		// TODO Auto-generated constructor stub
 		ToolTipManager.sharedInstance().setInitialDelay(100);
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);

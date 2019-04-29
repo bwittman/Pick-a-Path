@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.player;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +11,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+
+import pickapath.Arrow;
+import pickapath.Box;
+import pickapath.Item;
+import pickapath.Saving;
+import pickapath.editor.Editor;
 
 public class PlayerModeCLI {
 
@@ -35,7 +41,7 @@ public class PlayerModeCLI {
 					}
 					else {
 						Saving.read(stream, boxes, arrows, items);
-						List<Box> startingBoxes = Main.getStartingBoxes(boxes);
+						List<Box> startingBoxes = Editor.getStartingBoxes(boxes);
 						if (startingBoxes.size() == 1) {	
 
 							return startingBoxes.get(0);

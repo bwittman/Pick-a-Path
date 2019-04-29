@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -47,7 +47,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 
-public class Main extends JFrame {
+import pickapath.Arrow;
+import pickapath.BooleanExpression;
+import pickapath.BooleanExpressionException;
+import pickapath.Box;
+import pickapath.Item;
+import pickapath.Saving;
+import pickapath.player.PlayerModeGUI;
+
+@SuppressWarnings("serial")
+public class Editor extends JFrame {
 
 	private Canvas canvas;
 	private ItemTableModel tableModel;
@@ -71,7 +80,7 @@ public class Main extends JFrame {
 			// handle exception
 		}
 
-		new Main();
+		new Editor();
 
 	}
 
@@ -369,7 +378,7 @@ public class Main extends JFrame {
 	}
 
 
-	public Main() {
+	public Editor() {
 		super("Pick-a-Path");
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
@@ -484,7 +493,7 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (JOptionPane.showConfirmDialog(Main.this, "Are you sure you want to delete all?", "",
+				if (JOptionPane.showConfirmDialog(Editor.this, "Are you sure you want to delete all?", "",
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
 					canvas.deleteAllBoxes();
 
@@ -556,7 +565,7 @@ public class Main extends JFrame {
 		nproject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
-					int ask = JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
+					int ask = JOptionPane.showConfirmDialog(Editor.this, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_CANCEL_OPTION);
 					if (ask == JOptionPane.YES_OPTION) {
 						if (saveFile(boxes, arrows, items)) {
@@ -580,7 +589,7 @@ public class Main extends JFrame {
 		openp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!boxes.isEmpty()) {
-					int ask = JOptionPane.showConfirmDialog(Main.this, "Do you want to save first?", "Save?",
+					int ask = JOptionPane.showConfirmDialog(Editor.this, "Do you want to save first?", "Save?",
 							JOptionPane.YES_NO_CANCEL_OPTION);
 					if (ask == JOptionPane.YES_OPTION) {
 
@@ -642,7 +651,7 @@ public class Main extends JFrame {
 				List<Box> startingBoxes = getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
 					setVisible(false);
-					new PlayerModeGUI(startingBoxes.get(0), Main.this, boxes, arrows, items);
+					new PlayerModeGUI(startingBoxes.get(0), Editor.this, boxes, arrows, items);
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"You must have exactly one box with no incoming arrows before entering player mode!");

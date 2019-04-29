@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.tests;
 
 
 import java.awt.Dimension;
@@ -18,6 +18,14 @@ import javax.swing.event.TableModelListener;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
+import pickapath.Arrow;
+import pickapath.Box;
+import pickapath.Item;
+import pickapath.editor.Canvas;
+import pickapath.editor.Editor;
+import pickapath.editor.ItemTableModel;
+import pickapath.player.PlayerModeCLI;
+
 class Tests {
 
 	@Test
@@ -27,7 +35,7 @@ class Tests {
 	public void deleteAllBoxesTest() { //test to see if all boxes are successfully deleted from the canvas
 		
 
-		Main main = new Main();
+		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
 		Box box1 = new Box(40,60,100,50, "Olivia");
@@ -127,7 +135,7 @@ class Tests {
 
 	public void deleteButtonTest() { //test to check if the delete button deletes a selected box
 
-		Main main = new Main();
+		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
 		Box box1 = new Box(40,60,100,50, "Olivia");
@@ -262,7 +270,7 @@ class Tests {
 
 	@Test 
 	public void scrollbarDefaultTest() { //tests to see if the scroll bar is visible when it's not supposed to be (when boxes are in the default viewing area)
-		Main main = new Main();
+		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
 		JViewport viewport = canvas.getViewport();
@@ -276,7 +284,7 @@ class Tests {
 
 	@Test 
 	public void scrollbarIsVisibleTest() { //tests to see if the scroll bar is visible when a box is created outside of the viewing area
-		Main main = new Main();
+		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 		
 		Box boxy = new Box(200,100,100,50, "Boxy"); //creating a new box within the default viewing area
@@ -310,7 +318,7 @@ class Tests {
 	@Test
 	public void updateBoundsTest() { //tests to see if the scroll bar is visible when it's not supposed to be (when boxes are in the default viewing area)
 
-		Main main = new Main();
+		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
 		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
@@ -326,7 +334,7 @@ class Tests {
 	@Test
 	public void resetBoundsTest() { //test to check if the bounds were reset after removing the last box in the canvas
 
-		Main main = new Main();
+		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
 		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
@@ -342,19 +350,10 @@ class Tests {
 	}
 
 
-
-
-
 	public void newBoxInBounds() { //tests to make sure that a new box populates within the viewing area
 
-		Main main = new Main();
+		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
-
-
-
-
-
-		
 
 		Box boxy = new Box(2000,1000,100,50, "Boxy"); //creating a new box out of default viewing area
 		canvas.addBox(boxy);
@@ -370,82 +369,6 @@ class Tests {
 
 	}
 
-
-
-	@Test
-	public void validInputTest() {
-		String line = System.lineSeparator();
-		String input = "simple.pap" + line + "1" + line;
-		String expected = "Welcome to Pick a Path!" + line +
-				"To play, enter the number that corresponds to the choice you would like to make." + line +
-				"To display your items, enter I" + line +
-				"To save the current state of your game, enter S" + line +
-				"To open a saved game, enter O" + line +
-				"To stop playing a game, enter Q" + line +
-				 "Please enter a file to open: " + line + 
-				 
-				"pick choice 1" + line + 
-				"1. choice 1" + line +
-				"Or enter I for items, S for save, O for open, Q to quit." + line + line + 
-				"Enter choice: " + line + 
-				"succesful" + line;
-		// set stdin
-		System.setIn(new ByteArrayInputStream(input.getBytes()));
-		// set stdout
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
-		System.setOut(ps);
-		
-		PlayerModeCLI.main(new String[0]);
-		Assert.assertEquals("Unexpected output",expected,baos.toString());
-	}
-	
-	@Test
-	public void invalidInput() {
-		String line = System.lineSeparator();
-		String input = "simple.pap" + line + "goat" + line + "1";
-		String expected = "Welcome to Pick a Path!" + line +
-				"To play, enter the number that corresponds to the choice you would like to make." + line +
-				"To display your items, enter I" + line +
-				"To save the current state of your game, enter S" + line +
-				"To open a saved game, enter O" + line +
-				"To stop playing a game, enter Q" + line +
-				 "Please enter a file to open: " + line +
-				 
-				"pick choice 1" + line + 
-				"1. choice 1" + line +
-				
-				"Or enter I for items, S for save, O for open, Q to quit." + line + line +
-				
-				"Enter choice: " + line +
-				"Invalid choice. Please enter another one." + line +
-				"pick choice 1" + line +
-				//"pick choice 1" + line +
-				
-				"1. choice 1" + line +
-				"Or enter I for items, S for save, O for open, Q to quit." + line + line +
-				"Enter choice: " + line +
-				"succesful" + line;
-		
-
-
-		// set stdin
-		System.setIn(new ByteArrayInputStream(input.getBytes()));
-		
-
-		// set stdout
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
-		System.setOut(ps);
-		
-		PlayerModeCLI.main(new String[0]);
-
-
-
-
-		Assert.assertEquals("Unexpected output",expected,baos.toString());
-
-	}
 }
 
 

@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.editor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.List;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+
+import pickapath.Item;
 
 public class ItemTableModel implements TableModel {
 

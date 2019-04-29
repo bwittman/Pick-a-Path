@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.player;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -37,6 +37,12 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
+
+import pickapath.Arrow;
+import pickapath.Box;
+import pickapath.Item;
+import pickapath.Saving;
+import pickapath.editor.Editor;
 
 
 
@@ -98,7 +104,7 @@ public class PlayerModeGUI extends JFrame {
 					box = Saving.readProgress(in, boxes, arrows, items, itemsHeld);
 				else {
 					Saving.read(in, boxes, arrows, items);
-					List<Box> startingBoxes = Main.getStartingBoxes(boxes);
+					List<Box> startingBoxes = Editor.getStartingBoxes(boxes);
 					if (startingBoxes.size() == 1) {	
 
 						box = startingBoxes.get(0);
@@ -201,7 +207,7 @@ public class PlayerModeGUI extends JFrame {
 				}
 				else {
 					Saving.read(stream, boxes, arrows, items);
-					List<Box> startingBoxes = Main.getStartingBoxes(boxes);
+					List<Box> startingBoxes = Editor.getStartingBoxes(boxes);
 					if (startingBoxes.size() == 1) {	
 
 						box = startingBoxes.get(0);
