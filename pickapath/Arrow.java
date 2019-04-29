@@ -218,5 +218,15 @@ public class Arrow extends CanvasObject {
 		int[] xPoints = {leftXZoom, tipXZoom, rightXZoom};
 		int[] yPoints = {leftYZoom, tipYZoom, rightYZoom};
 		g.fillPolygon(xPoints, yPoints, 3);
+	}
+
+	public void makeEarlier() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void makeLater() {
+		// TODO Auto-generated method stub
+		
 	}	
 }

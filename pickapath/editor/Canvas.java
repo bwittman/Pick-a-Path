@@ -108,7 +108,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 					outline = SELECTED_REQUIRING_ITEMS_ARROW;
 				else 
 					outline = SELECTED_OUTLINE;
-				
+
 				fill = OUTLINE;
 			}
 			else {
@@ -120,10 +120,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 					outline = REQUIRING_ITEMS_ARROW;
 				else 
 					outline = OUTLINE;
-				
+
 				fill = SELECTED_OUTLINE;
 			}
-			
+
 			arrow.draw(graphics, fill, outline, font, zoom);
 		}
 		//Sets color for the boxes and their outline
@@ -147,10 +147,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			boxes.remove(selected);
 			for(Arrow arrow: selectedBox.getIncoming()) 
 				arrows.remove(arrow);
-			
+
 			for(Arrow arrow: selectedBox.getOutgoing())
 				arrows.remove(arrow);
-			
+
 			selected = null;
 			resetBounds();
 			repaint();
@@ -167,6 +167,33 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		selected = null;
 		repaint();
 	}
+	
+	
+	public void makeArrowEarlier() {
+		if (selected != null && selected instanceof Arrow) {
+			Arrow arrow = (Arrow) selected;
+			arrow.makeEarlier();
+		}
+		repaint();
+	}
+	
+	public void makeArrowLater() {
+		if (selected != null && selected instanceof Arrow) {
+			Arrow arrow = (Arrow) selected;
+			arrow.makeLater();
+		}
+		repaint();
+	}
+
+	//Deletes all boxes on the canvas
+	public void deleteAllBoxes() {
+		boxes.clear();
+		arrows.clear();
+		selected = null;
+		arrowCheck = false;
+		repaint();
+	}
+
 	//Allows boxes and arrows to contain text 
 	public void updateText(String text) {
 		if (selected != null) {
@@ -269,16 +296,16 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	@Override
 	public void mouseExited(MouseEvent arg0) {
 	}
-	
+
 	public void startArrowCheck() {
 		arrowCheck = true;
 	}
 
 	@Override
 	//Performs "selected" functions when a box or arrow is clicked 
-	public void mousePressed(MouseEvent arg0) {
-		int mouseX = arg0.getX();
-		int mouseY = arg0.getY();
+	public void mousePressed(MouseEvent event) {
+		int mouseX = event.getX();
+		int mouseY = event.getY();
 		main.setItemsEnabled(false);
 		if (arrowCheck) {
 			Box selectedBox = (Box) selected;
@@ -324,9 +351,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 					main.setItemsEnabled(true);
 				}
 			}
-			
+
 		}
-		
+
 		repaint();
 	}
 
@@ -334,17 +361,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public void mouseReleased(MouseEvent event) {
 	}
 
-	public Object getSelected() {
+	public CanvasObject getSelected() {
 		return selected;
-	}
-
-	//Deletes all boxes on the canvas
-	public void deleteAllBoxes() {
-		boxes.clear();
-		arrows.clear();
-		selected = null;
-		arrowCheck = false;
-		repaint();
 	}
 
 	public double getZoom() {
