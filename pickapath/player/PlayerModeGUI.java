@@ -91,7 +91,7 @@ public class PlayerModeGUI extends JFrame {
 				Box box = null;
 				Set<Item> itemsHeld = new HashSet<Item>();
 
-				if (selectedFile.toString().toLowerCase().endsWith(".ppp")) 
+				if (selectedFile.getAbsolutePath().toLowerCase().endsWith(".ppp")) 
 					box = Saving.readProgress(in, boxes, arrows, items, itemsHeld);
 				else {
 					Saving.read(in, boxes, arrows, items);
@@ -135,12 +135,8 @@ public class PlayerModeGUI extends JFrame {
 		if (fileSelect.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileSelect.getSelectedFile();
 			String path = selectedFile.getAbsolutePath();
-			if (!path.toLowerCase().endsWith(".ppp")) {
-				selectedFile = new File(path + ".ppp");
-
-
-
-			}
+			if (!path.toLowerCase().endsWith(".ppp"))
+				selectedFile = new File(path + ".ppp");			
 			boolean safe = true;
 			if(selectedFile.exists()) {
 				if( JOptionPane.showConfirmDialog(this, "Are you sure you want to save over " + selectedFile + "?", "Overwrite File?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {

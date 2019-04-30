@@ -1,12 +1,8 @@
 package pickapath.tests;
 
-
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,17 +20,11 @@ import pickapath.Item;
 import pickapath.editor.Canvas;
 import pickapath.editor.Editor;
 import pickapath.editor.ItemTableModel;
-import pickapath.player.PlayerModeCLI;
 
 class Tests {
 
 	@Test
-
-
-
 	public void deleteAllBoxesTest() { //test to see if all boxes are successfully deleted from the canvas
-		
-
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
@@ -46,13 +36,14 @@ class Tests {
 		List<Arrow> arrows = canvas.getArrows();
 		arrows.add(new Arrow (box1, box2, "friends"));
 
-		List<Box> boxes = canvas.getBoxes();
-
-		canvas.mousePressed(new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, System.nanoTime(), 0, 30, 75, 1, false));
+		canvas.selectBox(0);
+		canvas.deleteBox();
+		
+		canvas.selectBox(0);
 		canvas.deleteBox();
 		main.dispose();
-		canvas.deleteAllBoxes();
-		Assert.assertEquals("boxes not deleted", true, boxes.size()==0 && arrows.size()==0);
+
+		Assert.assertEquals("boxes not deleted", true, canvas.getBoxes().size()==0 && arrows.size()==0);
 	}
 
 
