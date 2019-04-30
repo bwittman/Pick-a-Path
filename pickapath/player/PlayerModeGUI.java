@@ -11,7 +11,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -42,14 +41,9 @@ import pickapath.Arrow;
 import pickapath.Box;
 import pickapath.Item;
 import pickapath.Saving;
-import pickapath.editor.Editor;
 
-
-
-
+@SuppressWarnings("serial")
 public class PlayerModeGUI extends JFrame {
-
-
 
 	private JPanel choicePanel;
 	private JTextArea boxInformation;
@@ -67,12 +61,9 @@ public class PlayerModeGUI extends JFrame {
 	public static void main(String[] args) {
 
 		try {
-			// Set cross-platform Java L&F (also called "Metal")
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException
-				| IllegalAccessException e) {
-			// handle exception
-		}
+				| IllegalAccessException e) {}
 
 		List<Box> boxes = new ArrayList<Box>();
 		List<Arrow> arrows = new ArrayList<Arrow>();
@@ -104,40 +95,31 @@ public class PlayerModeGUI extends JFrame {
 					box = Saving.readProgress(in, boxes, arrows, items, itemsHeld);
 				else {
 					Saving.read(in, boxes, arrows, items);
-					List<Box> startingBoxes = Editor.getStartingBoxes(boxes);
-					if (startingBoxes.size() == 1) {	
-
+					List<Box> startingBoxes = Box.getStartingBoxes(boxes);
+					if (startingBoxes.size() == 1) {
 						box = startingBoxes.get(0);
-
-					} else {
+					}
+					else {
 						JOptionPane.showMessageDialog(null, "This is an unplayable game because no starting point is indicated." , "Error!", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-
 				}
-
 
 				in.close();
 
 				new PlayerModeGUI(box, null, boxes, arrows, items, itemsHeld);
 
-			} catch (FileNotFoundException e1) {
-
-			} catch (IOException e1) {
-
-			} catch (ClassNotFoundException e1) {
-
+			}
+			catch (IOException | ClassNotFoundException e) {
+				JOptionPane.showMessageDialog(null,"File missing or corrupted.", "File Missing or Corrupted!", JOptionPane.ERROR_MESSAGE);
 			}
 		}
-
-
 	}
 
 	public PlayerModeGUI(Box startingBox, JFrame frame, List<Box> boxes, List<Arrow> arrows, List<Item> items) {
 		this(startingBox, frame, boxes, arrows, items, new HashSet<Item>());
 	}
 	private void saveFile() {   //save current work to a file
-
 		JFileChooser fileSelect = new JFileChooser();
 		fileSelect.setFileFilter(new FileFilter() {
 			@Override
@@ -207,18 +189,14 @@ public class PlayerModeGUI extends JFrame {
 				}
 				else {
 					Saving.read(stream, boxes, arrows, items);
-					List<Box> startingBoxes = Editor.getStartingBoxes(boxes);
-					if (startingBoxes.size() == 1) {	
-
+					List<Box> startingBoxes = Box.getStartingBoxes(boxes);
+					if (startingBoxes.size() == 1) {
 						box = startingBoxes.get(0);
-
-
-					} else {
+					}
+					else {
 						JOptionPane.showMessageDialog(this, "This is an unplayable game because no starting point is indicated.",
 								"Game is not Playable!", JOptionPane.ERROR_MESSAGE);
-
 						return;
-
 					}
 				}
 
@@ -226,10 +204,9 @@ public class PlayerModeGUI extends JFrame {
 				this.arrows = arrows;
 				this.items = items;
 				this.itemsHeld = itemsHeld;
-
-
-			} catch(IOException | ClassNotFoundException e) {
-				System.out.println("File missing or corrupted.");
+			}
+			catch(IOException | ClassNotFoundException e) {
+				JOptionPane.showMessageDialog(this,"File missing or corrupted.", "File Missing or Corrupted!", JOptionPane.ERROR_MESSAGE);
 			}
 
 		}

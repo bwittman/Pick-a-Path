@@ -73,11 +73,12 @@ public class Editor extends JFrame {
 	private BasicArrowButton downButton;
 	private JButton deletePromptButton;
 	private JButton deleteChoiceButton;
-	private JLabel arrowOrderLabel;
+	private JLabel choiceOrderLabel;
 	private JLabel statusLabel;
 	private Font[] fonts;
 	private static final int MAX_SLIDER = 5;
 	private static final int MIN_SLIDER = 1;
+	private List<Box> boxes = new ArrayList<Box>();
 
 	private static final int GAP = 5;
 
@@ -123,8 +124,7 @@ public class Editor extends JFrame {
 		addItem.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
+			public void actionPerformed(ActionEvent event) {
 				tableModel.addItem("New Item");
 			}
 
@@ -137,12 +137,11 @@ public class Editor extends JFrame {
 			// Listener for delete button that checks if the user wants to delete the item
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-
+			
 				if(itemTable.getSelectedRow()!= -1) {
 					if(JOptionPane.showConfirmDialog(itemWindow, "Are you sure you want to delete " + 
 							tableModel.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
-							JOptionPane.YES_NO_OPTION)== JOptionPane.YES_OPTION) {
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
 						Arrow selected = (Arrow) canvas.getSelected();
 						Item item = tableModel.getItems().get(itemTable.getSelectedRow());
@@ -169,10 +168,9 @@ public class Editor extends JFrame {
 		JButton or = new JButton("OR");
 		JButton not = new JButton("NOT");
 
-
 		panel.add(and);
-		and.setToolTipText("Makes the arrow path require two items. "
-				+ "It should be used between two items");
+		and.setToolTipText("Makes the choice require both items or expressions. "
+				+ "Use AND between two expressions.");
 
 		and.addActionListener(new ActionListener() {
 			// Listener for AND button that adds text to the items checked field 
@@ -183,8 +181,8 @@ public class Editor extends JFrame {
 		});
 
 		panel.add(or);
-		or.setToolTipText("Makes the arrow path require either of the two items being compared. "
-				+ "It should be used between two items");
+		or.setToolTipText("Makes the choice require either of the two items or expressions. "
+				+ "Use OR between two expressions.");
 
 		or.addActionListener(new ActionListener() {
 			// Listener for OR button that adds text to the items checked field 
@@ -206,8 +204,6 @@ public class Editor extends JFrame {
 				operatorField.append("NOT ");
 			}
 		});
-
-
 
 		JPanel itemsChecked = new JPanel(new BorderLayout());
 		itemsChecked.setBorder(BorderFactory.createTitledBorder("Items Checked"));
@@ -395,8 +391,7 @@ public class Editor extends JFrame {
 
 
 	public Editor() {
-		super("Pick-a-Path");
-		List<Box> boxes = new ArrayList<Box>();
+		super("Pick-a-Path");		
 		List<Arrow> arrows = new ArrayList<Arrow>();
 		List<Item> items = new ArrayList<Item>();
 		tableModel = new ItemTableModel(items);
@@ -424,9 +419,9 @@ public class Editor extends JFrame {
 
 
 		JMenu edit = new JMenu("Edit"); // file button
-		JMenuItem makebox = new JMenuItem("Make Box"); //another way to make situation
-		KeyStroke keyStrokeToNewBox = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK); 
-		makebox.setAccelerator(keyStrokeToNewBox); //hotkey to create a new situation
+		JMenuItem makebox = new JMenuItem("Make Prompt"); //another way to make prompt
+		KeyStroke keyStrokeToNewBox = KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK); 
+		makebox.setAccelerator(keyStrokeToNewBox); //hotkey to create a new prompt
 		edit.add(makebox);
 		makebox.addActionListener(new ActionListener() {
 			@Override
@@ -449,13 +444,15 @@ public class Editor extends JFrame {
 					if (ask == JOptionPane.YES_OPTION) {
 						if (saveFile(boxes, arrows, items)) {
 							canvas.deleteAllBoxes();
+							deselect();
 							openFile(boxes, arrows, items);
 							tableModel.setItemList(items);
 							canvas.repaint();
 						}
-					}else if (ask == JOptionPane.NO_OPTION) {
+					}
+					else if (ask == JOptionPane.NO_OPTION) {
 						canvas.deleteAllBoxes();
-
+						deselect();
 					}
 				}
 			}
@@ -527,7 +524,7 @@ public class Editor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-				List<Box> startingBoxes = getStartingBoxes(boxes);
+				List<Box> startingBoxes = Box.getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
 					setVisible(false);
 					new PlayerModeGUI(startingBoxes.get(0), Editor.this, boxes, arrows, items);
@@ -553,7 +550,12 @@ public class Editor extends JFrame {
 	private void addBox() {
 		JViewport viewport = canvas.getViewport();
 		Dimension size = viewport.getExtentSize();
-		canvas.addBox(new Box((int) ((random.nextInt((int)size.getWidth()) + (int)viewport.getViewPosition().getX())*canvas.getZoom()), random.nextInt((int) (((int)size.getHeight()) + (int)viewport.getViewPosition().getY()*canvas.getZoom())), ""));
+		int x = (int)Math.round((random.nextDouble()*(size.getWidth() - Box.WIDTH) + viewport.getViewPosition().getX() + Box.WIDTH / 2)*canvas.getZoom());
+		int y = (int)Math.round((random.nextDouble()*(size.getHeight() - Box.HEIGHT) + viewport.getViewPosition().getY() + Box.HEIGHT / 2)*canvas.getZoom());
+
+		Box box = new Box(x, y, "");
+		canvas.addBox(box);
+		selectBox(box, true);
 	}
 
 	private void createEastPanel() {
@@ -586,6 +588,7 @@ public class Editor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				canvas.startArrowCheck();
+				statusLabel.setText("Click second prompt to create choice...");
 			}
 		});
 
@@ -601,6 +604,7 @@ public class Editor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				canvas.deleteBox();
+				statusLabel.setText("Prompt deleted");
 			}
 
 		});
@@ -639,21 +643,23 @@ public class Editor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				canvas.makeArrowEarlier();
+				statusLabel.setText("Choice shifted to earlier position");
 			}
 
 		});		
 		upButton.setEnabled(false);
 		choicesPanel.add(upButton);
 		
-		arrowOrderLabel = new JLabel("");
-		arrowOrderLabel.setHorizontalAlignment(JLabel.CENTER);
-		choicesPanel.add(arrowOrderLabel);
+		choiceOrderLabel = new JLabel("");
+		choiceOrderLabel.setHorizontalAlignment(JLabel.CENTER);
+		choicesPanel.add(choiceOrderLabel);
 		
 		downButton = new BasicArrowButton(BasicArrowButton.SOUTH);
 		downButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				canvas.makeArrowEarlier();
+				canvas.makeArrowLater();
+				statusLabel.setText("Choice shifted to later position");
 			}
 
 		});		
@@ -669,6 +675,7 @@ public class Editor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				canvas.deleteArrow();
+				statusLabel.setText("Choice deleted");
 			}
 
 		});
@@ -691,8 +698,10 @@ public class Editor extends JFrame {
 		
 		JPanel statusPanel = new JPanel(new BorderLayout());
 		statusPanel.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
-		statusLabel = new JLabel("Status:");
 		
+		statusPanel.add(new JLabel("Status: "), BorderLayout.WEST);
+		
+		statusLabel = new JLabel("");
 		statusPanel.add(statusLabel, BorderLayout.CENTER);
 		
 		panel.add(statusPanel, BorderLayout.NORTH);
@@ -767,8 +776,8 @@ public class Editor extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				canvas.setZoom(1.0 / ((slider.getValue() + 1) / 2.0), fonts[slider.getValue() - MIN_SLIDER]);
+				statusLabel.setText("Zoom changed to " + (slider.getValue() + 0.0));
 			}
-
 		});	
 
 		slider.setPaintLabels(true);
@@ -782,25 +791,44 @@ public class Editor extends JFrame {
 		add(panel, BorderLayout.NORTH);
 	}
 
-	public static List<Box> getStartingBoxes(List<Box> boxes) {
-		List<Box> startingBoxes = new ArrayList<Box>();
-		for (Box box : boxes) {
-			if (box.getIncoming().isEmpty())
-				startingBoxes.add(box);
-		}
-		return startingBoxes;
+	public void selectBox(Box box, boolean isNew) {
+		textArea.setText(box.getText());
+		arrowButton.setEnabled(boxes.size() >= 2);
+		deletePromptButton.setEnabled(true);
+		
+		if( isNew )
+			statusLabel.setText("Prompt created");
+		else
+			statusLabel.setText("Prompt selected");
 	}
-
-	public void setText(String text) {
-		textArea.setText(text);
+	
+	public void selectArrow(Arrow arrow, boolean isNew) {
+		textArea.setText(arrow.getText());
+		arrowButton.setEnabled(false);
+		deletePromptButton.setEnabled(false);
+		itemButton.setEnabled(true);
+		
+		upButton.setEnabled(arrow.getOrder() > 1);
+		downButton.setEnabled(arrow.getOrder() < arrow.getStart().getOutgoing().size());
+		choiceOrderLabel.setText(arrow.getOrder() + "");		
+		
+		if( isNew )
+			statusLabel.setText("Choice created");
+		else
+			statusLabel.setText("Choice selected");
 	}
-
-	public void setMakeArrowEnabled(boolean enabled) {
-		arrowButton.setEnabled(enabled);
-	}
-
-	public void setItemsEnabled(boolean enabled) {
-		itemButton.setEnabled(enabled);
+	
+	public void deselect() {
+		textArea.setText("");
+		arrowButton.setEnabled(false);
+		deletePromptButton.setEnabled(false);
+		itemButton.setEnabled(false);
+		
+		upButton.setEnabled(false);
+		downButton.setEnabled(false);
+		choiceOrderLabel.setText("");		
+		
+		statusLabel.setText("");
 	}
 
 	public Canvas getCanvas() {

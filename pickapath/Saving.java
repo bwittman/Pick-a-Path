@@ -4,28 +4,33 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Saving {
 
 	public static void write(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException{ //write out to a file
 		
+		Map<Box, Integer> boxIndexes = new HashMap<>();
+		
 		out.writeInt(boxes.size());
-		for (Box box: boxes) {	
+		for(int i = 0; i < boxes.size(); ++i ) {
+			Box box = boxes.get(i);
+			boxIndexes.put(box, i);
 			box.write(out);
 		}
 
 		out.writeInt(items.size());
-		for (Item item:items) {
+		for (Item item:items)
 			item.write(out);
-		}
 		
+		//Write arrows from boxes to preserve their internal ordering
 		out.writeInt(arrows.size());
-		for (Arrow arrow:arrows) {
-			arrow.write(out, boxes, items);
-			
-		}
+		for (Box box: boxes)
+			for( Arrow arrow: box.getOutgoing() )
+				arrow.write(out, boxIndexes, items);
 	}
 	
 	public static void writeProgress(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items, Box current, Set<Item> itemsHeld) throws FileNotFoundException, IOException {
@@ -46,10 +51,7 @@ public class Saving {
 				}
 				
 			}
-		}
-	
-	
-	
+		}	
 	}
 	
 	public static Box readProgress(ObjectInputStream in, List<Box> boxes, List<Arrow> arrows, List<Item> items , Set<Item> itemsHeld) throws FileNotFoundException, IOException, ClassNotFoundException { 
@@ -83,8 +85,5 @@ public class Saving {
 		for (int i = 0; i <  arrowCount; ++i) {
 			arrows.add(new Arrow(in, boxes, items));
 		}
-	
-
-	}
-	
+	}	
 }

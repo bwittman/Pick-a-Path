@@ -35,6 +35,21 @@ public class Box extends CanvasObject {
 		super.write(out);
 		out.writeInt(x);
 		out.writeInt(y);
+	}	
+	
+	public int getX() {
+		return x;
+	}
+	
+	public int getX(double zoom) {
+		return (int)Math.round(x * zoom);
+	}
+	public void setX(int x) {
+		this.x = x;
+	}
+	
+	public void setX(int x, double zoom) {
+		setX((int)Math.round(x / zoom));
 	}
 	
 	public int getY() {
@@ -47,15 +62,9 @@ public class Box extends CanvasObject {
 	public void setY(int y) {
 		this.y = y;
 	}
-	public int getX() {
-		return x;
-	}
 	
-	public int getX(double zoom) {
-		return (int)Math.round(x * zoom);
-	}
-	public void setX(int x) {
-		this.x = x;
+	public void setY(int y, double zoom) {
+		setY((int)Math.round(y / zoom));
 	}
 
 	public void addIncoming(Arrow arrow) {
@@ -103,7 +112,7 @@ public class Box extends CanvasObject {
 			text = text.substring(0, Math.min(space < 0 ? text.length() : space,10))+ "...";
 			stringLength = metrics.stringWidth(text);
 		}
-		g.drawString(text, textX - (stringLength/2), textY + stringHeight/2);
+		g.drawString(text, textX - stringLength/2, textY + stringHeight/2);
 		g.setClip(oldClip);	
 	}
 	
@@ -112,13 +121,13 @@ public class Box extends CanvasObject {
 	 return (x >= zoom*(this.x-(WIDTH/2)) && x <= zoom*(this.x + (WIDTH/2)) && y >= zoom*(this.y - (HEIGHT/2)) && y <= zoom*(this.y + (HEIGHT/2)));
 		
 	}
-	public void setX(int x, double zoom) {
-		setX((int)Math.round(x / zoom));
-		
-	}
 	
-	public void setY(int y, double zoom) {
-		setY((int)Math.round(y / zoom));
-		
+	public static List<Box> getStartingBoxes(List<Box> boxes) {
+		List<Box> startingBoxes = new ArrayList<Box>();
+		for (Box box : boxes) {
+			if (box.getIncoming().isEmpty())
+				startingBoxes.add(box);
+		}
+		return startingBoxes;
 	}
 }

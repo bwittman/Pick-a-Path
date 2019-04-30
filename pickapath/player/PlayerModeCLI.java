@@ -16,7 +16,6 @@ import pickapath.Arrow;
 import pickapath.Box;
 import pickapath.Item;
 import pickapath.Saving;
-import pickapath.editor.Editor;
 
 public class PlayerModeCLI {
 
@@ -26,8 +25,7 @@ public class PlayerModeCLI {
 	private Set<Item> itemsHeld = new HashSet<Item>();
 
 	private Box loadGame(Scanner in) {
-
-
+		
 		while(true) {
 			System.out.print("Please enter a file to open: ");
 			String fileName = in.nextLine().trim();
@@ -41,7 +39,7 @@ public class PlayerModeCLI {
 					}
 					else {
 						Saving.read(stream, boxes, arrows, items);
-						List<Box> startingBoxes = Editor.getStartingBoxes(boxes);
+						List<Box> startingBoxes = Box.getStartingBoxes(boxes);
 						if (startingBoxes.size() == 1) {	
 
 							return startingBoxes.get(0);
@@ -65,9 +63,6 @@ public class PlayerModeCLI {
 		}
 	}
 
-
-
-
 	public static void main(String[] args) {
 
 		System.out.println("Welcome to Pick a Path!");
@@ -77,20 +72,15 @@ public class PlayerModeCLI {
 		System.out.println("To open a saved game, enter O");
 		System.out.println("To stop playing a game, enter Q");
 
-
-
 		new PlayerModeCLI();
-
 	}
 
 
 	//Console mode
 	public PlayerModeCLI() {
-
 		Scanner in = new Scanner(System.in);
 
 		Box box = loadGame(in);
-
 
 		List<Arrow> choices = new ArrayList<Arrow>();
 		System.out.println();
@@ -99,16 +89,12 @@ public class PlayerModeCLI {
 			int counter = 1;
 			System.out.println(box.getText());
 			for (Arrow arrow : box.getOutgoing()) {
-
 				//if statement for list of items 
 				if( arrow.satisfies(itemsHeld) ) {
 					choices.add(arrow);
 					System.out.println(counter+ ". " + arrow.getText());
 					counter++;
-					//		 = new JRadioButton(arrow.getText());  //i dont think this is right
 				}
-
-
 			}
 			System.out.println("Or enter I for items, S for save, O for open, Q to quit.");
 			System.out.println();
@@ -118,20 +104,14 @@ public class PlayerModeCLI {
 
 			if( input.equals("S")) {
 				saveGame(in,box);
-
-
 			}
-
 			else if(input.equals("O")) {
 				items.clear();
 				boxes.clear();
 				arrows.clear();
 				itemsHeld.clear();
 				box = loadGame(in);
-
-
 			}
-
 			else if( input.equals("Q")) {
 				return;
 			}
@@ -165,20 +145,10 @@ public class PlayerModeCLI {
 					System.out.println("Invalid choice. Please enter another one.");
 				}
 
-
-
 			}
-
-
-
-
 		}
 		System.out.println(box.getText());
-
 	}
-
-
-
 
 	private void saveGame(Scanner in, Box box) {
 		while(true) {
@@ -187,7 +157,6 @@ public class PlayerModeCLI {
 
 			if(!fileName.toLowerCase().endsWith(".ppp") ) {
 				fileName += ".ppp";
-
 			}
 			File file = new File(fileName);
 			boolean safe = true;
@@ -199,7 +168,7 @@ public class PlayerModeCLI {
 				}
 				
 			}
-			if (safe) {
+			if( safe ) {
 				try {
 					ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
 					Saving.writeProgress(stream, boxes, arrows, items, box, itemsHeld);
@@ -207,18 +176,12 @@ public class PlayerModeCLI {
 					System.out.println("Game successfully saved.");
 					System.out.println();
 					return;
-
-
-
-				} catch(IOException e) {
+				}
+				catch(IOException e) {
 					System.out.println("Unable to save to file.");
 				}
 			}
-			
-			
-		}
-		
+		}		
 	}
-
 }
 

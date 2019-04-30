@@ -3,6 +3,7 @@ package pickapath;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Arrow extends CanvasObject {
@@ -20,7 +22,7 @@ public class Arrow extends CanvasObject {
 	public final static int HEIGHT = 24;
 	public final static int HALF_WIDTH = 18;
 	private Set<Item> itemsHeld = new HashSet<Item>();
-	
+	private int order;
 
 	//Constructor for arrows
 	public Arrow(Box start, Box end, String text) {
@@ -28,8 +30,9 @@ public class Arrow extends CanvasObject {
 		this.start = start;
 		this.end = end;
 	
-		start.addOutgoing(this);
+		start.addOutgoing(this);		
 		end.addIncoming(this);
+		order = start.getOutgoing().size();
 	}
 
 	public Arrow(ObjectInputStream in, List<Box> boxes, List<Item> items) throws IOException, ClassNotFoundException {	//populate info from saved file
@@ -40,6 +43,7 @@ public class Arrow extends CanvasObject {
 		end = boxes.get(endIndex);
 		start.addOutgoing(this);
 		end.addIncoming(this);
+		order = start.getOutgoing().size();
 		int totalItems = in.readInt();
 		for(int i = 0; i < totalItems; ++i) {
 			int itemId = in.readInt();
@@ -74,29 +78,22 @@ public class Arrow extends CanvasObject {
 		return text;
 	}
 
-	public void write(ObjectOutputStream out, List<Box> boxes, List<Item> items) throws IOException {	//write arrow information to a file
+	//Write arrow information to a file
+	public void write(ObjectOutputStream out, Map<Box, Integer> boxIndexes, List<Item> items) throws IOException {	
 		super.write(out);
-		int startIndex = -1;
-		int endIndex = -1;
-		for(int i = 0; i < boxes.size(); i++) {
-			if (boxes.get(i) == start) {
-				startIndex = i;
-			}
-			if (boxes.get(i) == end) {
-				endIndex = i;
-			}
-		}
+		int startIndex = boxIndexes.get(start);
+		int endIndex = boxIndexes.get(end);
+		
 		out.writeInt(startIndex);
 		out.writeInt(endIndex);
 		out.writeInt(itemsHeld.size());
-		for(Item item: itemsHeld) {
+		for(Item item: itemsHeld)
 			out.writeInt(item.getId());
-		}
-		if(expression == null) {
+
+		if(expression == null)
 			out.writeObject("");
-		}else {
+		else
 			out.writeObject(expression.toString());
-		}
 	}
 	
 	public Box getStart() {
@@ -186,7 +183,7 @@ public class Arrow extends CanvasObject {
 		Stroke oldStroke = g.getStroke();
 		BasicStroke newStroke = new BasicStroke((float) (2.0*zoom), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
 		
-		g.setColor(outline);
+		g.setColor(fill);
 		
 		int startX = start.getX(zoom);
 		int startY = start.getY(zoom);
@@ -218,15 +215,49 @@ public class Arrow extends CanvasObject {
 		int[] xPoints = {leftXZoom, tipXZoom, rightXZoom};
 		int[] yPoints = {leftYZoom, tipYZoom, rightYZoom};
 		g.fillPolygon(xPoints, yPoints, 3);
+		
+		g.setColor(outline);
+		
+		String text = "" + order;
+		FontMetrics metrics;
+		if( font != null ) {
+			g.setFont(font);
+			metrics = g.getFontMetrics(font); 
+		}
+		else
+			metrics = g.getFontMetrics(); 
+		int stringLength = metrics.stringWidth(text);
+		int stringHeight = metrics.getAscent();
+		int textX = (int)Math.round(2*midX/3 + tipX/3 - stringLength/2.0); 
+		int textY = (int)Math.round(2*midY/3 + tipY/3 + stringHeight/2.0); 
+		g.drawString(text, textX, textY);
 	}
 
 	public void makeEarlier() {
-		// TODO Auto-generated method stub
-		
+		int index = order - 1;
+		List<Arrow> arrows = start.getOutgoing();
+		if( index > 0 ) {
+			Arrow swap = arrows.get(index - 1);
+			swap.order++;
+			order--;
+			arrows.set(index, swap);
+			arrows.set(index - 1, this);
+		}
 	}
 
 	public void makeLater() {
-		// TODO Auto-generated method stub
-		
-	}	
+		int index = order - 1;
+		List<Arrow> arrows = start.getOutgoing();
+		if( index < arrows.size() - 1 ) {
+			Arrow swap = arrows.get(index + 1);
+			swap.order--;
+			order++;
+			arrows.set(index, swap);
+			arrows.set(index + 1, this);
+		}		
+	}
+	
+	public int getOrder() {
+		return order;
+	}
 }
