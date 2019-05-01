@@ -179,11 +179,15 @@ public class Arrow extends CanvasObject {
 	}
 
 	@Override
-	public void draw(Graphics2D g, Color fill, Color outline, Font font, double zoom) {
+	public void draw(Graphics2D g, boolean selected, Font font, double zoom) {
 		Stroke oldStroke = g.getStroke();
 		BasicStroke newStroke = new BasicStroke((float) (3.0*zoom), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
 		
-		g.setColor(fill);
+		if( selected )
+			g.setColor(Color.WHITE);
+		else
+			g.setColor(start.getColor());
+		//g.setColor(fill);
 		
 		int startX = start.getX(zoom);
 		int startY = start.getY(zoom);
@@ -216,7 +220,8 @@ public class Arrow extends CanvasObject {
 		int[] yPoints = {leftYZoom, tipYZoom, rightYZoom};
 		g.fillPolygon(xPoints, yPoints, 3);
 		
-		g.setColor(outline);
+		g.setColor(Color.BLACK);
+		//g.setColor(outline);
 		
 		String text = "" + order;
 		FontMetrics metrics;

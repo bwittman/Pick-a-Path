@@ -125,7 +125,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				outline = SELECTED_OUTLINE;
 			}
 
-			arrow.draw(graphics, fill, outline, font, zoom);
+			arrow.draw(graphics, arrow == selected, font, zoom);
 		}
 		
 		//Draw boxes back to front
@@ -140,7 +140,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				outline = OUTLINE;		
 			}
 
-			box.draw(graphics, fill, outline, font, zoom);
+			box.draw(graphics, box == selected, font, zoom);
 		}
 
 	}

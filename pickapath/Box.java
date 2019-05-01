@@ -16,25 +16,29 @@ public class Box extends CanvasObject {
 	private int y;
 	public static int WIDTH = 100;
 	public static int HEIGHT = 50;
-	private List<Arrow> incoming = new ArrayList<Arrow>();; 
+	private List<Arrow> incoming = new ArrayList<Arrow>();
 	private List<Arrow> outgoing = new ArrayList<Arrow>();
+	private Color color;
 	
 	public Box(int x, int y, String text) {
 		super(text);
 		this.x = x;
 		this.y = y;
+		color = Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
 	}
 
 	public Box(ObjectInputStream in) throws IOException, ClassNotFoundException {	//read in box info from a file
 		super(in);
 		x = in.readInt();
 		y = in.readInt();
+		color = (Color)in.readObject();
 	}
 	
 	public void write(ObjectOutputStream out) throws IOException {	//write out box info to a file
 		super.write(out);
 		out.writeInt(x);
 		out.writeInt(y);
+		out.writeObject(color);
 	}	
 	
 	public int getX() {
@@ -66,6 +70,10 @@ public class Box extends CanvasObject {
 	public void setY(int y, double zoom) {
 		setY((int)Math.round(y / zoom));
 	}
+	
+	public Color getColor() {
+		return color;
+	}
 
 	public void addIncoming(Arrow arrow) {
 		incoming.add(arrow);
@@ -80,19 +88,27 @@ public class Box extends CanvasObject {
 		return outgoing;
 	}
 	
-	public void draw(Graphics2D g, Color fill, Color outline, Font font, double zoom) {
+	public void draw(Graphics2D g, boolean selected, Font font, double zoom) {
 		int x = (int)Math.round(zoom*(this.x - Box.WIDTH/2));
 		int y = (int)Math.round(zoom*(this.y - Box.HEIGHT/2));
 		int width = (int)Math.round(zoom*Box.WIDTH);
 		int height = (int)Math.round(zoom*Box.HEIGHT);
 		
 		//Sets colors for arrow and selected arrow
-		g.setColor(fill);
-		g.fillRect(x, y, width, height);
-	
+		if( selected ) {
+			g.setColor(Color.WHITE);
+			g.fillRect(x, y, width, height);
+			g.setColor(color);
+			g.drawRect(x, y, width, height);
+		}
+		else {
+			g.setColor(color);
+			g.fillRect(x, y, width, height);
+		}
 		//Draws text characters in the box
-		g.setColor(outline);
-		g.drawRect(x, y, width, height);
+		//g.setColor(outline);
+
+		g.setColor(Color.BLACK);
 		Shape oldClip = g.getClip();
 		g.setClip(x, y, width, height);
 		int textX = getX(zoom);

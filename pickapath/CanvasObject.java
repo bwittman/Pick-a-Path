@@ -31,5 +31,5 @@ public abstract class CanvasObject {
 		this.text = text;
 	}
 	
-	public abstract void draw(Graphics2D g, Color fill, Color outline, Font font, double zoom);
+	public abstract void draw(Graphics2D g, boolean selected, Font font, double zoom);
 }
