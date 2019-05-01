@@ -56,6 +56,8 @@ public class PlayerModeGUI extends JFrame {
 	private List<Item> items;
 	private Set<Item> itemsHeld;
 	private Box box;
+	private String title;
+	private String currency;
 
 
 	public static void main(String[] args) {
@@ -90,11 +92,13 @@ public class PlayerModeGUI extends JFrame {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
 				Box box = null;
 				Set<Item> itemsHeld = new HashSet<Item>();
+				String[] strings = new String[2];
 
-				if (selectedFile.getAbsolutePath().toLowerCase().endsWith(".ppp")) 
-					box = Saving.readProgress(in, boxes, arrows, items, itemsHeld);
+				if (selectedFile.getAbsolutePath().toLowerCase().endsWith(".ppp")) {
+					box = Saving.readProgress(in, boxes, arrows, items, strings, itemsHeld);
+				}
 				else {
-					Saving.read(in, boxes, arrows, items);
+					Saving.read(in, boxes, arrows, items, strings);
 					List<Box> startingBoxes = Box.getStartingBoxes(boxes);
 					if (startingBoxes.size() == 1) {
 						box = startingBoxes.get(0);
@@ -107,7 +111,7 @@ public class PlayerModeGUI extends JFrame {
 
 				in.close();
 
-				new PlayerModeGUI(box, null, boxes, arrows, items, itemsHeld);
+				new PlayerModeGUI(box, null, boxes, arrows, items, itemsHeld, strings[0], strings[1]);
 
 			}
 			catch (IOException | ClassNotFoundException e) {
@@ -116,8 +120,8 @@ public class PlayerModeGUI extends JFrame {
 		}
 	}
 
-	public PlayerModeGUI(Box startingBox, JFrame frame, List<Box> boxes, List<Arrow> arrows, List<Item> items) {
-		this(startingBox, frame, boxes, arrows, items, new HashSet<Item>());
+	public PlayerModeGUI(Box startingBox, JFrame frame, List<Box> boxes, List<Arrow> arrows, List<Item> items, String title, String currency) {
+		this(startingBox, frame, boxes, arrows, items, new HashSet<Item>(), title, currency);
 	}
 	private void saveFile() {   //save current work to a file
 		JFileChooser fileSelect = new JFileChooser();
@@ -146,7 +150,7 @@ public class PlayerModeGUI extends JFrame {
 			if(safe) {
 				try {
 					ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
-					Saving.writeProgress(out, boxes, arrows, items, box, itemsHeld);
+					Saving.writeProgress(out, boxes, arrows, items, title, currency, box, itemsHeld);
 					out.close();
 				} catch ( IOException e) {
 					JOptionPane.showMessageDialog(this, "Unable to save to file.", "Saving Failed!", JOptionPane.ERROR_MESSAGE);
@@ -177,14 +181,15 @@ public class PlayerModeGUI extends JFrame {
 				ObjectInputStream stream = new ObjectInputStream(new FileInputStream(selectedFile));
 				List <Box> boxes = new ArrayList<Box>();
 				List <Arrow> arrows = new ArrayList<Arrow>();
-				List <Item> items =new ArrayList<Item>();
+				List <Item> items = new ArrayList<Item>();
 				Set <Item> itemsHeld = new HashSet<Item>();
+				String[] strings = new String[2];
 				if( selectedFile.toString().toLowerCase().endsWith(".ppp")) {
-					box = Saving.readProgress(stream, boxes, arrows, items, itemsHeld);
-
+					box = Saving.readProgress(stream, boxes, arrows, items, strings, itemsHeld);
+					
 				}
 				else {
-					Saving.read(stream, boxes, arrows, items);
+					Saving.read(stream, boxes, arrows, items, strings);
 					List<Box> startingBoxes = Box.getStartingBoxes(boxes);
 					if (startingBoxes.size() == 1) {
 						box = startingBoxes.get(0);
@@ -200,6 +205,8 @@ public class PlayerModeGUI extends JFrame {
 				this.arrows = arrows;
 				this.items = items;
 				this.itemsHeld = itemsHeld;
+				title = strings[0];
+				currency = strings[1];
 			}
 			catch(IOException | ClassNotFoundException e) {
 				JOptionPane.showMessageDialog(this,"File missing or corrupted.", "File Missing or Corrupted!", JOptionPane.ERROR_MESSAGE);
@@ -209,13 +216,15 @@ public class PlayerModeGUI extends JFrame {
 
 	}
 
-	public PlayerModeGUI(Box startingBox, JFrame frame, List<Box> boxes, List<Arrow> arrows, List<Item> items, Set<Item> outsideItems) {
-		super("Player Mode");
+	public PlayerModeGUI(Box startingBox, JFrame frame, List<Box> boxes, List<Arrow> arrows, List<Item> items, Set<Item> outsideItems, String title, String currency) {
+		super(title);
 		this.itemsHeld = outsideItems;
 		this.boxes = boxes;
 		this.arrows = arrows;
 		this.items = items;
 		this.box = startingBox;
+		this.title = title;
+		this.currency = currency;
 		buttonList = new ArrayList<JRadioButton>();
 		arrowList = new ArrayList<Arrow>();
 

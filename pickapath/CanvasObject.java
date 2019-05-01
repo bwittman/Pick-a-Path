@@ -1,6 +1,5 @@
 package pickapath;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.io.IOException;

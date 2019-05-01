@@ -23,6 +23,8 @@ public class PlayerModeCLI {
 	private List<Arrow> arrows = new ArrayList<Arrow>();
 	private List<Item> items = new ArrayList<Item>();
 	private Set<Item> itemsHeld = new HashSet<Item>();
+	private String title;
+	private String currency;
 
 	private Box loadGame(Scanner in) {
 		
@@ -33,12 +35,17 @@ public class PlayerModeCLI {
 			if((fileName.toLowerCase().endsWith(".pap") || fileName.toLowerCase().endsWith(".ppp")) ) {
 				try {
 					ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
+					String[] strings = new String[2];
 					if( file.toString().toLowerCase().endsWith(".ppp")) {
-						return Saving.readProgress(stream, boxes, arrows, items, itemsHeld);
-
+						Box box = Saving.readProgress(stream, boxes, arrows, items, strings, itemsHeld);
+						title = strings[0];
+						currency = strings[1];
+						return box;
 					}
 					else {
-						Saving.read(stream, boxes, arrows, items);
+						Saving.read(stream, boxes, arrows, items, strings);
+						title = strings[0];
+						currency = strings[1];
 						List<Box> startingBoxes = Box.getStartingBoxes(boxes);
 						if (startingBoxes.size() == 1) {	
 
@@ -171,7 +178,7 @@ public class PlayerModeCLI {
 			if( safe ) {
 				try {
 					ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
-					Saving.writeProgress(stream, boxes, arrows, items, box, itemsHeld);
+					Saving.writeProgress(stream, boxes, arrows, items, title, currency, box, itemsHeld);
 					stream.close();
 					System.out.println("Game successfully saved.");
 					System.out.println();

@@ -11,7 +11,10 @@ import java.util.Set;
 
 public class Saving {
 
-	public static void write(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException{ //write out to a file
+	public static void write(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items, String title, String currency) throws FileNotFoundException, IOException{ //write out to a file
+		
+		out.writeObject(title);
+		out.writeObject(currency);
 		
 		Map<Box, Integer> boxIndexes = new HashMap<>();
 		
@@ -33,8 +36,8 @@ public class Saving {
 				arrow.write(out, boxIndexes, items);
 	}
 	
-	public static void writeProgress(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items, Box current, Set<Item> itemsHeld) throws FileNotFoundException, IOException {
-		write(out,boxes,arrows,items);
+	public static void writeProgress(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items, String title, String currency, Box current, Set<Item> itemsHeld) throws FileNotFoundException, IOException {
+		write(out,boxes,arrows,items, title, currency);
 		 for (int i = 0; i < boxes.size(); i++) {
 			if (boxes.get(i) == current) {
 				out.writeInt(i);
@@ -54,8 +57,8 @@ public class Saving {
 		}	
 	}
 	
-	public static Box readProgress(ObjectInputStream in, List<Box> boxes, List<Arrow> arrows, List<Item> items , Set<Item> itemsHeld) throws FileNotFoundException, IOException, ClassNotFoundException { 
-		read(in,boxes,arrows,items);
+	public static Box readProgress(ObjectInputStream in, List<Box> boxes, List<Arrow> arrows, List<Item> items, String[] strings, Set<Item> itemsHeld) throws FileNotFoundException, IOException, ClassNotFoundException { 
+		read(in,boxes,arrows,items, strings);
 		int boxNumber = in.readInt();
 		int totalItems = in.readInt();
 		for (int i =0;  i < totalItems; i ++) {
@@ -66,8 +69,11 @@ public class Saving {
 	}
 	
 
-	public static void read(ObjectInputStream in, List<Box> boxes, List<Arrow> arrows, List<Item> items) throws FileNotFoundException, IOException, ClassNotFoundException{  //read in from a file
+	public static void read(ObjectInputStream in, List<Box> boxes, List<Arrow> arrows, List<Item> items, String[] strings) throws FileNotFoundException, IOException, ClassNotFoundException{  //read in from a file
 		
+		strings[0] = (String)in.readObject(); //title
+		strings[1] = (String)in.readObject(); //currency
+				
 		int boxCount = in.readInt();
 		boxes.clear();
 		for (int i = 0; i < boxCount; ++i ) {

@@ -106,7 +106,7 @@ public class Editor extends JFrame {
 	private boolean save(List<Box> boxes, List<Arrow> arrows, List<Item> items) {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(saveFile));
-			Saving.write(out, boxes, arrows, items);
+			Saving.write(out, boxes, arrows, items, titleField.getText().trim(), currencyField.getText().trim());
 			out.close();
 		} 
 		catch (IOException e) {
@@ -153,6 +153,7 @@ public class Editor extends JFrame {
 
 	public void openFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {  //open a saved file
 		JFileChooser fileSelect = new JFileChooser();
+		String[] strings = new String[2];
 		fileSelect.setFileFilter(new FileFilter() {
 
 			@Override
@@ -170,10 +171,12 @@ public class Editor extends JFrame {
 
 			try {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(saveFile));
-				Saving.read(in, boxes, arrows, items);
+				Saving.read(in, boxes, arrows, items, strings);
 				in.close();
 				
 				setTitle(TITLE + " - " + saveFile.getName());
+				titleField.setText(strings[0]);
+				currencyField.setText(strings[1]);
 				save.setEnabled(false);
 			} 
 			catch (IOException | ClassNotFoundException e) {
@@ -317,7 +320,7 @@ public class Editor extends JFrame {
 				List<Box> startingBoxes = Box.getStartingBoxes(boxes);
 				if (startingBoxes.size() == 1) {					
 					setVisible(false);
-					new PlayerModeGUI(startingBoxes.get(0), Editor.this, boxes, arrows, items);
+					new PlayerModeGUI(startingBoxes.get(0), Editor.this, boxes, arrows, items, titleField.getText().trim(), currencyField.getText().trim());
 				} else {
 					JOptionPane.showMessageDialog(Editor.this,
 							"You must have exactly one prompt with no incoming choices to make the game playable.", "Game Not Playable!", JOptionPane.ERROR_MESSAGE);
