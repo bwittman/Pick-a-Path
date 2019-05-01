@@ -109,11 +109,27 @@ public class Arrow extends CanvasObject {
 		y = (int) Math.round(y/zoom);
 		
 		//Sets variables to draw the line and arrow between two boxes
-		Box start = getStart();
-		Box end = getEnd();
+
 		double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
-		double midX = .45*start.getX() + .55*end.getX();
-		double midY = .45*start.getY() + .55*end.getY();
+		
+		double startX = start.getX();
+		double startY = start.getY();
+		double endX = end.getX();
+		double endY = end.getY();
+		
+		if( isTandem() ) {
+			double perpendicular = theta - Math.PI/2.0;
+			double deltaX = Math.cos(perpendicular)*Box.WIDTH/5.0;
+			double deltaY = Math.sin(perpendicular)*Box.WIDTH/5.0;
+			
+			startX += deltaX;
+			endX += deltaX;
+			startY += deltaY;
+			endY += deltaY;
+		}		
+		
+		double midX = .55*startX + .45*endX;
+		double midY = .55*startY + .45*endY;
 		double aX = midX - HEIGHT*Math.sin(theta-Math.PI/2);
 		double aY = midY + HEIGHT*Math.cos(theta-Math.PI/2);
 		double bX = midX + HALF_WIDTH*Math.cos(theta-Math.PI/2);
@@ -122,14 +138,14 @@ public class Arrow extends CanvasObject {
 		double cY = midY - HALF_WIDTH*Math.sin(theta-Math.PI/2);
 
 		//Use dot product and Barry-centric coordinates to make the triangle on the line 
-		double d00 = dot(bX - aX, bY - aY, bX - aX, bY - aY ); 
+		double d00 = dot(bX - aX, bY - aY, bX - aX, bY - aY); 
 		double d01 = dot(bX - aX, bY - aY, cX - aX, cY - aY);
-		double d11 = dot( cX - aX, cY - aY,  cX - aX, cY - aY);
+		double d11 = dot(cX - aX, cY - aY,  cX - aX, cY - aY);
 		double d20 = dot(x - aX, y - aY, bX - aX, bY - aY);
 		double d21 = dot(x - aX, y - aY, cX - aX, cY - aY);
-		double denom = d00 * d11 - d01 * d01;
-		double v = (d11 * d20 - d01 * d21) / denom;
-		double w = (d00 * d21 - d01 * d20) / denom;
+		double denominator = d00 * d11 - d01 * d01;
+		double v = (d11 * d20 - d01 * d21) / denominator;
+		double w = (d00 * d21 - d01 * d20) / denominator;
 		double u = 1.0f - v - w;
 		return u >= 0 && w >= 0 && v >= 0 && u <= 1 && w <= 1 && v <= 1;
 	}
@@ -183,38 +199,50 @@ public class Arrow extends CanvasObject {
 		Stroke oldStroke = g.getStroke();
 		BasicStroke newStroke = new BasicStroke((float) (3.0*zoom), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
 		
+		double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
+		
 		if( selected )
 			g.setColor(Color.WHITE);
 		else
 			g.setColor(start.getColor());
 		//g.setColor(fill);
 		
-		int startX = start.getX(zoom);
-		int startY = start.getY(zoom);
-		int endX = end.getX(zoom);
-		int endY = end.getY(zoom);
+		double startX = start.getX();
+		double startY = start.getY();
+		double endX = end.getX();
+		double endY = end.getY();
 		
+		if( isTandem() ) {
+			double perpendicular = theta - Math.PI/2.0;
+			double deltaX = Math.cos(perpendicular)*Box.WIDTH/5.0;
+			double deltaY = Math.sin(perpendicular)*Box.WIDTH/5.0;
+			
+			startX += deltaX;
+			endX += deltaX;
+			startY += deltaY;
+			endY += deltaY;
+		}
+			
 		g.setStroke(newStroke);
-		g.drawLine(startX, startY, endX, endY);
+		g.drawLine(fix(startX, zoom), fix(startY, zoom), fix(endX, zoom), fix(endY, zoom));
 		g.setStroke(oldStroke);
 		
-		double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
-		double midX = .45*start.getX() + .55*end.getX();
-		double midY = .45*start.getY() + .55*end.getY();
-		double tipX = midX - Arrow.HEIGHT*Math.sin(theta-Math.PI/2);
-		double tipY = midY + Arrow.HEIGHT*Math.cos(theta-Math.PI/2);
-		double leftX = midX + Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2);
-		double leftY = midY + Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
-		double rightX = midX -Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2);
-		double rightY = midY - Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2);
+		double midX = .55*startX + .45*endX;
+		double midY = .55*startY + .45*endY;
+		double tipX = midX - Arrow.HEIGHT*Math.sin(theta-Math.PI/2.0);
+		double tipY = midY + Arrow.HEIGHT*Math.cos(theta-Math.PI/2.0);
+		double leftX = midX + Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2.0);
+		double leftY = midY + Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2.0);
+		double rightX = midX -Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2.0);
+		double rightY = midY - Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2.0);
 		
 		//zoom variables
-		int tipYZoom = (int) Math.round(zoom*tipY);
-		int tipXZoom = (int) Math.round(zoom*tipX);
-		int leftXZoom = (int) Math.round(zoom*leftX);
-		int leftYZoom = (int) Math.round(zoom*leftY);
-		int rightXZoom = (int) Math.round(zoom*rightX);
-		int rightYZoom = (int) Math.round(zoom*rightY);
+		int tipYZoom = fix(tipY, zoom);
+		int tipXZoom = fix(tipX, zoom);
+		int leftXZoom = fix(leftX, zoom);
+		int leftYZoom = fix(leftY, zoom);
+		int rightXZoom = fix(rightX, zoom);
+		int rightYZoom = fix(rightY, zoom);
 
 		int[] xPoints = {leftXZoom, tipXZoom, rightXZoom};
 		int[] yPoints = {leftYZoom, tipYZoom, rightYZoom};
@@ -236,6 +264,14 @@ public class Arrow extends CanvasObject {
 		int textX = (int)Math.round(2*midX*zoom/3 + tipX*zoom/3 - stringLength/2.0); 
 		int textY = (int)Math.round(2*midY*zoom/3 + tipY*zoom/3 + stringHeight/2.0); 
 		g.drawString(text, textX, textY);
+	}
+
+	private boolean isTandem() {
+		for(Arrow arrow : end.getOutgoing() )
+			if( arrow.end == start)
+				return true;
+		
+		return false;
 	}
 
 	public void makeEarlier() {

@@ -341,7 +341,8 @@ public class Editor extends JFrame {
 		Box box = new Box(x, y, "");
 		canvas.addBox(box);
 		selectBox(box, true);
-		makeDirty();		
+		makeDirty();
+		textArea.grabFocus();
 	}
 
 	private void createEastPanel() {

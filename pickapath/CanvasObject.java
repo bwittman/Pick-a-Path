@@ -31,5 +31,9 @@ public abstract class CanvasObject {
 		this.text = text;
 	}
 	
+	protected static int fix(double value, double zoom) {
+		return (int)Math.round(value * zoom);
+	}
+	
 	public abstract void draw(Graphics2D g, boolean selected, Font font, double zoom);
 }
