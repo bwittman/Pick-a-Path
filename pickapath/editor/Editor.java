@@ -191,9 +191,10 @@ public class Editor extends JFrame {
 		List<Item> items = new ArrayList<Item>();
 		tableModel = new ItemTableModel(items);
 
-		createNorthPanel();
-		createSouthPanel();
-		createEastPanel();
+		add(createNorthPanel(), BorderLayout.NORTH);
+		add(createSouthPanel(), BorderLayout.SOUTH);
+		add(createEastPanel(), BorderLayout.EAST);
+		
 		createMenus(arrows, items);
 
 		canvas = new Canvas(arrows, boxes, this);
@@ -205,8 +206,8 @@ public class Editor extends JFrame {
 		canvas.setViewport(scrollPane.getViewport());
 		add(scrollPane, BorderLayout.CENTER);
 		
-		setSize(800, 700);
-		setMinimumSize(new Dimension(800, 700));
+		pack();
+		setMinimumSize(getPreferredSize());
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
 		
 		addWindowListener(new WindowAdapter() {
@@ -216,9 +217,9 @@ public class Editor extends JFrame {
 			}
 		});
 		
-
+		setLocationRelativeTo(null);
 		setVisible(true); // allows the GUI to start as visible
-
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 
@@ -348,7 +349,7 @@ public class Editor extends JFrame {
 		textArea.grabFocus();
 	}
 
-	private void createEastPanel() {
+	private JPanel createEastPanel() {
 
 		JDialog itemWindow = makeItemDialog();
 
@@ -482,10 +483,10 @@ public class Editor extends JFrame {
 		
 		panel.add(javax.swing.Box.createVerticalGlue());
 
-		add(panel, BorderLayout.EAST); // assigns the boxes to the right container
+		return panel;
 	}
 
-	private void createSouthPanel() {
+	private JPanel createSouthPanel() {
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		
@@ -529,10 +530,10 @@ public class Editor extends JFrame {
 
 		panel.add(scrolling, BorderLayout.SOUTH);
 		
-		add(panel, BorderLayout.SOUTH);
+		return panel;
 	}
 
-	private void createNorthPanel() {		
+	private JPanel createNorthPanel() {		
 		//Panel for whole north area
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -580,9 +581,10 @@ public class Editor extends JFrame {
 		zoomPanel.setBorder(BorderFactory.createTitledBorder("Zoom"));
 		zoomPanel.add(slider, BorderLayout.CENTER);
 
-		panel.add(zoomPanel, BorderLayout.SOUTH);		
+		panel.add(zoomPanel, BorderLayout.SOUTH);	
+		
 
-		add(panel, BorderLayout.NORTH);
+		return panel;
 	}
 	
 	private JDialog makeItemDialog(){

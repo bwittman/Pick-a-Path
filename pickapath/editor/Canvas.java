@@ -77,6 +77,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		
+		setPreferredSize(new Dimension(640, 480));
+		setMinimumSize(getPreferredSize());		
 	}
 
 	public void setViewport(JViewport viewport) {
