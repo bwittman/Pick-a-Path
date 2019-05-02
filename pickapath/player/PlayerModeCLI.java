@@ -140,9 +140,11 @@ public class PlayerModeCLI {
 					int choice = Integer.parseInt(input)-1;
 					if( choice >= 0 && choice < choices.size() ) {
 						Arrow arrow = choices.get(choice);
-						Set<Item> arrowItems = arrow.getItems();
 
-						itemsHeld.addAll(arrowItems);
+						//remove items first
+						itemsHeld.removeAll(arrow.getItemsLost());
+						itemsHeld.addAll(arrow.getItemsGained());
+						
 						box = arrow.getEnd();
 					}
 					else

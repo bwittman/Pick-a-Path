@@ -45,23 +45,6 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private int boxMinY;
 	private JViewport viewport = null;
 
-	private static final Color BOX_FILL = Color.WHITE;
-	private static final Color SELECTED_BOX_FILL = Color.BLACK;
-	private static final Color OUTLINE = Color.BLACK;
-	private static final Color SELECTED_OUTLINE = Color.WHITE;
-	private static final Color GIVING_ITEMS_ARROW = Color.BLUE;
-	private static final Color REQUIRING_ITEMS_ARROW = Color.RED;
-	private static final Color GIVING_AND_REQUIRING_ITEMS_ARROW =  new Color(128, 0, 128); //purple
-	private static final Color SELECTED_GIVING_ITEMS_ARROW = new Color(191, 191, 255); //light blue
-	private static final Color SELECTED_REQUIRING_ITEMS_ARROW = new Color(255, 191, 191); //light red (pink)
-	private static final Color SELECTED_GIVING_AND_REQUIRING_ITEMS_ARROW = new Color(255, 191, 255);  //light purple
-	private static final Color REQUIRING_CURRENCY_ARROW = Color.ORANGE;
-	private static final Color SELECTED_REQUIRING_CURRENCY_ARROW = new Color(255, 223, 191); //light orange
-	private static final Color GIVING_CURRENCY_ARROW = Color.GREEN;
-	private static final Color SELECTED_GIVING_CURRENCY_ARROW = new Color(191, 255, 191); //light green
-
-
-
 	//Canvas constructor 
 	public Canvas(List<Arrow> arrows, List<Box> boxes, Editor main) {
 		ToolTipManager.sharedInstance().setInitialDelay(100);
@@ -102,47 +85,12 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		//Draw arrows back to front
 		for( int i = arrows.size() - 1; i >= 0; --i ) {
 			Arrow arrow = arrows.get(i);
-			
-			if(arrow == selected) {
-				if (arrow.givesItem() && arrow.requiresItem())
-					fill = SELECTED_GIVING_AND_REQUIRING_ITEMS_ARROW;
-				else if (arrow.givesItem())
-					fill = SELECTED_GIVING_ITEMS_ARROW;
-				else if (arrow.requiresItem())
-					fill = SELECTED_REQUIRING_ITEMS_ARROW;
-				else 
-					fill = SELECTED_OUTLINE;
-
-				outline = OUTLINE;
-			}
-			else {
-				if (arrow.givesItem() && arrow.requiresItem())
-					fill = GIVING_AND_REQUIRING_ITEMS_ARROW;
-				else if (arrow.givesItem())
-					fill = GIVING_ITEMS_ARROW;
-				else if (arrow.requiresItem())
-					fill = REQUIRING_ITEMS_ARROW;
-				else 
-					fill = OUTLINE;
-
-				outline = SELECTED_OUTLINE;
-			}
-
 			arrow.draw(graphics, arrow == selected, font, zoom);
 		}
 		
 		//Draw boxes back to front
 		for(int i = boxes.size() - 1; i >= 0; --i) {
 			Box box = boxes.get(i);
-			//Sets color for the boxes and their outline
-			if (box == selected) {
-				fill = SELECTED_BOX_FILL;
-				outline = SELECTED_OUTLINE;
-			} else {
-				fill = BOX_FILL;
-				outline = OUTLINE;		
-			}
-
 			box.draw(graphics, box == selected, font, zoom);
 		}
 

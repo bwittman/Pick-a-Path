@@ -21,7 +21,9 @@ public class Arrow extends CanvasObject {
 	private BooleanExpression expression;
 	public final static int HEIGHT = 24;
 	public final static int HALF_WIDTH = 18;
-	private Set<Item> itemsHeld = new HashSet<Item>();
+	private Set<Item> itemsGained = new HashSet<Item>();
+	private Set<Item> itemsLost = new HashSet<Item>();
+	private int currencyChange;
 	private int order;
 
 	//Constructor for arrows
@@ -32,7 +34,8 @@ public class Arrow extends CanvasObject {
 	
 		start.addOutgoing(this);		
 		end.addIncoming(this);
-		order = start.getOutgoing().size();
+		currencyChange = 0;
+		order = start.getOutgoing().size();		
 	}
 
 	public Arrow(ObjectInputStream in, List<Box> boxes, List<Item> items) throws IOException, ClassNotFoundException {	//populate info from saved file
@@ -44,12 +47,22 @@ public class Arrow extends CanvasObject {
 		start.addOutgoing(this);
 		end.addIncoming(this);
 		order = start.getOutgoing().size();
-		int totalItems = in.readInt();
-		for(int i = 0; i < totalItems; ++i) {
+		int totalItemsGained = in.readInt();
+		for(int i = 0; i < totalItemsGained; ++i) {
 			int itemId = in.readInt();
 			for(Item item:items) {
 				if (itemId == item.getId()) {
-					itemsHeld.add(item);
+					itemsGained.add(item);
+					break;
+				}
+			}
+		}
+		int totalItemsLost = in.readInt();
+		for(int i = 0; i < totalItemsLost; ++i) {
+			int itemId = in.readInt();
+			for(Item item:items) {
+				if (itemId == item.getId()) {
+					itemsLost.add(item);
 					break;
 				}
 			}
@@ -62,20 +75,34 @@ public class Arrow extends CanvasObject {
 				//expression is still null
 			}
 		}
+		
+		currencyChange = in.readInt();
 	}
 	
-	public String heldItemText() {
-		String text = "";
+	public int getCurrencyChange() {
+		return currencyChange;
+	}
+	
+	public String getItemsGainedText() {
+		return itemsToString(itemsGained);
+	}
+	
+	public String getItemsLostText() {
+		return itemsToString(itemsLost);
+	}
+	
+	private static String itemsToString(Set<Item> items) {
+		StringBuilder builder = new StringBuilder();
 		boolean first = true;
-		for(Item item: itemsHeld) {
+		for(Item item: items) {
 			if( first ) {
-				text += item;
+				builder.append(item.toString());
 				first = false;
 			}
 			else
-				text += ", " + item;
+				builder.append(", ").append(item.toString());
 		}
-		return text;
+		return builder.toString();
 	}
 
 	//Write arrow information to a file
@@ -86,14 +113,20 @@ public class Arrow extends CanvasObject {
 		
 		out.writeInt(startIndex);
 		out.writeInt(endIndex);
-		out.writeInt(itemsHeld.size());
-		for(Item item: itemsHeld)
+		out.writeInt(itemsGained.size());
+		for(Item item: itemsGained)
+			out.writeInt(item.getId());
+		
+		out.writeInt(itemsLost.size());
+		for(Item item: itemsLost)
 			out.writeInt(item.getId());
 
 		if(expression == null)
 			out.writeObject("");
 		else
 			out.writeObject(expression.toString());
+		
+		out.writeInt(currencyChange);
 	}
 	
 	public Box getStart() {
@@ -137,7 +170,7 @@ public class Arrow extends CanvasObject {
 		double cX = midX - HALF_WIDTH*Math.cos(theta-Math.PI/2);
 		double cY = midY - HALF_WIDTH*Math.sin(theta-Math.PI/2);
 
-		//Use dot product and Barry-centric coordinates to make the triangle on the line 
+		//Use dot product and barycentric coordinates to make the triangle on the line 
 		double d00 = dot(bX - aX, bY - aY, bX - aX, bY - aY); 
 		double d01 = dot(bX - aX, bY - aY, cX - aX, cY - aY);
 		double d11 = dot(cX - aX, cY - aY,  cX - aX, cY - aY);
@@ -158,18 +191,35 @@ public class Arrow extends CanvasObject {
 		this.expression = expression;
 	}
 	
-	public Set<Item> getItems(){
-		return itemsHeld;
+	public Set<Item> getItemsGained(){
+		return itemsGained;
 	}
 	
-	public void removeItem(Item item) {
-		itemsHeld.remove(item);
+	public Set<Item> getItemsLost(){
+		return itemsLost;
+	}
+	
+	public void deleteItem(Item item) {
+		itemsGained.remove(item);
+		itemsLost.remove(item);
 		if(expression != null)
 			expression = expression.removeItem(item);
 	}
 	
-	public void addItem(Item item) {
-		itemsHeld.add(item);
+	public void addItemGained(Item item) {
+		itemsGained.add(item);
+	}
+	
+	public void removeItemGained(Item item) {
+		itemsGained.remove(item);
+	}
+	
+	public void addItemLost(Item item) {
+		itemsLost.add(item);
+	}
+	
+	public void removeItemLost(Item item) {
+		itemsLost.remove(item);
 	}
 	
 	public boolean satisfies(Set<Item> items) {
@@ -185,14 +235,7 @@ public class Arrow extends CanvasObject {
 		else		
 			return expression.toString();
 	}
-	
-	public boolean givesItem() {
-		return itemsHeld.size() > 0;
-	}
-	
-	public boolean requiresItem() {
-		return expression != null;
-	}
+
 
 	@Override
 	public void draw(Graphics2D g, boolean selected, Font font, double zoom) {

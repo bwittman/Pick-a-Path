@@ -69,8 +69,10 @@ public class Editor extends JFrame {
 	private JButton beginChoiceButton;
 	private JButton itemButton;
 	private JSlider slider;
-	private JTextArea operatorField;
-	private JTextArea itemTextArea; 
+	private JTextArea mustHaveField;
+	private JTextArea itemTextArea;
+	private JTextArea loseItemTextArea;
+	private JTextArea currencyTextArea;
 	private BasicArrowButton upButton;
 	private BasicArrowButton downButton;
 	private JButton deletePromptButton;
@@ -455,8 +457,8 @@ public class Editor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				Arrow arrow = (Arrow)canvas.getSelected();
-				itemTextArea.setText(arrow.heldItemText());
-				operatorField.setText(arrow.getRequirementsText());
+				itemTextArea.setText(arrow.getItemsGainedText());
+				mustHaveField.setText(arrow.getRequirementsText());
 				itemWindow.setVisible(true);
 			}
 
@@ -629,21 +631,11 @@ public class Editor extends JFrame {
 		JDialog itemWindow = new JDialog(this, "Choice Details", true);
 		itemWindow.setLayout(new BorderLayout());
 		
-		JTextArea textArea = new JTextArea(6, 20);
-		textArea.setLineWrap(true);
-		JScrollPane scrolling = new JScrollPane(textArea);
-		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 	
-		scrolling.setBorder(border("Choice Text"));
-		
-		textArea.setEditable(false);	
-		
-		itemWindow.add(scrolling, BorderLayout.NORTH);	
-		
 		
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.setBorder(border("Available Items"));
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1, GAP, GAP));
-		JPanel mainPanel = new JPanel(new BorderLayout());
+		
 
 
 		JTable itemTable = new JTable(tableModel);
@@ -682,9 +674,10 @@ public class Editor extends JFrame {
 						Arrow selected = (Arrow) canvas.getSelected();
 						Item item = tableModel.getItems().get(itemTable.getSelectedRow());
 						for(Arrow arrow : canvas.getArrows()) 
-							arrow.removeItem(item);
-						itemTextArea.setText(selected.heldItemText());
-						operatorField.setText(selected.getRequirementsText());
+							arrow.deleteItem(item);
+						itemTextArea.setText(selected.getItemsGainedText());
+						loseItemTextArea.setText(selected.getItemsLostText());
+						mustHaveField.setText(selected.getRequirementsText());
 						tableModel.deleteItem(itemTable.getSelectedRow());
 						makeDirty();
 					}	
@@ -697,9 +690,85 @@ public class Editor extends JFrame {
 		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
 		tablePanel.add(tableScroll, BorderLayout.CENTER);
 		itemWindow.add(tablePanel, BorderLayout.WEST);
-		//End table stuff
+		
+		itemTable.putClientProperty("terminateEditOnFocusLost", true);
+		
+		tableModel.addTableModelListener(new TableModelListener() {
 
-		operatorField = new JTextArea();
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				Arrow arrow = (Arrow) canvas.getSelected();
+				itemTextArea.setText(arrow.getItemsGainedText());
+				loseItemTextArea.setText(arrow.getItemsLostText());
+			}			
+		});
+		//End table stuff
+		
+
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		
+		JTextArea textArea = new JTextArea(6, 20);
+		textArea.setLineWrap(true);
+		JScrollPane scrolling = new JScrollPane(textArea);
+		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 	
+		scrolling.setBorder(border("Choice Text"));
+		
+		textArea.setEditable(false);	
+		
+		mainPanel.add(scrolling, BorderLayout.NORTH);	
+		
+		
+		
+		JPanel centerPanel = new JPanel(new GridLayout(2, 2, GAP, GAP));
+		
+		
+		itemTextArea = new JTextArea();
+		itemTextArea.setEditable(false);
+		JPanel itemsGottenPanel = new JPanel(new BorderLayout());//north
+		itemsGottenPanel.setBorder(border("Items Player Gains for this Choice"));
+		itemsGottenPanel.setMinimumSize(new Dimension(300,200));
+		itemsGottenPanel.setPreferredSize(new Dimension(300,200));
+
+		itemsGottenPanel.add(itemTextArea,BorderLayout.CENTER);
+		JButton getsAddButton = new JButton("Add");
+		getsAddButton.setToolTipText("Add an item that the player gains when they make this choice.");
+		getsAddButton.setEnabled(false);
+		getsAddButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Arrow arrow = (Arrow) canvas.getSelected();
+				for(int row:itemTable.getSelectedRows())
+					arrow.addItemGained(tableModel.getItems().get(row));
+
+				itemTextArea.setText(arrow.getItemsGainedText());
+			}
+
+		});
+		JButton getRemoveButton = new JButton("Remove");
+		getRemoveButton.setEnabled(false);
+		getRemoveButton.setToolTipText("Removes the selected item from the items they player gains when they make this choice.");
+		getRemoveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Arrow arrow = (Arrow) canvas.getSelected();
+				for(int row:itemTable.getSelectedRows())
+					arrow.removeItemGained(tableModel.getItems().get(row));
+
+				itemTextArea.setText(arrow.getItemsGainedText());
+			}
+
+		});
+		JPanel givenButtons = new JPanel(new GridLayout(1,2, GAP, GAP));
+		givenButtons.setBorder(border());
+		givenButtons.add(getsAddButton);
+		givenButtons.add(getRemoveButton);
+		itemsGottenPanel.add(givenButtons, BorderLayout.SOUTH);
+		centerPanel.add(itemsGottenPanel);
+		
+
+		mustHaveField = new JTextArea();
 		JPanel panel = new JPanel(new GridLayout(1,3, GAP, GAP));
 		panel.setBorder(border());
 		JButton and = new JButton("AND");
@@ -707,63 +776,132 @@ public class Editor extends JFrame {
 		JButton not = new JButton("NOT");
 
 		panel.add(and);
-		and.setToolTipText("Makes the choice require both items or expressions. "
-				+ "Use AND between two expressions.");
+		and.setToolTipText("Inserts AND, requiring both items or expressions to fulfill the requirement.");
 
 		and.addActionListener(new ActionListener() {
 			// Listener for AND button that adds text to the items checked field 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				operatorField.append(" AND ");
+				mustHaveField.append(" AND ");
 			}
 		});
 
 		panel.add(or);
-		or.setToolTipText("Makes the choice require either of the two items or expressions. "
-				+ "Use OR between two expressions.");
+		or.setToolTipText("Inserts OR, allowing either of the two items or expressions to fulfill the requirement.");
 
 		or.addActionListener(new ActionListener() {
 			// Listener for OR button that adds text to the items checked field 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				operatorField.append(" OR ");
+				mustHaveField.append(" OR ");
 			}
 		});
 
 		panel.add(not);
-		not.setToolTipText("Used for negating operations and opens up more complex item "
-				+ "requirements. It should be used in front of an operation.");
+		not.setToolTipText("Inserts NOT, requiring an item to be absent or the negation of an expression to fulfill the requirement.");
 
 
 		not.addActionListener(new ActionListener() {
 			// Listener for NOT button that adds text to the items checked field 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				operatorField.append("NOT ");
+				mustHaveField.append("NOT ");
 			}
 		});
 
-		JPanel itemsNeededPanel = new JPanel(new BorderLayout());
-		itemsNeededPanel.setBorder(border("Items Player Must Have to Make this Choice"));
-		itemsNeededPanel.add(operatorField,BorderLayout.CENTER);
-		itemsNeededPanel.add(panel,BorderLayout.SOUTH);
-		mainPanel.add(itemsNeededPanel,BorderLayout.CENTER);
-		itemWindow.add(mainPanel, BorderLayout.CENTER);
+		JPanel mustHavePanel = new JPanel(new BorderLayout());
+		mustHavePanel.setBorder(border("Items Player Must Have to Make this Choice"));
+		mustHavePanel.add(mustHaveField,BorderLayout.CENTER);
+		mustHavePanel.add(panel,BorderLayout.SOUTH);
+		centerPanel.add(mustHavePanel);
+		
+		
+		
+		loseItemTextArea = new JTextArea();
+		loseItemTextArea.setEditable(false);
+		JPanel itemsLostPanel = new JPanel(new BorderLayout());
+		itemsLostPanel.setBorder(border("Items Player Loses for this Choice"));
+
+
+		itemsLostPanel.add(loseItemTextArea,BorderLayout.CENTER);
+		JButton lostAddButton = new JButton("Add");
+		lostAddButton.setToolTipText("Add an item that the player loses when they make this choice.");
+		lostAddButton.setEnabled(false);
+		lostAddButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Arrow arrow = (Arrow) canvas.getSelected();
+				for(int row:itemTable.getSelectedRows())
+					arrow.addItemLost(tableModel.getItems().get(row));
+
+				loseItemTextArea.setText(arrow.getItemsLostText());
+			}
+
+		});
+		JButton lostRemoveButton = new JButton("Remove");
+		lostRemoveButton.setEnabled(false);
+		lostRemoveButton.setToolTipText("Removes the selected item from the items they player loses when they make this choice.");
+		lostRemoveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Arrow arrow = (Arrow) canvas.getSelected();
+				for(int row:itemTable.getSelectedRows())
+					arrow.removeItemLost(tableModel.getItems().get(row));
+
+				loseItemTextArea.setText(arrow.getItemsLostText());
+			}
+
+		});
+		JPanel lostButtons = new JPanel(new GridLayout(1,2, GAP, GAP));
+		lostButtons.setBorder(border());
+		lostButtons.add(lostAddButton);
+		lostButtons.add(lostRemoveButton);
+		itemsLostPanel.add(lostButtons, BorderLayout.SOUTH);
+		centerPanel.add(itemsLostPanel);
+		
+		currencyTextArea = new JTextArea();
+		JPanel currencyPanel = new JPanel(new BorderLayout());
+		currencyPanel.setBorder(border("Currency Change for this Choice"));
+
+
+		currencyPanel.add(currencyTextArea,BorderLayout.CENTER);
+		centerPanel.add(currencyPanel);
+		
+		
+		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			//Listener that enables delete button if a row is selected
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+				deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
+				getsAddButton.setEnabled(itemTable.getSelectedRow() != -1);
+				getRemoveButton.setEnabled(itemTable.getSelectedRow() != -1);
+				lostAddButton.setEnabled(itemTable.getSelectedRow() != -1);
+				lostRemoveButton.setEnabled(itemTable.getSelectedRow() != -1);
+			}
+
+		});
+		
+		mainPanel.add(centerPanel, BorderLayout.CENTER);
+		
+		
+		//Save or cancel buttons at the bottom
 		JPanel saveOrCancelPanel = new JPanel(new GridLayout(1,2, GAP, GAP));//south
 		saveOrCancelPanel.setMinimumSize(new Dimension(300,100));
 		saveOrCancelPanel.setPreferredSize(new Dimension(300,100));
 		saveOrCancelPanel.setBorder(border());
 		JButton saveClose = new JButton("Save and Close");
 		saveOrCancelPanel.add(saveClose);
-		saveClose.setToolTipText("Evaluates the expression in the Items Checked field. "
-				+ "If the expression is valid then it saves it to the arrow.");
+		saveClose.setToolTipText("Evaluates the expression in the Items Players Must Have to Make this Choice field. "
+				+ "If the expression is valid then it saves it to the choice.");
 		//Listener for check button in the item window
 		saveClose.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// read from text, convert to number, look through list,get it, then evaluate
-				String text = operatorField.getText().trim();
+				String text = mustHaveField.getText().trim();
 
 
 				if( !text.isEmpty() ) {
@@ -791,55 +929,13 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				itemWindow.setVisible(false);
 			}			
-		});
-
-
-		itemTextArea = new JTextArea();
-		itemTextArea.setEditable(false);
-		JPanel itemsGottenPanel = new JPanel(new BorderLayout());//north
-		itemsGottenPanel.setBorder(border("Items Player Gets for this Choice"));
-		itemsGottenPanel.setMinimumSize(new Dimension(300,200));
-		itemsGottenPanel.setPreferredSize(new Dimension(300,200));
-
-		itemsGottenPanel.add(itemTextArea,BorderLayout.CENTER);
-		JButton givenAdd = new JButton("Add");
-		givenAdd.setToolTipText("Add an item that the player gets when they make this choice.");
-		givenAdd.setEnabled(false);
-		givenAdd.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) canvas.getSelected();
-				for(int row:itemTable.getSelectedRows())
-					arrow.addItem(tableModel.getItems().get(row));
-
-				itemTextArea.setText(arrow.heldItemText());
-			}
-
-		});
-		JButton givenDelete = new JButton("Remove");
-		givenDelete.setEnabled(false);
-		givenDelete.setToolTipText("Removes the selected item from the items they player gets when they make this choice.");
-		givenDelete.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) canvas.getSelected();
-				for(int row:itemTable.getSelectedRows())
-					arrow.removeItem(tableModel.getItems().get(row));
-
-				itemTextArea.setText(arrow.heldItemText());
-			}
-
-		});
-		JPanel givenButtons = new JPanel(new GridLayout(1,2, GAP, GAP));
-		givenButtons.setBorder(border());
-		givenButtons.add(givenAdd);
-		givenButtons.add(givenDelete);
-		itemsGottenPanel.add(givenButtons, BorderLayout.SOUTH);
-		mainPanel.add(itemsGottenPanel, BorderLayout.NORTH);
+		});		
 
 		mainPanel.add(saveOrCancelPanel, BorderLayout.SOUTH);
+		
+		itemWindow.add(mainPanel, BorderLayout.CENTER);
+		
+		
 		itemWindow.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		itemWindow.addWindowListener(new WindowAdapter() {
 
@@ -853,31 +949,6 @@ public class Editor extends JFrame {
 				textArea.setText(canvas.getSelected().getText());
 			}
 		});
-		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			//Listener that enables delete button if a row is selected
-			@Override
-			public void valueChanged(ListSelectionEvent event) {
-				deleteItem.setEnabled(itemTable.getSelectedRow() != -1);
-				givenAdd.setEnabled(itemTable.getSelectedRow() != -1);
-				givenDelete.setEnabled(itemTable.getSelectedRow() != -1);
-
-
-			}
-
-		});
-		
-		itemTable.putClientProperty("terminateEditOnFocusLost", true);
-		
-		
-		tableModel.addTableModelListener(new TableModelListener() {
-
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				Arrow arrow = (Arrow) canvas.getSelected();
-				itemTextArea.setText(arrow.heldItemText());				
-			}			
-		});
-		
 		
 		itemWindow.pack();
 		return itemWindow;

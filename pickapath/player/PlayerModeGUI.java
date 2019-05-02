@@ -58,6 +58,7 @@ public class PlayerModeGUI extends JFrame {
 	private Box box;
 	private String title;
 	private String currency;
+	private int currentCurrency = 0;
 
 
 	public static void main(String[] args) {
@@ -268,7 +269,8 @@ public class PlayerModeGUI extends JFrame {
 							arrow = arrowList.get(i);
 					}
 					if (arrow != null) {
-						itemsHeld.addAll(arrow.getItems());
+						itemsHeld.removeAll(arrow.getItemsLost());
+						itemsHeld.addAll(arrow.getItemsGained());
 						String text = "";
 						for(Item item : itemsHeld)
 							text += item.getName() + "\n";
