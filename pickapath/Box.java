@@ -41,6 +41,10 @@ public class Box extends CanvasObject {
 		out.writeObject(color);
 	}	
 	
+	public void recolor() {
+		color = Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
+	}
+	
 	public int getX() {
 		return x;
 	}

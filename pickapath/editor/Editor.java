@@ -40,12 +40,15 @@ import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicArrowButton;
 
@@ -63,7 +66,7 @@ public class Editor extends JFrame {
 	private Canvas canvas;
 	private ItemTableModel tableModel;
 	private JTextArea textArea;
-	private JButton arrowButton;
+	private JButton beginChoiceButton;
 	private JButton itemButton;
 	private JSlider slider;
 	private JTextArea operatorField;
@@ -72,11 +75,13 @@ public class Editor extends JFrame {
 	private BasicArrowButton downButton;
 	private JButton deletePromptButton;
 	private JButton deleteChoiceButton;
+	private JButton recolorPromptButton;
 	private JLabel choiceOrderLabel;
 	private JLabel statusLabel;
 	private Font[] fonts;
 	private List<Box> boxes = new ArrayList<Box>();
-	private JMenuItem save;	
+	private JMenuItem save;
+	private JMenuItem beginChoiceItem;
 
 	private JTextField titleField;
 	private JTextField currencyField;
@@ -202,7 +207,7 @@ public class Editor extends JFrame {
 		extra.setOpaque(true);
 		extra.add(canvas, BorderLayout.CENTER);
 		JScrollPane scrollPane = new JScrollPane(extra); //adding the scrollpane to our canvas
-		scrollPane.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
+		scrollPane.setBorder(border());
 		canvas.setViewport(scrollPane.getViewport());
 		add(scrollPane, BorderLayout.CENTER);
 		
@@ -261,6 +266,7 @@ public class Editor extends JFrame {
 				}
 			}
 		});
+		file.addSeparator();
 
 		save = new JMenuItem("Save"); // save menu
 		KeyStroke keyStrokeToSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK); 
@@ -283,6 +289,8 @@ public class Editor extends JFrame {
 				saveAs(boxes, arrows, items);
 			}
 		});
+		
+		file.addSeparator();
 
 		JMenuItem exit = new JMenuItem("Exit"); // exit button
 		KeyStroke keyStrokeToExit = KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK); 
@@ -298,8 +306,7 @@ public class Editor extends JFrame {
 
 		JMenu edit = new JMenu("Edit"); // edit menu
 		JMenuItem makebox = new JMenuItem("Make Prompt"); //another way to make prompt
-		KeyStroke keyStrokeToNewBox = KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK); 
-		makebox.setAccelerator(keyStrokeToNewBox); //hotkey to create a new prompt
+		makebox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new prompt
 		edit.add(makebox);
 		makebox.addActionListener(new ActionListener() {
 			@Override
@@ -307,6 +314,17 @@ public class Editor extends JFrame {
 				addBox();
 			}
 		});
+		beginChoiceItem = new JMenuItem("Begin Choice..."); //another way to make prompt
+		beginChoiceItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK)); //hotkey to start a new choice
+		edit.add(beginChoiceItem);
+		beginChoiceItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				beginChoice();
+			}
+		});		
+		beginChoiceItem.setEnabled(false);
+		
 		bar.add(edit);
 		
 
@@ -358,37 +376,51 @@ public class Editor extends JFrame {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
 		//Panel for prompts-related buttons
-		JPanel promptsPanel = new JPanel(new GridLayout(3,1, GAP, GAP));
-		promptsPanel.setBorder(BorderFactory.createTitledBorder("Prompts"));
+		JPanel promptsPanel = new JPanel(new GridLayout(4,1, GAP, GAP));
+		promptsPanel.setBorder(border("Prompts"));
 
 		JButton makePromptButton = new JButton("Make Prompt");
 		makePromptButton.setToolTipText("Make a new prompt.");
 		makePromptButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent event) {
 				addBox();
 			}
 		});
 
 		promptsPanel.add(makePromptButton);
 
-		arrowButton = new JButton("Start Choice");
-		arrowButton.setToolTipText("Create a new choice, starting at the currently selected prompt. Then, click on the ending prompt to link the two with a choice.");
-		arrowButton.addActionListener(new ActionListener() {
+		beginChoiceButton = new JButton("Begin Choice...");
+		beginChoiceButton.setToolTipText("Create a new choice, beginning at the currently selected prompt. Then, click on the ending prompt to link the two with a choice.");
+		beginChoiceButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				canvas.startArrowCheck();
-				statusLabel.setText("Click second prompt to create choice...");
+				beginChoice();
 			}
 		});
 
-		arrowButton.setEnabled(false);
-		promptsPanel.add(arrowButton);
+		beginChoiceButton.setEnabled(false);
+		promptsPanel.add(beginChoiceButton);
+		
+		recolorPromptButton = new JButton("Recolor Prompt");
+		recolorPromptButton.setToolTipText("Recolor the selected prompt.");
+		recolorPromptButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Box box = (Box) canvas.getSelected();
+				box.recolor();
+				canvas.repaint();
+				makeDirty();
+			}
+
+		});
+		recolorPromptButton.setEnabled(false);
+		promptsPanel.add(recolorPromptButton);
 		
 		
-		deletePromptButton = new JButton("Delete Prompt");
-		
+		deletePromptButton = new JButton("Delete Prompt");		
 		deletePromptButton.setToolTipText("Delete the selected prompt.");
 		deletePromptButton.addActionListener(new ActionListener() {
 
@@ -412,7 +444,7 @@ public class Editor extends JFrame {
 		
 		//Panel for choices-related buttons
 		JPanel choicesPanel = new JPanel(new GridLayout(5,1, GAP, GAP));
-		choicesPanel.setBorder(BorderFactory.createTitledBorder("Choices"));
+		choicesPanel.setBorder(border("Choices"));
 
 		itemButton = new JButton("Details");
 		itemButton.setToolTipText("Decide whether making this choice requires items or currency or gives items or currency.");
@@ -486,13 +518,18 @@ public class Editor extends JFrame {
 		return panel;
 	}
 
+	private void beginChoice() {
+		canvas.startArrowCheck();
+		statusLabel.setText("Click second prompt to create choice...");		
+	}
+
 	private JPanel createSouthPanel() {
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		
 		
 		JPanel statusPanel = new JPanel(new BorderLayout());
-		statusPanel.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
+		statusPanel.setBorder(border());
 		
 		statusPanel.add(new JLabel("Status: "), BorderLayout.WEST);
 		
@@ -501,10 +538,8 @@ public class Editor extends JFrame {
 		
 		panel.add(statusPanel, BorderLayout.NORTH);
 		
-		textArea = new JTextArea();
-		textArea.setColumns(20);
+		textArea = new JTextArea(6, 20);
 		textArea.setLineWrap(true);
-		textArea.setRows(6);
 		textArea.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
@@ -526,7 +561,8 @@ public class Editor extends JFrame {
 			}
 		});
 		JScrollPane scrolling = new JScrollPane(textArea);
-		scrolling.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP), BorderFactory.createTitledBorder("Text")));
+		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
+		scrolling.setBorder(border("Text"));
 
 		panel.add(scrolling, BorderLayout.SOUTH);
 		
@@ -539,16 +575,16 @@ public class Editor extends JFrame {
 
 		//Panel for title and currency labels
 		JPanel labelPanel = new JPanel(new GridLayout(2,1, GAP, GAP));
-		labelPanel.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
-		JLabel titleLabel = new JLabel("Title: ");
+		labelPanel.setBorder(border());
+		JLabel titleLabel = new JLabel("Title:");
 		titleLabel.setHorizontalAlignment(JLabel.RIGHT);
 		labelPanel.add(titleLabel);
-		labelPanel.add(new JLabel("Currency: "));		
+		labelPanel.add(new JLabel("Currency:"));		
 		panel.add(labelPanel, BorderLayout.WEST);
 
 		//Panel for title and currency fields
 		JPanel fieldPanel = new JPanel(new GridLayout(2, 1, GAP, GAP));
-		fieldPanel.setBorder(BorderFactory.createEmptyBorder(GAP, 0, GAP, GAP));
+		fieldPanel.setBorder(border());
 		titleField = new JTextField();
 		currencyField = new JTextField();
 		fieldPanel.add(titleField);
@@ -578,7 +614,7 @@ public class Editor extends JFrame {
 		slider.setPaintLabels(true);
 
 		JPanel zoomPanel = new JPanel(new BorderLayout());
-		zoomPanel.setBorder(BorderFactory.createTitledBorder("Zoom"));
+		zoomPanel.setBorder(border("Zoom"));
 		zoomPanel.add(slider, BorderLayout.CENTER);
 
 		panel.add(zoomPanel, BorderLayout.SOUTH);	
@@ -590,21 +626,35 @@ public class Editor extends JFrame {
 	private JDialog makeItemDialog(){
 
 		//Setting parameters to create the table for item creation
-		JDialog itemWindow = new JDialog(this,"Items",true);
+		JDialog itemWindow = new JDialog(this, "Choice Details", true);
 		itemWindow.setLayout(new BorderLayout());
+		
+		JTextArea textArea = new JTextArea(6, 20);
+		textArea.setLineWrap(true);
+		JScrollPane scrolling = new JScrollPane(textArea);
+		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 	
+		scrolling.setBorder(border("Choice Text"));
+		
+		textArea.setEditable(false);	
+		
+		itemWindow.add(scrolling, BorderLayout.NORTH);	
+		
+		
 		JPanel tablePanel = new JPanel(new BorderLayout());
-		JPanel buttonPanel = new JPanel(new GridLayout(2,1));
+		tablePanel.setBorder(border("Available Items"));
+		JPanel buttonPanel = new JPanel(new GridLayout(2,1, GAP, GAP));
 		JPanel mainPanel = new JPanel(new BorderLayout());
 
 
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
 		JScrollPane tableScroll = new JScrollPane(itemTable);
-		tableScroll.setPreferredSize(new Dimension(200, 500));
+		tableScroll.setBorder(border());
+		tableScroll.setPreferredSize(new Dimension(250, 500));
 		JButton addItem = new JButton("Add Item");
 		JButton deleteItem = new JButton("Delete Item");
 		buttonPanel.add(addItem);
-		addItem.setToolTipText("Add an item to the list");
+		addItem.setToolTipText("Add an item to the list of available items.");
 
 		//Listener for add item button that creates a new item
 		addItem.addActionListener(new ActionListener() {
@@ -618,7 +668,7 @@ public class Editor extends JFrame {
 		});
 		// Adding delete item button to the button panel
 		buttonPanel.add(deleteItem);
-		deleteItem.setToolTipText("Delete the selected item(s) from the list");
+		deleteItem.setToolTipText("Delete the selected item(s) from the list of available items.");
 		deleteItem.setEnabled(false);
 		deleteItem.addActionListener(new ActionListener() {
 			// Listener for delete button that checks if the user wants to delete the item
@@ -650,7 +700,8 @@ public class Editor extends JFrame {
 		//End table stuff
 
 		operatorField = new JTextArea();
-		JPanel panel = new JPanel(new GridLayout(1,3));
+		JPanel panel = new JPanel(new GridLayout(1,3, GAP, GAP));
+		panel.setBorder(border());
 		JButton and = new JButton("AND");
 		JButton or = new JButton("OR");
 		JButton not = new JButton("NOT");
@@ -692,18 +743,18 @@ public class Editor extends JFrame {
 			}
 		});
 
-		JPanel itemsChecked = new JPanel(new BorderLayout());
-		itemsChecked.setBorder(BorderFactory.createTitledBorder("Items Checked"));
-		itemsChecked.add(operatorField,BorderLayout.CENTER);
-		itemsChecked.add(panel,BorderLayout.SOUTH);
-		mainPanel.add(itemsChecked,BorderLayout.CENTER);
+		JPanel itemsNeededPanel = new JPanel(new BorderLayout());
+		itemsNeededPanel.setBorder(border("Items Player Must Have to Make this Choice"));
+		itemsNeededPanel.add(operatorField,BorderLayout.CENTER);
+		itemsNeededPanel.add(panel,BorderLayout.SOUTH);
+		mainPanel.add(itemsNeededPanel,BorderLayout.CENTER);
 		itemWindow.add(mainPanel, BorderLayout.CENTER);
-		JPanel okCancel = new JPanel(new GridLayout(1,1));//south
-		okCancel.setMinimumSize(new Dimension(300,100));
-		okCancel.setPreferredSize(new Dimension(300,100));
-		okCancel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		JPanel saveOrCancelPanel = new JPanel(new GridLayout(1,2, GAP, GAP));//south
+		saveOrCancelPanel.setMinimumSize(new Dimension(300,100));
+		saveOrCancelPanel.setPreferredSize(new Dimension(300,100));
+		saveOrCancelPanel.setBorder(border());
 		JButton saveClose = new JButton("Save and Close");
-		okCancel.add(saveClose);
+		saveOrCancelPanel.add(saveClose);
 		saveClose.setToolTipText("Evaluates the expression in the Items Checked field. "
 				+ "If the expression is valid then it saves it to the arrow.");
 		//Listener for check button in the item window
@@ -731,18 +782,28 @@ public class Editor extends JFrame {
 
 			}
 		});
+		
+		JButton cancel = new JButton("Cancel");
+		saveOrCancelPanel.add(cancel);
+		cancel.setToolTipText("Close the Details window without saving the expression in the Items the Player Needs field.");
+		cancel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				itemWindow.setVisible(false);
+			}			
+		});
 
 
 		itemTextArea = new JTextArea();
 		itemTextArea.setEditable(false);
-		JPanel itemsGiven = new JPanel(new BorderLayout());//north
-		itemsGiven.setBorder(BorderFactory.createTitledBorder("Items Given"));
-		itemsGiven.setMinimumSize(new Dimension(300,200));
-		itemsGiven.setPreferredSize(new Dimension(300,200));
+		JPanel itemsGottenPanel = new JPanel(new BorderLayout());//north
+		itemsGottenPanel.setBorder(border("Items Player Gets for this Choice"));
+		itemsGottenPanel.setMinimumSize(new Dimension(300,200));
+		itemsGottenPanel.setPreferredSize(new Dimension(300,200));
 
-		itemsGiven.add(itemTextArea,BorderLayout.CENTER);
+		itemsGottenPanel.add(itemTextArea,BorderLayout.CENTER);
 		JButton givenAdd = new JButton("Add");
-		givenAdd.setToolTipText("Add an item to be given to the player when they use the arrow path.");
+		givenAdd.setToolTipText("Add an item that the player gets when they make this choice.");
 		givenAdd.setEnabled(false);
 		givenAdd.addActionListener(new ActionListener() {
 
@@ -756,9 +817,9 @@ public class Editor extends JFrame {
 			}
 
 		});
-		JButton givenDelete = new JButton("Delete");
+		JButton givenDelete = new JButton("Remove");
 		givenDelete.setEnabled(false);
-		givenDelete.setToolTipText("Deletes the selected item from the Items Given field.");
+		givenDelete.setToolTipText("Removes the selected item from the items they player gets when they make this choice.");
 		givenDelete.addActionListener(new ActionListener() {
 
 			@Override
@@ -771,26 +832,26 @@ public class Editor extends JFrame {
 			}
 
 		});
-		JPanel givenButtons = new JPanel(new GridLayout(1,2));
+		JPanel givenButtons = new JPanel(new GridLayout(1,2, GAP, GAP));
+		givenButtons.setBorder(border());
 		givenButtons.add(givenAdd);
 		givenButtons.add(givenDelete);
-		itemsGiven.add(givenButtons, BorderLayout.SOUTH);
-		mainPanel.add(itemsGiven, BorderLayout.NORTH);
+		itemsGottenPanel.add(givenButtons, BorderLayout.SOUTH);
+		mainPanel.add(itemsGottenPanel, BorderLayout.NORTH);
 
-		mainPanel.add(okCancel, BorderLayout.SOUTH);
+		mainPanel.add(saveOrCancelPanel, BorderLayout.SOUTH);
 		itemWindow.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		itemWindow.addWindowListener(new WindowAdapter() {
 
 			@Override
-			public void windowClosing(WindowEvent arg0) {
+			public void windowClosing(WindowEvent e) {
 				itemWindow.setVisible(false);
-				//TODO: Why doesn't this work?
-				//The arrow stays the original color until you click again
-				Editor.this.revalidate();
-				Editor.this.repaint();
 			}
-
-
+			
+			@Override
+			public void windowOpened(WindowEvent e) {
+				textArea.setText(canvas.getSelected().getText());
+			}
 		});
 		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			//Listener that enables delete button if a row is selected
@@ -804,13 +865,29 @@ public class Editor extends JFrame {
 			}
 
 		});
+		
+		itemTable.putClientProperty("terminateEditOnFocusLost", true);
+		
+		
+		tableModel.addTableModelListener(new TableModelListener() {
+
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				Arrow arrow = (Arrow) canvas.getSelected();
+				itemTextArea.setText(arrow.heldItemText());				
+			}			
+		});
+		
+		
 		itemWindow.pack();
 		return itemWindow;
 	}
 
 	public void selectBox(Box box, boolean isNew) {
 		textArea.setText(box.getText());
-		arrowButton.setEnabled(boxes.size() >= 2);
+		beginChoiceButton.setEnabled(boxes.size() >= 2);
+		beginChoiceItem.setEnabled(boxes.size() >= 2);
+		recolorPromptButton.setEnabled(true);
 		deletePromptButton.setEnabled(true);
 		deleteChoiceButton.setEnabled(false);
 		itemButton.setEnabled(false);
@@ -823,7 +900,9 @@ public class Editor extends JFrame {
 	
 	public void selectArrow(Arrow arrow, boolean isNew) {
 		textArea.setText(arrow.getText());
-		arrowButton.setEnabled(false);
+		beginChoiceButton.setEnabled(false);
+		beginChoiceItem.setEnabled(false);
+		recolorPromptButton.setEnabled(false);
 		deletePromptButton.setEnabled(false);
 		deleteChoiceButton.setEnabled(true);
 		itemButton.setEnabled(true);
@@ -842,7 +921,9 @@ public class Editor extends JFrame {
 	
 	public void deselect() {
 		textArea.setText("");
-		arrowButton.setEnabled(false);
+		beginChoiceButton.setEnabled(false);
+		beginChoiceItem.setEnabled(false);
+		recolorPromptButton.setEnabled(false);
 		deletePromptButton.setEnabled(false);
 		deleteChoiceButton.setEnabled(false);
 		itemButton.setEnabled(false);
@@ -883,5 +964,13 @@ public class Editor extends JFrame {
 
 	public Canvas getCanvas() {
 		return canvas;
+	}
+	
+	private static Border border(String title) {
+		return BorderFactory.createCompoundBorder(border(), BorderFactory.createTitledBorder(title));
 	}	
+	
+	private static Border border() {	
+		return BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP);
+	}
 }
