@@ -77,8 +77,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	//Paints the boxes and arrows
 	public void paint(Graphics g) {
 		super.paint(g);
-		Color fill, outline;
-
+	
 		Graphics2D graphics = (Graphics2D) g;		
 		graphics.addRenderingHints(hints);
 

@@ -151,7 +151,7 @@ public class PlayerModeGUI extends JFrame {
 			if(safe) {
 				try {
 					ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
-					Saving.writeProgress(out, boxes, arrows, items, title, currency, box, itemsHeld);
+					Saving.writeProgress(out, boxes, items, title, currency, box, itemsHeld);
 					out.close();
 				} catch ( IOException e) {
 					JOptionPane.showMessageDialog(this, "Unable to save to file.", "Saving Failed!", JOptionPane.ERROR_MESSAGE);
@@ -269,8 +269,8 @@ public class PlayerModeGUI extends JFrame {
 							arrow = arrowList.get(i);
 					}
 					if (arrow != null) {
-						itemsHeld.removeAll(arrow.getItemsLost());
-						itemsHeld.addAll(arrow.getItemsGained());
+						itemsHeld.removeAll(arrow.getLostItems());
+						itemsHeld.addAll(arrow.getGainedItems());
 						String text = "";
 						for(Item item : itemsHeld)
 							text += item.getName() + "\n";

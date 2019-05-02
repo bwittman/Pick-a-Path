@@ -21,8 +21,8 @@ public class Arrow extends CanvasObject {
 	private BooleanExpression expression;
 	public final static int HEIGHT = 24;
 	public final static int HALF_WIDTH = 18;
-	private Set<Item> itemsGained = new HashSet<Item>();
-	private Set<Item> itemsLost = new HashSet<Item>();
+	private Set<Item> gainedItems = new HashSet<Item>();
+	private Set<Item> lostItems = new HashSet<Item>();
 	private int currencyChange;
 	private int order;
 
@@ -52,7 +52,7 @@ public class Arrow extends CanvasObject {
 			int itemId = in.readInt();
 			for(Item item:items) {
 				if (itemId == item.getId()) {
-					itemsGained.add(item);
+					gainedItems.add(item);
 					break;
 				}
 			}
@@ -62,7 +62,7 @@ public class Arrow extends CanvasObject {
 			int itemId = in.readInt();
 			for(Item item:items) {
 				if (itemId == item.getId()) {
-					itemsLost.add(item);
+					lostItems.add(item);
 					break;
 				}
 			}
@@ -83,12 +83,12 @@ public class Arrow extends CanvasObject {
 		return currencyChange;
 	}
 	
-	public String getItemsGainedText() {
-		return itemsToString(itemsGained);
+	public String getGainedItemsText() {
+		return itemsToString(gainedItems);
 	}
 	
-	public String getItemsLostText() {
-		return itemsToString(itemsLost);
+	public String getLostItemsText() {
+		return itemsToString(lostItems);
 	}
 	
 	private static String itemsToString(Set<Item> items) {
@@ -113,12 +113,12 @@ public class Arrow extends CanvasObject {
 		
 		out.writeInt(startIndex);
 		out.writeInt(endIndex);
-		out.writeInt(itemsGained.size());
-		for(Item item: itemsGained)
+		out.writeInt(gainedItems.size());
+		for(Item item: gainedItems)
 			out.writeInt(item.getId());
 		
-		out.writeInt(itemsLost.size());
-		for(Item item: itemsLost)
+		out.writeInt(lostItems.size());
+		for(Item item: lostItems)
 			out.writeInt(item.getId());
 
 		if(expression == null)
@@ -191,35 +191,35 @@ public class Arrow extends CanvasObject {
 		this.expression = expression;
 	}
 	
-	public Set<Item> getItemsGained(){
-		return itemsGained;
+	public Set<Item> getGainedItems(){
+		return gainedItems;
 	}
 	
-	public Set<Item> getItemsLost(){
-		return itemsLost;
+	public Set<Item> getLostItems(){
+		return lostItems;
 	}
 	
 	public void deleteItem(Item item) {
-		itemsGained.remove(item);
-		itemsLost.remove(item);
+		gainedItems.remove(item);
+		lostItems.remove(item);
 		if(expression != null)
 			expression = expression.removeItem(item);
 	}
 	
-	public void addItemGained(Item item) {
-		itemsGained.add(item);
+	public void addGainedItem(Item item) {
+		gainedItems.add(item);
 	}
 	
-	public void removeItemGained(Item item) {
-		itemsGained.remove(item);
+	public void removeGainedItem(Item item) {
+		gainedItems.remove(item);
 	}
 	
-	public void addItemLost(Item item) {
-		itemsLost.add(item);
+	public void addLostItem(Item item) {
+		lostItems.add(item);
 	}
 	
-	public void removeItemLost(Item item) {
-		itemsLost.remove(item);
+	public void removeLostItems(Item item) {
+		lostItems.remove(item);
 	}
 	
 	public boolean satisfies(Set<Item> items) {
@@ -229,7 +229,7 @@ public class Arrow extends CanvasObject {
 			return expression.isTrue(items);		
 	}
 
-	public String getRequirementsText() {
+	public String getMustHaveText() {
 		if( expression == null )
 			return "";
 		else		

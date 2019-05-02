@@ -142,8 +142,8 @@ public class PlayerModeCLI {
 						Arrow arrow = choices.get(choice);
 
 						//remove items first
-						itemsHeld.removeAll(arrow.getItemsLost());
-						itemsHeld.addAll(arrow.getItemsGained());
+						itemsHeld.removeAll(arrow.getLostItems());
+						itemsHeld.addAll(arrow.getGainedItems());
 						
 						box = arrow.getEnd();
 					}
@@ -180,7 +180,7 @@ public class PlayerModeCLI {
 			if( safe ) {
 				try {
 					ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
-					Saving.writeProgress(stream, boxes, arrows, items, title, currency, box, itemsHeld);
+					Saving.writeProgress(stream, boxes, items, title, currency, box, itemsHeld);
 					stream.close();
 					System.out.println("Game successfully saved.");
 					System.out.println();

@@ -11,18 +11,22 @@ import java.util.Set;
 
 public class Saving {
 
-	public static void write(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items, String title, String currency) throws FileNotFoundException, IOException{ //write out to a file
+	public static void write(ObjectOutputStream out, List<Box> boxes, List<Item> items, String title, String currency) throws FileNotFoundException, IOException{ //write out to a file
 		
 		out.writeObject(title);
 		out.writeObject(currency);
 		
 		Map<Box, Integer> boxIndexes = new HashMap<>();
 		
+		int totalArrows = 0;
+		
 		out.writeInt(boxes.size());
 		for(int i = 0; i < boxes.size(); ++i ) {
 			Box box = boxes.get(i);
 			boxIndexes.put(box, i);
 			box.write(out);
+			
+			totalArrows += box.getOutgoing().size();
 		}
 
 		out.writeInt(items.size());
@@ -30,14 +34,14 @@ public class Saving {
 			item.write(out);
 		
 		//Write arrows from boxes to preserve their internal ordering
-		out.writeInt(arrows.size());
+		out.writeInt(totalArrows);
 		for (Box box: boxes)
 			for( Arrow arrow: box.getOutgoing() )
 				arrow.write(out, boxIndexes, items);
 	}
 	
-	public static void writeProgress(ObjectOutputStream out, List<Box> boxes, List<Arrow> arrows, List<Item> items, String title, String currency, Box current, Set<Item> itemsHeld) throws FileNotFoundException, IOException {
-		write(out,boxes,arrows,items, title, currency);
+	public static void writeProgress(ObjectOutputStream out, List<Box> boxes, List<Item> items, String title, String currency, Box current, Set<Item> itemsHeld) throws FileNotFoundException, IOException {
+		write(out,boxes,items, title, currency);
 		 for (int i = 0; i < boxes.size(); i++) {
 			if (boxes.get(i) == current) {
 				out.writeInt(i);
@@ -51,8 +55,7 @@ public class Saving {
 				if (items.get(i) == item) {
 					out.writeInt(i);
 					break;
-				}
-				
+				}				
 			}
 		}	
 	}
