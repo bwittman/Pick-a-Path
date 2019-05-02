@@ -22,6 +22,7 @@ import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -63,16 +64,14 @@ import pickapath.player.PlayerModeGUI;
 @SuppressWarnings("serial")
 public class Editor extends JFrame {
 
+	//Editor window widgets
+	private JTextField titleField;
+	private JTextField currencyField;
 	private Canvas canvas;
-	private ItemTableModel tableModel;
 	private JTextArea textArea;
 	private JButton beginChoiceButton;
 	private JButton detailsButton;
 	private JSlider slider;
-	private JTextArea mustHaveTextArea;
-	private JTextArea gainedItemsTextArea;
-	private JTextArea lostItemsTextArea;
-	private JTextArea currencyChangeTextArea;
 	private BasicArrowButton upButton;
 	private BasicArrowButton downButton;
 	private JButton deletePromptButton;
@@ -80,24 +79,32 @@ public class Editor extends JFrame {
 	private JButton recolorPromptButton;
 	private JLabel choiceOrderLabel;
 	private JLabel statusLabel;
+
+	//Details dialog widgets
+	private JDialog detailsDialog;
+	private ItemTableModel tableModel;
+	private JTextArea mustHaveTextArea;
+	private JTextArea gainedItemsTextArea;
+	private JTextArea lostItemsTextArea;
+	private JTextArea currencyChangeTextArea;
+
+	//Menu items
+	private JMenuItem saveItem;
+	private JMenuItem beginChoiceItem;
+	private JMenuItem detailsItem;
+
+	//Functional members
 	private Font[] fonts;
 	private List<Box> boxes;
 	private List<Item> items;
-	private JMenuItem save;
-	private JMenuItem beginChoiceItem;
-
-	private JTextField titleField;
-	private JTextField currencyField;
-	private File saveFile = null;	
-
+	private File saveFile = null;
 	private Random random = new Random();
-	
-	
+
+	//Constants
 	private static final int MAX_SLIDER = 5;
 	private static final int MIN_SLIDER = 1;
 	private static final int GAP = 5;
-	private static final String TITLE = "Pick-a-Path";
-	
+	private static final String TITLE = "Pick-a-Path";	
 
 	public static void main(String[] args) {
 
@@ -110,7 +117,7 @@ public class Editor extends JFrame {
 
 		new Editor();
 	}	
-	
+
 
 
 	public Editor() {
@@ -120,10 +127,12 @@ public class Editor extends JFrame {
 		items = new ArrayList<Item>();
 		tableModel = new ItemTableModel(items);
 
+		detailsDialog = makeItemDialog();
+
 		add(createNorthPanel(), BorderLayout.NORTH);
 		add(createSouthPanel(), BorderLayout.SOUTH);
 		add(createEastPanel(), BorderLayout.EAST);
-		
+
 		createMenus(arrows, items);
 
 		canvas = new Canvas(arrows, boxes, this);
@@ -134,24 +143,23 @@ public class Editor extends JFrame {
 		scrollPane.setBorder(border());
 		canvas.setViewport(scrollPane.getViewport());
 		add(scrollPane, BorderLayout.CENTER);
-		
+
 		pack();
 		setMinimumSize(getPreferredSize());
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
-		
+
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				if (saveIfNeeded())
-					dispose();
+				exit();
 			}
 		});
-		
+
 		setLocationRelativeTo(null); //starts the GUI centered (when not maximized)
 		setVisible(true); // allows the GUI to start as visible
 		setExtendedState(JFrame.MAXIMIZED_BOTH); //maximizes GUI
 	}
 
-	
+
 	private boolean save() {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(saveFile));
@@ -161,9 +169,9 @@ public class Editor extends JFrame {
 		catch (IOException e) {
 			return false;
 		}
-		
+
 		setTitle(TITLE + " - " + saveFile.getName());		
-		save.setEnabled(false);
+		saveItem.setEnabled(false);
 		return true;
 	}
 
@@ -186,14 +194,14 @@ public class Editor extends JFrame {
 			String path = file.getAbsolutePath();
 			if (!path.toLowerCase().endsWith(".pap"))
 				file = new File(path + ".pap");	
-			
+
 			if(file.exists()) {
 				if( JOptionPane.showConfirmDialog(this, "Are you sure you want to save over " + file.getName() + "?", "Overwrite File?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
 					return false;
 			}
-			
+
 			saveFile = file;
-			
+
 			return save();
 		}
 		return false;
@@ -222,11 +230,11 @@ public class Editor extends JFrame {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(saveFile));
 				Saving.read(in, boxes, arrows, items, strings);
 				in.close();
-				
+
 				setTitle(TITLE + " - " + saveFile.getName());
 				titleField.setText(strings[0]);
 				currencyField.setText(strings[1]);
-				save.setEnabled(false);
+				saveItem.setEnabled(false);
 			} 
 			catch (IOException | ClassNotFoundException e) {
 			}
@@ -236,7 +244,7 @@ public class Editor extends JFrame {
 
 	private void createMenus(List<Arrow> arrows, List<Item> items) {
 		JMenuBar bar = new JMenuBar(); // menu bar
-		
+
 		JMenu file = new JMenu("File"); // file menu
 		bar.add(file);
 		JMenuItem newProject = new JMenuItem("New Project"); // new project menu item
@@ -244,7 +252,7 @@ public class Editor extends JFrame {
 		file.add(newProject);
 		newProject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if( saveIfNeeded() ) {
+				if( saveIfNeeded("starting a new project") ) {
 					deselect();
 					items.clear();
 					arrows.clear();
@@ -253,7 +261,7 @@ public class Editor extends JFrame {
 					canvas.deselect();				
 					saveFile = null;
 					setTitle(TITLE + " - New Document");
-					save.setEnabled(false);
+					saveItem.setEnabled(false);
 				}
 			}
 		});
@@ -264,7 +272,7 @@ public class Editor extends JFrame {
 		file.add(openProject);
 		openProject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if( saveIfNeeded() ) {					
+				if( saveIfNeeded("opening another project") ) {					
 					deselect();	
 					openFile(boxes, arrows, items);
 					tableModel.setItemList(items);
@@ -274,11 +282,11 @@ public class Editor extends JFrame {
 		});
 		file.addSeparator();
 
-		save = new JMenuItem("Save"); // save menu
+		saveItem = new JMenuItem("Save"); // save menu
 		KeyStroke keyStrokeToSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK); 
-		save.setAccelerator(keyStrokeToSave); //hotkey to save a project
-		file.add(save);
-		save.addActionListener(new ActionListener() {
+		saveItem.setAccelerator(keyStrokeToSave); //hotkey to save a project
+		file.add(saveItem);
+		saveItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if( saveFile == null )
 					saveAs();
@@ -286,8 +294,8 @@ public class Editor extends JFrame {
 					save();
 			}
 		});
-		save.setEnabled(false);
-		
+		saveItem.setEnabled(false);
+
 		JMenuItem saveAs = new JMenuItem("Save As..."); // save button		 
 		file.add(saveAs);
 		saveAs.addActionListener(new ActionListener() {
@@ -295,7 +303,7 @@ public class Editor extends JFrame {
 				saveAs();
 			}
 		});
-		
+
 		file.addSeparator();
 
 		JMenuItem exit = new JMenuItem("Exit"); // exit button
@@ -305,8 +313,7 @@ public class Editor extends JFrame {
 		exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (saveIfNeeded())
-					dispose();			
+				exit();		
 			}
 		});	
 
@@ -330,9 +337,21 @@ public class Editor extends JFrame {
 			}
 		});		
 		beginChoiceItem.setEnabled(false);
-		
+
+
+		detailsItem = new JMenuItem("Choice Details...");
+		detailsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new prompt
+		edit.add(detailsItem);
+		detailsItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				openDetails();
+			}
+		});
+		detailsItem.setEnabled(false);
+
 		bar.add(edit);
-		
+
 
 		JMenu mode = new JMenu("Game"); // game menu
 		JMenuItem playerModeItem = new JMenuItem("Play Game");		 
@@ -360,6 +379,20 @@ public class Editor extends JFrame {
 		setJMenuBar(bar);	
 	}
 
+	private void exit() {
+		if (saveIfNeeded("exiting"))
+			dispose();		
+	}
+
+	private void openDetails() {
+		Arrow arrow = (Arrow)canvas.getSelected();
+		gainedItemsTextArea.setText(arrow.getGainedItemsText());
+		mustHaveTextArea.setText(arrow.getMustHaveText());
+		detailsDialog.setVisible(true);		
+	}
+
+
+
 	private void addBox() {
 		JViewport viewport = canvas.getViewport();
 		Dimension size = viewport.getExtentSize();
@@ -373,9 +406,7 @@ public class Editor extends JFrame {
 		textArea.grabFocus();
 	}
 
-	private JPanel createEastPanel() {
-
-		JDialog itemWindow = makeItemDialog();
+	private JPanel createEastPanel() {		
 
 		//Panel for entire east section
 		JPanel panel = new JPanel();
@@ -408,7 +439,7 @@ public class Editor extends JFrame {
 
 		beginChoiceButton.setEnabled(false);
 		promptsPanel.add(beginChoiceButton);
-		
+
 		recolorPromptButton = new JButton("Recolor Prompt");
 		recolorPromptButton.setToolTipText("Recolor the selected prompt.");
 		recolorPromptButton.addActionListener(new ActionListener() {
@@ -424,8 +455,8 @@ public class Editor extends JFrame {
 		});
 		recolorPromptButton.setEnabled(false);
 		promptsPanel.add(recolorPromptButton);
-		
-		
+
+
 		deletePromptButton = new JButton("Delete Prompt");		
 		deletePromptButton.setToolTipText("Delete the selected prompt.");
 		deletePromptButton.addActionListener(new ActionListener() {
@@ -439,35 +470,32 @@ public class Editor extends JFrame {
 
 		});
 		deletePromptButton.setEnabled(false);
-		
+
 		promptsPanel.add(deletePromptButton);
 		promptsPanel.setMaximumSize(promptsPanel.getMinimumSize());
-		
+
 		panel.add(promptsPanel);
-		
+
 		panel.add(javax.swing.Box.createVerticalStrut(GAP));
-		
-		
+
+
 		//Panel for choices-related buttons
 		JPanel choicesPanel = new JPanel(new GridLayout(5,1, GAP, GAP));
 		choicesPanel.setBorder(border("Choices"));
 
-		detailsButton = new JButton("Details");
-		detailsButton.setToolTipText("Decide whether making this choice requires items or currency or gives items or currency.");
+		detailsButton = new JButton("Choice Details...");
+		detailsButton.setToolTipText("Specify details including items lost, items gained, items required, and currency changed by this choice.");
 		detailsButton.setEnabled(false);
 		choicesPanel.add(detailsButton);
 		detailsButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				Arrow arrow = (Arrow)canvas.getSelected();
-				gainedItemsTextArea.setText(arrow.getGainedItemsText());
-				mustHaveTextArea.setText(arrow.getMustHaveText());
-				itemWindow.setVisible(true);
+				openDetails();
 			}
 
 		});
-		
+
 		upButton = new BasicArrowButton(BasicArrowButton.NORTH);
 		upButton.addActionListener(new ActionListener() {
 			@Override
@@ -480,11 +508,11 @@ public class Editor extends JFrame {
 		});		
 		upButton.setEnabled(false);
 		choicesPanel.add(upButton);
-		
+
 		choiceOrderLabel = new JLabel("");
 		choiceOrderLabel.setHorizontalAlignment(JLabel.CENTER);
 		choicesPanel.add(choiceOrderLabel);
-		
+
 		downButton = new BasicArrowButton(BasicArrowButton.SOUTH);
 		downButton.addActionListener(new ActionListener() {
 			@Override
@@ -497,10 +525,10 @@ public class Editor extends JFrame {
 		});		
 		downButton.setEnabled(false);
 		choicesPanel.add(downButton);
-	
+
 
 		deleteChoiceButton = new JButton("Delete Choice");
-		
+
 		deleteChoiceButton.setToolTipText("Delete the selected choice.");
 		deleteChoiceButton.addActionListener(new ActionListener() {
 
@@ -513,12 +541,12 @@ public class Editor extends JFrame {
 
 		});
 		deleteChoiceButton.setEnabled(false);
-		
+
 		choicesPanel.add(deleteChoiceButton);
 		choicesPanel.setMaximumSize(choicesPanel.getMinimumSize());
-		
+
 		panel.add(choicesPanel);
-		
+
 		panel.add(javax.swing.Box.createVerticalGlue());
 
 		return panel;
@@ -530,20 +558,20 @@ public class Editor extends JFrame {
 	}
 
 	private JPanel createSouthPanel() {
-		
+
 		JPanel panel = new JPanel(new BorderLayout());
-		
-		
+
+
 		JPanel statusPanel = new JPanel(new BorderLayout());
 		statusPanel.setBorder(border());
-		
+
 		statusPanel.add(new JLabel("Status: "), BorderLayout.WEST);
-		
+
 		statusLabel = new JLabel("");
 		statusPanel.add(statusLabel, BorderLayout.CENTER);
-		
+
 		panel.add(statusPanel, BorderLayout.NORTH);
-		
+
 		textArea = new JTextArea(6, 20);
 		textArea.setLineWrap(true);
 		textArea.getDocument().addDocumentListener(new DocumentListener() {
@@ -571,7 +599,7 @@ public class Editor extends JFrame {
 		scrolling.setBorder(border("Text"));
 
 		panel.add(scrolling, BorderLayout.SOUTH);
-		
+
 		return panel;
 	}
 
@@ -624,23 +652,29 @@ public class Editor extends JFrame {
 		zoomPanel.add(slider, BorderLayout.CENTER);
 
 		panel.add(zoomPanel, BorderLayout.SOUTH);	
-		
+
 
 		return panel;
 	}
-	
+
 	private JDialog makeItemDialog(){
 
 		//Setting parameters to create the table for item creation
 		JDialog itemWindow = new JDialog(this, "Choice Details", true);
 		itemWindow.setLayout(new BorderLayout());
-		
-		
+
+		itemWindow.getRootPane().registerKeyboardAction(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						itemWindow.setVisible(false);
+					}
+				},
+				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
+
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.setBorder(border("Available Items"));
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1, GAP, GAP));
-		
-
 
 		JTable itemTable = new JTable(tableModel);
 		itemTable.setFillsViewportHeight(true);
@@ -677,7 +711,7 @@ public class Editor extends JFrame {
 			// Listener for delete button that checks if the user wants to delete the item
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-			
+
 				if(itemTable.getSelectedRow()!= -1) {
 					if(JOptionPane.showConfirmDialog(itemWindow, "Are you sure you want to delete " + 
 							tableModel.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
@@ -701,9 +735,9 @@ public class Editor extends JFrame {
 		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
 		tablePanel.add(tableScroll, BorderLayout.CENTER);
 		itemWindow.add(tablePanel, BorderLayout.WEST);
-		
+
 		itemTable.putClientProperty("terminateEditOnFocusLost", true);
-		
+
 		tableModel.addTableModelListener(new TableModelListener() {
 
 			@Override
@@ -714,25 +748,25 @@ public class Editor extends JFrame {
 			}			
 		});
 		//End table stuff
-		
+
 
 		JPanel mainPanel = new JPanel(new BorderLayout());
-		
+
 		JTextArea textArea = new JTextArea(6, 20);
 		textArea.setLineWrap(true);
 		JScrollPane scrolling = new JScrollPane(textArea);
 		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 	
 		scrolling.setBorder(border("Choice Text"));
-		
+
 		textArea.setEditable(false);	
-		
+
 		mainPanel.add(scrolling, BorderLayout.NORTH);	
-		
-		
-		
+
+
+
 		JPanel centerPanel = new JPanel(new GridLayout(2, 2, GAP, GAP));
-		
-		
+
+
 		gainedItemsTextArea = new JTextArea();
 		gainedItemsTextArea.setEditable(false);
 		JPanel itemsGottenPanel = new JPanel(new BorderLayout());//north
@@ -777,7 +811,7 @@ public class Editor extends JFrame {
 		givenButtons.add(getRemoveButton);
 		itemsGottenPanel.add(givenButtons, BorderLayout.SOUTH);
 		centerPanel.add(itemsGottenPanel);
-		
+
 
 		mustHaveTextArea = new JTextArea();
 		JPanel panel = new JPanel(new GridLayout(1,3, GAP, GAP));
@@ -825,9 +859,9 @@ public class Editor extends JFrame {
 		mustHavePanel.add(mustHaveTextArea,BorderLayout.CENTER);
 		mustHavePanel.add(panel,BorderLayout.SOUTH);
 		centerPanel.add(mustHavePanel);
-		
-		
-		
+
+
+
 		lostItemsTextArea = new JTextArea();
 		lostItemsTextArea.setEditable(false);
 		JPanel itemsLostPanel = new JPanel(new BorderLayout());
@@ -871,7 +905,7 @@ public class Editor extends JFrame {
 		lostButtons.add(lostRemoveButton);
 		itemsLostPanel.add(lostButtons, BorderLayout.SOUTH);
 		centerPanel.add(itemsLostPanel);
-		
+
 		currencyChangeTextArea = new JTextArea();
 		JPanel currencyPanel = new JPanel(new BorderLayout());
 		currencyPanel.setBorder(border("Currency Change for this Choice"));
@@ -879,8 +913,8 @@ public class Editor extends JFrame {
 
 		currencyPanel.add(currencyChangeTextArea,BorderLayout.CENTER);
 		centerPanel.add(currencyPanel);
-		
-		
+
+
 		itemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			//Listener that enables delete button if a row is selected
 			@Override
@@ -893,10 +927,10 @@ public class Editor extends JFrame {
 			}
 
 		});
-		
+
 		mainPanel.add(centerPanel, BorderLayout.CENTER);
-		
-		
+
+
 		//Save or cancel buttons at the bottom
 		JPanel saveOrCancelPanel = new JPanel(new GridLayout(1,2, GAP, GAP));//south
 		saveOrCancelPanel.setMinimumSize(new Dimension(300,100));
@@ -915,7 +949,7 @@ public class Editor extends JFrame {
 				String text = mustHaveTextArea.getText().trim();
 
 				Arrow arrow = (Arrow)canvas.getSelected();
-				
+
 				if( !text.isEmpty() ) {
 					List<Item> items = tableModel.getItems();
 					try {
@@ -932,7 +966,7 @@ public class Editor extends JFrame {
 
 			}
 		});
-		
+
 		JButton cancel = new JButton("Cancel");
 		saveOrCancelPanel.add(cancel);
 		cancel.setToolTipText("Close the Details window without saving the expression in the Items the Player Needs field.");
@@ -944,10 +978,10 @@ public class Editor extends JFrame {
 		});		
 
 		mainPanel.add(saveOrCancelPanel, BorderLayout.SOUTH);
-		
+
 		itemWindow.add(mainPanel, BorderLayout.CENTER);
-		
-		
+
+
 		itemWindow.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		itemWindow.addWindowListener(new WindowAdapter() {
 
@@ -955,13 +989,13 @@ public class Editor extends JFrame {
 			public void windowClosing(WindowEvent e) {
 				itemWindow.setVisible(false);
 			}
-			
+
 			@Override
 			public void windowOpened(WindowEvent e) {
 				textArea.setText(canvas.getSelected().getText());
 			}
 		});
-		
+
 		itemWindow.pack();
 		return itemWindow;
 	}
@@ -974,13 +1008,14 @@ public class Editor extends JFrame {
 		deletePromptButton.setEnabled(true);
 		deleteChoiceButton.setEnabled(false);
 		detailsButton.setEnabled(false);
-		
+		detailsItem.setEnabled(false);
+
 		if( isNew )
 			statusLabel.setText("Prompt created");
 		else
 			statusLabel.setText("Prompt selected");		
 	}
-	
+
 	public void selectArrow(Arrow arrow, boolean isNew) {
 		textArea.setText(arrow.getText());
 		beginChoiceButton.setEnabled(false);
@@ -989,11 +1024,12 @@ public class Editor extends JFrame {
 		deletePromptButton.setEnabled(false);
 		deleteChoiceButton.setEnabled(true);
 		detailsButton.setEnabled(true);
-		
+		detailsItem.setEnabled(true);
+
 		upButton.setEnabled(arrow.getOrder() > 1);
 		downButton.setEnabled(arrow.getOrder() < arrow.getStart().getOutgoing().size());
 		choiceOrderLabel.setText(arrow.getOrder() + "");		
-		
+
 		if( isNew ) {
 			statusLabel.setText("Choice created");
 			makeDirty();
@@ -1001,7 +1037,7 @@ public class Editor extends JFrame {
 		else
 			statusLabel.setText("Choice selected");
 	}
-	
+
 	public void deselect() {
 		textArea.setText("");
 		beginChoiceButton.setEnabled(false);
@@ -1010,27 +1046,28 @@ public class Editor extends JFrame {
 		deletePromptButton.setEnabled(false);
 		deleteChoiceButton.setEnabled(false);
 		detailsButton.setEnabled(false);
-		
+		detailsItem.setEnabled(false);
+
 		upButton.setEnabled(false);
 		downButton.setEnabled(false);
 		choiceOrderLabel.setText("");		
-		
+
 		statusLabel.setText("");
 	}
-	
+
 	public void makeDirty() {
 		if( saveFile != null )
 			setTitle(TITLE + " - *" + saveFile.getName());
 		else
 			setTitle(TITLE + " - *New Document");		
-		save.setEnabled(true);		
+		saveItem.setEnabled(true);		
 	}
-	
+
 	//Tries to save if there's unsaved work
 	//Returns true is everything's fine and false if you need to stop what you're doing
-	private boolean saveIfNeeded() {
-		if (save.isEnabled()) { //save menu is only enabled when project has unsaved changes
-			int ask = JOptionPane.showConfirmDialog(Editor.this, "Do you want to save first?", "Save?",
+	private boolean saveIfNeeded(String activity) {
+		if (saveItem.isEnabled()) { //save menu is only enabled when project has unsaved changes
+			int ask = JOptionPane.showConfirmDialog(Editor.this, "Do you want to save before " + activity + "?", "Save?",
 					JOptionPane.YES_NO_CANCEL_OPTION);
 			if (ask == JOptionPane.YES_OPTION) {
 				if( saveFile == null )
@@ -1041,18 +1078,18 @@ public class Editor extends JFrame {
 			else if(ask == JOptionPane.CANCEL_OPTION)
 				return false;					
 		}
-		
+
 		return true;
 	}	
 
 	public Canvas getCanvas() {
 		return canvas;
 	}
-	
+
 	private static Border border(String title) {
 		return BorderFactory.createCompoundBorder(border(), BorderFactory.createTitledBorder(title));
 	}	
-	
+
 	private static Border border() {	
 		return BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP);
 	}
