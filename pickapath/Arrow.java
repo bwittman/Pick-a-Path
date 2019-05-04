@@ -240,7 +240,7 @@ public class Arrow extends CanvasObject {
 	@Override
 	public void draw(Graphics2D g, boolean selected, Font font, double zoom) {
 		Stroke oldStroke = g.getStroke();
-		BasicStroke newStroke = new BasicStroke((float) (3.0*zoom), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
+		BasicStroke newStroke = new BasicStroke((float) (5.0*zoom), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND); //thickness of the lines is at 2f
 		
 		double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
 		

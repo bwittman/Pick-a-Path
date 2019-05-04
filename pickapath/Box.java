@@ -1,10 +1,12 @@
 package pickapath;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -98,17 +100,21 @@ public class Box extends CanvasObject {
 		int width = (int)Math.round(zoom*Box.WIDTH);
 		int height = (int)Math.round(zoom*Box.HEIGHT);
 		
+		g.setColor(color);
+		g.fillRect(x, y, width, height);
+		
 		//Sets colors for arrow and selected arrow
 		if( selected ) {
 			g.setColor(Color.WHITE);
-			g.fillRect(x, y, width, height);
-			g.setColor(color);
+			Stroke oldStroke = g.getStroke();
+			BasicStroke newStroke = new BasicStroke((float) (5.0*zoom), BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER); //thickness of the lines is at 2f
+			
+			g.setStroke(newStroke);
 			g.drawRect(x, y, width, height);
+			g.setStroke(oldStroke);
 		}
-		else {
-			g.setColor(color);
-			g.fillRect(x, y, width, height);
-		}
+		
+		
 		//Draws text characters in the box
 		//g.setColor(outline);
 
