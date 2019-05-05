@@ -6,27 +6,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
-import pickapath.Arrow;
-import pickapath.Box;
 import pickapath.Item;
-import pickapath.Saving;
+import pickapath.model.Arrow;
+import pickapath.model.InvalidStartingBoxException;
+import pickapath.model.Model;
+import pickapath.model.State;
 
 public class PlayerModeCLI {
 
-	private List<Box> boxes = new ArrayList<Box>();
-	private List<Arrow> arrows = new ArrayList<Arrow>();
-	private List<Item> items = new ArrayList<Item>();
-	private Set<Item> itemsHeld = new HashSet<Item>();
-	private String title;
-	private String currency;
+	private State state;
 
-	private Box loadGame(Scanner in) {
+	private void loadGame(Scanner in) {
 		
 		while(true) {
 			System.out.print("Please enter a file to open: ");
@@ -35,27 +28,18 @@ public class PlayerModeCLI {
 			if((fileName.toLowerCase().endsWith(".pap") || fileName.toLowerCase().endsWith(".ppp")) ) {
 				try {
 					ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
-					String[] strings = new String[2];
 					if( file.toString().toLowerCase().endsWith(".ppp")) {
-						Box box = Saving.readProgress(stream, boxes, arrows, items, strings, itemsHeld);
-						title = strings[0];
-						currency = strings[1];
-						return box;
+						state = new State(stream);
 					}
 					else {
-						Saving.read(stream, boxes, arrows, items, strings);
-						title = strings[0];
-						currency = strings[1];
-						List<Box> startingBoxes = Box.getStartingBoxes(boxes);
-						if (startingBoxes.size() == 1) {	
-
-							return startingBoxes.get(0);
-
-
-						} else {
-							System.out.println(
-									"This is an unplayable game because no starting point is indicated.");
-
+						Model model = new Model();
+						model.read(stream);
+						
+						try {
+							state = new State(model);
+						}
+						catch(InvalidStartingBoxException e){
+							System.out.println("This is an unplayable game because no starting point is indicated.");
 						}
 					}
 
@@ -72,12 +56,7 @@ public class PlayerModeCLI {
 
 	public static void main(String[] args) {
 
-		System.out.println("Welcome to Pick a Path!");
-		System.out.println("To play, enter the number that corresponds to the choice you would like to make.");
-		System.out.println("To display your items, enter I");
-		System.out.println("To save the current state of your game, enter S");
-		System.out.println("To open a saved game, enter O");
-		System.out.println("To stop playing a game, enter Q");
+		System.out.println("Welcome to Pick a Path!");	
 
 		new PlayerModeCLI();
 	}
@@ -87,37 +66,42 @@ public class PlayerModeCLI {
 	public PlayerModeCLI() {
 		Scanner in = new Scanner(System.in);
 
-		Box box = loadGame(in);
+		loadGame(in);
+		
+		
+		String currencyName = state.getModel().getCurrencyName();
+		if( currencyName.trim().isEmpty() )
+			currencyName = "Money";
+		
+		final String DEFAULT_CHOICES = "Or enter I for Inventory, M for " + currencyName + ", S for Save, O for Open, or Q to Quit.";
 
-		List<Arrow> choices = new ArrayList<Arrow>();
+		System.out.println("To play, enter the number that corresponds to the choice you would like to make.");
+		System.out.println("To display your inventory, enter I.");
+		System.out.println("To display your " + currencyName.toLowerCase() + ", enter M.");
+		System.out.println("To save the current state of your game, enter S.");
+		System.out.println("To open a previously saved game, enter O.");
+		System.out.println("To stop playing a game, enter Q.");		
 		System.out.println();
-		while(box.getOutgoing().size() > 0) {
-			choices.clear();
-			int counter = 1;
-			System.out.println(box.getText());
-			for (Arrow arrow : box.getOutgoing()) {
-				//if statement for list of items 
-				if( arrow.satisfies(itemsHeld) ) {
-					choices.add(arrow);
-					System.out.println(counter+ ". " + arrow.getText());
-					counter++;
-				}
-			}
-			System.out.println("Or enter I for items, S for save, O for open, Q to quit.");
+		
+		List<Arrow> choices = state.getChoices();
+		while(choices.size() > 0) {
+			
+			System.out.println(state.getPrompt().getText());
+			
+			for( int i = 0; i < choices.size(); ++i )
+				System.out.println((i + 1) + ". " + choices.get(i).toString());
+			
+			System.out.println(DEFAULT_CHOICES);
 			System.out.println();
 			System.out.print("Enter choice: ");
-			String input = in.nextLine().toUpperCase();
+			String input = in.nextLine().trim().toUpperCase();
 			System.out.println();
 
 			if( input.equals("S")) {
-				saveGame(in,box);
+				saveGame(in);
 			}
 			else if(input.equals("O")) {
-				items.clear();
-				boxes.clear();
-				arrows.clear();
-				itemsHeld.clear();
-				box = loadGame(in);
+				loadGame(in);
 			}
 			else if( input.equals("Q")) {
 				return;
@@ -125,27 +109,46 @@ public class PlayerModeCLI {
 
 			else if( input.equals("I")) {
 
-				if( itemsHeld.size() > 0 ) {				
-					System.out.println("Items:");
-					for (Item item: itemsHeld) {
+				if( state.getInventory().size() > 0 ) {				
+					System.out.println("Inventory:");
+					for (Item item: state.getInventory()) {
 						System.out.println("\t"+ item.getName());
 					}
 				}
 				else
-					System.out.println("You have no items.");
+					System.out.println("Your inventory is empty.");
 				System.out.println();
+			}
+			else if(input.contentEquals("M")) {
+				System.out.println(currencyName + ": " + state.getCurrency());
 			}
 			else {
 				try {		
 					int choice = Integer.parseInt(input)-1;
 					if( choice >= 0 && choice < choices.size() ) {
 						Arrow arrow = choices.get(choice);
-
-						//remove items first
-						itemsHeld.removeAll(arrow.getLostItems());
-						itemsHeld.addAll(arrow.getGainedItems());
+						if( arrow.getLostItems().size() > 0 ) {
+							if( arrow.getLostItems().size() > 1 ) 
+								System.out.println("You lost the following items:");
+							else
+								System.out.println("You lost the following item:");
+							for( Item item : arrow.getLostItems())
+								System.out.println("\t" + item.getName());
+						}
+						if( arrow.getGainedItems().size() > 0 ) {
+							if( arrow.getGainedItems().size() > 1 ) 
+								System.out.println("You gained the following items:");
+							else
+								System.out.println("You gained the following item:");
+							for( Item item : arrow.getGainedItems())
+								System.out.println("\t" + item.getName());
+						}
+						if( arrow.getCurrencyChange() > 0)
+							System.out.println("Your " + currencyName.toLowerCase() + " increased by " + arrow.getCurrencyChange() + ".");
+						else if( arrow.getCurrencyChange() < 0 )
+							System.out.println("Your " + currencyName.toLowerCase() + " decreased by " + -arrow.getCurrencyChange() + ".");
 						
-						box = arrow.getEnd();
+						state.makeChoice(choice);						
 					}
 					else
 						System.out.println("Invalid choice. Please enter another one.");
@@ -156,10 +159,10 @@ public class PlayerModeCLI {
 
 			}
 		}
-		System.out.println(box.getText());
+		System.out.println(state.getPrompt().getText());
 	}
 
-	private void saveGame(Scanner in, Box box) {
+	private void saveGame(Scanner in) {
 		while(true) {
 			System.out.print("Please enter a file to save to: ");
 			String fileName = in.nextLine().trim();
@@ -174,13 +177,12 @@ public class PlayerModeCLI {
 				String answer = in.nextLine().toLowerCase().trim();
 				if(!answer.equals("yes") && !answer.equals("y")) {
 					safe = false;
-				}
-				
+				}			
 			}
 			if( safe ) {
 				try {
 					ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
-					Saving.writeProgress(stream, boxes, items, title, currency, box, itemsHeld);
+					state.writeProgress(stream);
 					stream.close();
 					System.out.println("Game successfully saved.");
 					System.out.println();

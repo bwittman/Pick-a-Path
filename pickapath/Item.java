@@ -12,14 +12,12 @@ public class Item {
 	private final int id;
 	private String name;
 	
-	
 	public String toString() {
 		return id + ": " + name;
 	}
 	public Item (int id,String name) {
 		this.id = id;
-		this.name = name;
-		
+		this.name = name;		
 	}
 	
 	public int getId() {

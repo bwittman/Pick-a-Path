@@ -16,9 +16,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -37,28 +35,21 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
 
-import pickapath.Arrow;
-import pickapath.Box;
 import pickapath.Item;
-import pickapath.Saving;
+import pickapath.model.Arrow;
+import pickapath.model.InvalidStartingBoxException;
+import pickapath.model.Model;
+import pickapath.model.State;
 
 @SuppressWarnings("serial")
 public class PlayerModeGUI extends JFrame {
 
 	private JPanel choicePanel;
-	private JTextArea boxInformation;
-	private JTextArea itemInformation;
+	private JTextArea promptArea;
+	private JTextArea inventoryArea;
 	private List<JRadioButton> buttonList;
-	private List<Arrow> arrowList;
-
-	private List<Box> boxes;
-	private List<Arrow> arrows;
-	private List<Item> items;
-	private Set<Item> itemsHeld;
-	private Box box;
-	private String title;
-	private String currency;
-	private int currentCurrency = 0;
+	private JFrame frame;
+	private State state;
 
 
 	public static void main(String[] args) {
@@ -68,63 +59,10 @@ public class PlayerModeGUI extends JFrame {
 		} catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException
 				| IllegalAccessException e) {}
 
-		List<Box> boxes = new ArrayList<Box>();
-		List<Arrow> arrows = new ArrayList<Arrow>();
-		List<Item> items = new ArrayList<Item>();
-
-
-		JFileChooser fileSelect = new JFileChooser();
-		fileSelect.setFileFilter(new FileFilter() {
-
-			@Override
-			public boolean accept(File file) {
-				return file.getName().toLowerCase().endsWith(".pap")|| file.getName().toLowerCase().endsWith(".ppp")||file.isDirectory();
-			}
-
-			@Override
-			public String getDescription() {
-				return "Pick-a-Path Files";
-			}
-		});
-		if (fileSelect.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileSelect.getSelectedFile();
-
-			try {
-				ObjectInputStream in = new ObjectInputStream(new FileInputStream(selectedFile));
-				Box box = null;
-				Set<Item> itemsHeld = new HashSet<Item>();
-				String[] strings = new String[2];
-
-				if (selectedFile.getAbsolutePath().toLowerCase().endsWith(".ppp")) {
-					box = Saving.readProgress(in, boxes, arrows, items, strings, itemsHeld);
-				}
-				else {
-					Saving.read(in, boxes, arrows, items, strings);
-					List<Box> startingBoxes = Box.getStartingBoxes(boxes);
-					if (startingBoxes.size() == 1) {
-						box = startingBoxes.get(0);
-					}
-					else {
-						JOptionPane.showMessageDialog(null, "This is an unplayable game because no starting point is indicated." , "Error!", JOptionPane.ERROR_MESSAGE);
-						return;
-					}
-				}
-
-				in.close();
-
-				new PlayerModeGUI(box, null, boxes, arrows, items, itemsHeld, strings[0], strings[1]);
-
-			}
-			catch (IOException | ClassNotFoundException e) {
-				JOptionPane.showMessageDialog(null,"File missing or corrupted.", "File Missing or Corrupted!", JOptionPane.ERROR_MESSAGE);
-			}
-		}
+		new PlayerModeGUI();
 	}
 
-	public PlayerModeGUI(Box startingBox, JFrame frame, List<Box> boxes, List<Arrow> arrows, List<Item> items, String title, String currency) {
-		this(startingBox, frame, boxes, arrows, items, new HashSet<Item>(), title, currency);
-	}
-	private void saveFile() {   //save current work to a file
+	private void saveGame() {   //save current work to a file
 		JFileChooser fileSelect = new JFileChooser();
 		fileSelect.setFileFilter(new FileFilter() {
 			@Override
@@ -151,7 +89,7 @@ public class PlayerModeGUI extends JFrame {
 			if(safe) {
 				try {
 					ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(selectedFile));
-					Saving.writeProgress(out, boxes, items, title, currency, box, itemsHeld);
+					state.writeProgress(out);
 					out.close();
 				} catch ( IOException e) {
 					JOptionPane.showMessageDialog(this, "Unable to save to file.", "Saving Failed!", JOptionPane.ERROR_MESSAGE);
@@ -160,7 +98,7 @@ public class PlayerModeGUI extends JFrame {
 		}
 
 	}
-	private void openFile() {
+	private boolean loadGame() {
 		JFileChooser fileSelect = new JFileChooser();
 		fileSelect.setFileFilter(new FileFilter() {
 
@@ -180,66 +118,53 @@ public class PlayerModeGUI extends JFrame {
 
 			try {
 				ObjectInputStream stream = new ObjectInputStream(new FileInputStream(selectedFile));
-				List <Box> boxes = new ArrayList<Box>();
-				List <Arrow> arrows = new ArrayList<Arrow>();
-				List <Item> items = new ArrayList<Item>();
-				Set <Item> itemsHeld = new HashSet<Item>();
-				String[] strings = new String[2];
 				if( selectedFile.toString().toLowerCase().endsWith(".ppp")) {
-					box = Saving.readProgress(stream, boxes, arrows, items, strings, itemsHeld);
-					
+					state.readProgress(stream);
+					setTitle(state.getModel().getTitle());
+					return true;
 				}
 				else {
-					Saving.read(stream, boxes, arrows, items, strings);
-					List<Box> startingBoxes = Box.getStartingBoxes(boxes);
-					if (startingBoxes.size() == 1) {
-						box = startingBoxes.get(0);
+					Model model = new Model();
+					model.read(stream);
+					try {
+						state = new State(model);
+						
+						return true;
 					}
-					else {
+					catch(InvalidStartingBoxException e) {
 						JOptionPane.showMessageDialog(this, "This is an unplayable game because no starting point is indicated.",
 								"Game is not Playable!", JOptionPane.ERROR_MESSAGE);
-						return;
 					}
 				}
-
-				this.boxes = boxes;
-				this.arrows = arrows;
-				this.items = items;
-				this.itemsHeld = itemsHeld;
-				title = strings[0];
-				currency = strings[1];
 			}
 			catch(IOException | ClassNotFoundException e) {
 				JOptionPane.showMessageDialog(this,"File missing or corrupted.", "File Missing or Corrupted!", JOptionPane.ERROR_MESSAGE);
 			}
-
 		}
-
-	}
-
-	public PlayerModeGUI(Box startingBox, JFrame frame, List<Box> boxes, List<Arrow> arrows, List<Item> items, Set<Item> outsideItems, String title, String currency) {
-		super(title);
-		this.itemsHeld = outsideItems;
-		this.boxes = boxes;
-		this.arrows = arrows;
-		this.items = items;
-		this.box = startingBox;
-		this.title = title;
-		this.currency = currency;
-		buttonList = new ArrayList<JRadioButton>();
-		arrowList = new ArrayList<Arrow>();
-
-		choicePanel = new JPanel();
-		boxInformation = new JTextArea("Situation");
-		boxInformation.setEditable(false);
-
-		boxInformation.setLineWrap(true);
 		
-		itemInformation = new JTextArea("");
-		itemInformation.setEditable(false);
+		return false;
+	}
+	
+	public PlayerModeGUI() {
+		if( loadGame() ) {
+			setTitle(state.getModel().getTitle());
+			setup();
+		}
+	}
+	
 
+	private void setup() {
+		buttonList = new ArrayList<JRadioButton>();
+		choicePanel = new JPanel();
+		
+		promptArea = new JTextArea("Prompt");
+		promptArea.setEditable(false);
+		promptArea.setLineWrap(true);
+		
+		inventoryArea = new JTextArea("");
+		inventoryArea.setEditable(false);
 
-		JScrollPane scrolling = new JScrollPane(boxInformation);
+		JScrollPane scrolling = new JScrollPane(promptArea);
 
 		scrolling.setPreferredSize(new Dimension(400, 200));		
 		scrolling.setMaximumSize(new Dimension(2048, 400));
@@ -247,7 +172,7 @@ public class PlayerModeGUI extends JFrame {
 		
 		
 
-		scrolling = new JScrollPane(itemInformation);
+		scrolling = new JScrollPane(inventoryArea);
 		add(scrolling, BorderLayout.EAST);
 
 
@@ -261,24 +186,21 @@ public class PlayerModeGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (arrowList.size() > 0) {
-					Arrow arrow = null;
-
+				if (state.getChoices().size() > 0) {
+					int choice = -1;
 					for (int i = 0; i < buttonList.size(); i++) {
 						if (buttonList.get(i).isSelected())
-							arrow = arrowList.get(i);
+							choice = i;
 					}
-					if (arrow != null) {
-						itemsHeld.removeAll(arrow.getLostItems());
-						itemsHeld.addAll(arrow.getGainedItems());
-						String text = "";
-						for(Item item : itemsHeld)
-							text += item.getName() + "\n";
-						itemInformation.setText(text);
+					if (choice != -1) {
 						
-						box = arrow.getEnd();
-						populateChoices();
+						state.makeChoice(choice);
 
+						String text = "";
+						for(Item item : state.getInventory())
+							text += item.getName() + "\n";
+						inventoryArea.setText(text);
+						populateChoices();
 					}
 				} else {
 					if( frame != null )
@@ -313,7 +235,7 @@ public class PlayerModeGUI extends JFrame {
 		save.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				saveFile();
+				saveGame();
 
 			}
 		});
@@ -322,11 +244,10 @@ public class PlayerModeGUI extends JFrame {
 		open.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				openFile();
-
+				loadGame();
+				setTitle(state.getModel().getTitle());
+				populateChoices();
 			}
-
-
 		});
 
 
@@ -347,42 +268,34 @@ public class PlayerModeGUI extends JFrame {
 
 
 		populateChoices();
-		setVisible(true);
+		setVisible(true);		
+	}
 
+	public PlayerModeGUI(State state, JFrame frame) {
+		super(state.getModel().getTitle());
+		this.state = state;
+		this.frame = frame;
+		
+		setup();		
 	}
 
 	private void populateChoices() {
 		buttonList.clear();
-		arrowList.clear();
 		choicePanel.removeAll();
-		int count = 0;
-		for (Arrow arrow : box.getOutgoing()) 
-			if( arrow.satisfies(itemsHeld) ) 
-				count++;
-		choicePanel.setLayout(new GridLayout(count, 1));// where the JRadio Button info is formed
-		// from the arrows
-		boxInformation.setText(box.getText()); // text in the boxes
-		boxInformation.validate();
-		ButtonGroup group = new ButtonGroup();// groups the JButtons together for formatting in the gridLayout
-		for (Arrow arrow : box.getOutgoing()) {
-			if( arrow.satisfies(itemsHeld) ) {
-				JRadioButton button = new JRadioButton(arrow.getText());
-				group.add(button);// adds all the buttons to the middle
-				buttonList.add(button);
-				arrowList.add(arrow);
-				choicePanel.add(button);
-			}
+		List<Arrow> choices = state.getChoices();
+		choicePanel.setLayout(new GridLayout(choices.size(), 1));
+		promptArea.setText(state.getPrompt().getText());
+		ButtonGroup group = new ButtonGroup();
+		for (Arrow arrow : choices) {			
+			JRadioButton button = new JRadioButton(arrow.getText());
+			group.add(button);
+			buttonList.add(button);
+			choicePanel.add(button);			
 		}
 
-		boxInformation.setMaximumSize(new Dimension(2048, 400));
+		promptArea.setMaximumSize(new Dimension(2048, 400));
 		validate();
 		pack();
 	}
-
-
-
-
-
-
 }
 

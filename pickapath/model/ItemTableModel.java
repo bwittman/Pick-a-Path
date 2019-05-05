@@ -1,4 +1,4 @@
-package pickapath.editor;
+package pickapath.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,19 +12,18 @@ import pickapath.Item;
 public class ItemTableModel implements TableModel {
 
 	private ArrayList<TableModelListener> listeners = new ArrayList<>();
-	private List<Item> items;
+	private List<Item> items = new ArrayList<Item>();
 	private int itemIdCount = 1;
 
-	public ItemTableModel(List<Item> items) {
-		setItemList(items);
+	public ItemTableModel() {
 	}
 	
 	public void setItemList(List<Item> items) {
+		this.items = items;
 		if( items.size() == 0 )
 			itemIdCount = 1;
 		else
 			itemIdCount = items.get(items.size() - 1).getId() + 1;
-		this.items = items;
 	}
 
 	@Override
@@ -95,7 +94,7 @@ public class ItemTableModel implements TableModel {
 	}
 	
 	//Increments itemIdCount
-	public void addItem (String item) {
+	public void addItem(String item) {
 		Item addedItem = new Item(itemIdCount,item);
 		items.add(addedItem);
 		itemIdCount ++;
@@ -111,5 +110,9 @@ public class ItemTableModel implements TableModel {
 	}
 	public List<Item> getItems() {
 		return items;
+	}
+
+	public void clear() {
+		items.clear();		
 	}
 }

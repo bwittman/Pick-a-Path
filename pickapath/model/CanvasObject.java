@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.model;
 
 import java.awt.Font;
 import java.awt.Graphics2D;

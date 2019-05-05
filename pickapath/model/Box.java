@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.model;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -43,7 +43,8 @@ public class Box extends CanvasObject {
 		out.writeObject(color);
 	}	
 	
-	public void recolor() {
+	//Package private
+	void recolor() {
 		color = Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
 	}
 	
@@ -54,11 +55,14 @@ public class Box extends CanvasObject {
 	public int getX(double zoom) {
 		return (int)Math.round(x * zoom);
 	}
-	public void setX(int x) {
+	
+	//Package private
+	void setX(int x) {
 		this.x = x;
 	}
 	
-	public void setX(int x, double zoom) {
+	//Package private
+	void setX(int x, double zoom) {
 		setX((int)Math.round(x / zoom));
 	}
 	
@@ -69,11 +73,14 @@ public class Box extends CanvasObject {
 	public int getY(double zoom) {
 		return (int)Math.round(y * zoom);
 	}
-	public void setY(int y) {
+	
+	//Package private
+	void setY(int y) {
 		this.y = y;
 	}
 	
-	public void setY(int y, double zoom) {
+	//Package private
+	void setY(int y, double zoom) {
 		setY((int)Math.round(y / zoom));
 	}
 	
@@ -146,14 +153,5 @@ public class Box extends CanvasObject {
 	public boolean contains(int x, int y, double zoom) {
 	 return (x >= zoom*(this.x-(WIDTH/2)) && x <= zoom*(this.x + (WIDTH/2)) && y >= zoom*(this.y - (HEIGHT/2)) && y <= zoom*(this.y + (HEIGHT/2)));
 		
-	}
-	
-	public static List<Box> getStartingBoxes(List<Box> boxes) {
-		List<Box> startingBoxes = new ArrayList<Box>();
-		for (Box box : boxes) {
-			if (box.getIncoming().isEmpty())
-				startingBoxes.add(box);
-		}
-		return startingBoxes;
 	}
 }

@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.model;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -13,6 +13,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import pickapath.BooleanExpression;
+import pickapath.BooleanExpressionException;
+import pickapath.Item;
 
 public class Arrow extends CanvasObject {
 	
@@ -38,39 +42,27 @@ public class Arrow extends CanvasObject {
 		order = start.getOutgoing().size();		
 	}
 
-	public Arrow(ObjectInputStream in, List<Box> boxes, List<Item> items) throws IOException, ClassNotFoundException {	//populate info from saved file
+	public Arrow(ObjectInputStream in, Model model) throws IOException, ClassNotFoundException {	//populate info from saved file
 		super(in);
 		int startIndex = in.readInt();
 		int endIndex = in.readInt();
-		start = boxes.get(startIndex);
-		end = boxes.get(endIndex);
+		start = model.getBox(startIndex);
+		end = model.getBox(endIndex);
 		start.addOutgoing(this);
 		end.addIncoming(this);
 		order = start.getOutgoing().size();
-		int totalItemsGained = in.readInt();
-		for(int i = 0; i < totalItemsGained; ++i) {
-			int itemId = in.readInt();
-			for(Item item:items) {
-				if (itemId == item.getId()) {
-					gainedItems.add(item);
-					break;
-				}
-			}
-		}
-		int totalItemsLost = in.readInt();
-		for(int i = 0; i < totalItemsLost; ++i) {
-			int itemId = in.readInt();
-			for(Item item:items) {
-				if (itemId == item.getId()) {
-					lostItems.add(item);
-					break;
-				}
-			}
-		}
+		int gainedItemsTotal = in.readInt();
+		for(int i = 0; i < gainedItemsTotal; ++i) 
+			gainedItems.add(model.getItem(in.readInt()));
+	
+		int lostItemsTotal = in.readInt();
+		for(int i = 0; i < lostItemsTotal; ++i)
+			lostItems.add(model.getItem(in.readInt()));
+	
 		String expressionText = (String)in.readObject();
 		if (!expressionText.equals("")) {
 			try {
-				expression = BooleanExpression.makeExpression(expressionText, items);
+				expression = BooleanExpression.makeExpression(expressionText, model);
 			} catch (BooleanExpressionException e) {
 				//expression is still null
 			}
@@ -106,7 +98,8 @@ public class Arrow extends CanvasObject {
 	}
 
 	//Write arrow information to a file
-	public void write(ObjectOutputStream out, Map<Box, Integer> boxIndexes, List<Item> items) throws IOException {	
+	//Package private
+	void write(ObjectOutputStream out, Map<Box, Integer> boxIndexes, List<Item> items) throws IOException {	
 		super.write(out);
 		int startIndex = boxIndexes.get(start);
 		int endIndex = boxIndexes.get(end);
@@ -199,34 +192,39 @@ public class Arrow extends CanvasObject {
 		return lostItems;
 	}
 	
-	public void deleteItem(Item item) {
+	//Package private
+	void deleteItem(Item item) {
 		gainedItems.remove(item);
 		lostItems.remove(item);
 		if(expression != null)
 			expression = expression.removeItem(item);
 	}
 	
-	public void addGainedItem(Item item) {
+	//Package private
+	void addGainedItem(Item item) {
 		gainedItems.add(item);
 	}
 	
-	public void removeGainedItem(Item item) {
+	//Package private
+	void removeGainedItem(Item item) {
 		gainedItems.remove(item);
 	}
 	
-	public void addLostItem(Item item) {
+	//Package private
+	void addLostItem(Item item) {
 		lostItems.add(item);
 	}
 	
-	public void removeLostItems(Item item) {
+	//Package private
+	void removeLostItem(Item item) {
 		lostItems.remove(item);
 	}
 	
-	public boolean satisfies(Set<Item> items) {
+	public boolean satisfies(Set<Item> items, int currency) {
 		if( expression == null )
-			return true;
+			return currency >= -currencyChange;
 		else
-			return expression.isTrue(items);		
+			return expression.isTrue(items) && currency >= -currencyChange;		
 	}
 
 	public String getMustHaveText() {
@@ -317,7 +315,8 @@ public class Arrow extends CanvasObject {
 		return false;
 	}
 
-	public void makeEarlier() {
+	//Package private
+	void makeEarlier() {
 		int index = order - 1;
 		List<Arrow> arrows = start.getOutgoing();
 		if( index > 0 ) {
@@ -329,7 +328,8 @@ public class Arrow extends CanvasObject {
 		}
 	}
 
-	public void makeLater() {
+	//Package private
+	void makeLater() {
 		int index = order - 1;
 		List<Arrow> arrows = start.getOutgoing();
 		if( index < arrows.size() - 1 ) {

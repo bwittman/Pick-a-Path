@@ -11,7 +11,6 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JViewport;
@@ -19,15 +18,16 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 
-import pickapath.Arrow;
 import pickapath.BooleanExpression;
-import pickapath.Box;
-import pickapath.CanvasObject;
+import pickapath.model.Arrow;
+import pickapath.model.Box;
+import pickapath.model.CanvasObject;
+import pickapath.model.DirtyListener;
+import pickapath.model.Model;
 
 @SuppressWarnings("serial")
-public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable {
-	private List<Box> boxes;
-	private List<Arrow> arrows;
+public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable, DirtyListener {
+	private Model model;
 	private CanvasObject selected = null;
 	private int startXBox;
 	private int startYBox;
@@ -46,21 +46,22 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private JViewport viewport = null;
 
 	//Canvas constructor 
-	public Canvas(List<Arrow> arrows, List<Box> boxes, Editor main) {
+	public Canvas(Model model, Editor main) {
+		this.model = model;
+		model.addDirtyListener(this);
+
 		ToolTipManager.sharedInstance().setInitialDelay(100);
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 		ToolTipManager.sharedInstance().registerComponent(this);
 
 		setBackground(Color.GRAY);
-		this.boxes = boxes;
-		this.arrows = arrows;
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		this.main = main;
 		hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		
+
 		setPreferredSize(new Dimension(640, 480));
 		setMinimumSize(getPreferredSize());		
 	}
@@ -77,84 +78,30 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	//Paints the boxes and arrows
 	public void paint(Graphics g) {
 		super.paint(g);
-	
+
 		Graphics2D graphics = (Graphics2D) g;		
 		graphics.addRenderingHints(hints);
 
 		//Draw arrows back to front
-		for( int i = arrows.size() - 1; i >= 0; --i ) {
-			Arrow arrow = arrows.get(i);
+		for( int i = model.arrowCount() - 1; i >= 0; --i ) {
+			Arrow arrow = model.getArrow(i);
 			arrow.draw(graphics, arrow == selected, font, zoom);
 		}
-		
+
 		//Draw boxes back to front
-		for(int i = boxes.size() - 1; i >= 0; --i) {
-			Box box = boxes.get(i);
+		for(int i = model.boxCount() - 1; i >= 0; --i) {
+			Box box = model.getBox(i);
 			box.draw(graphics, box == selected, font, zoom);
 		}
 
 	}
-	//Deletes selected box and arrows attached to it
-	public void deleteBox() {
-		if (selected != null && selected instanceof Box) {
-			Box selectedBox = (Box) selected;
-			boxes.remove(selected);
-			for(Arrow arrow: selectedBox.getIncoming()) 
-				arrows.remove(arrow);
 
-			for(Arrow arrow: selectedBox.getOutgoing())
-				arrows.remove(arrow);
-
-			selected = null;
-			main.deselect();
-			resetBounds();
-			repaint();
-		}
-	}
-	
-	//Deletes selected arrow
-	public void deleteArrow() {	
-		if (selected != null && selected instanceof Arrow) {
-			Arrow arrow = (Arrow) selected;
-			arrows.remove(selected);
-			arrow.getStart().getOutgoing().remove(arrow);
-			arrow.getEnd().getIncoming().remove(arrow);			
-		} 
-		selected = null;
-		main.deselect();
-		repaint();
-	}
-	
-	
-	public void makeArrowEarlier() {
-		if (selected != null && selected instanceof Arrow) {
-			Arrow arrow = (Arrow) selected;
-			arrow.makeEarlier();			
-		}
-		repaint();
-	}
-	
-	public void makeArrowLater() {
-		if (selected != null && selected instanceof Arrow) {
-			Arrow arrow = (Arrow) selected;
-			arrow.makeLater();			
-		}
-		repaint();
-	}
-	
 	public void deselect() {
 		selected = null;
 		arrowCheck = false;
 		repaint();
 	}
 
-	//Allows boxes and arrows to contain text 
-	public void updateText(String text) {
-		if (selected != null) {
-			selected.setText(text);
-			repaint();
-		}
-	}
 	@Override
 	//Determines if a mouse is inside a box based on its area and coordinates
 	public void mouseDragged(MouseEvent e) {
@@ -167,12 +114,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			if (x < width && x >= 0 && y < height && y >= 0) {
 				int deltaX =  x - startXDrag;
 				int deltaY = y - startYDrag;
-				selectedBox.setX(startXBox + deltaX, zoom);
-				selectedBox.setY(startYBox + deltaY, zoom);
+				model.setX(selectedBox, startXBox + deltaX, zoom);
+				model.setY(selectedBox, startYBox + deltaY, zoom);
 				updateBounds(selectedBox);
-				main.makeDirty();
 			}
-			repaint();
 		}
 	}
 
@@ -187,7 +132,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			boxMaxY = (int) Math.ceil((box.getY()+Box.HEIGHT/2)* zoom);
 
 		setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
-		revalidate(); 
+		//revalidate(); 
 	}
 
 
@@ -197,23 +142,24 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		boxMinX = Integer.MAX_VALUE;
 		boxMinY = Integer.MAX_VALUE;
 
-		if( boxes.size() == 0 ) {
+		if( model.boxCount() == 0 ) {
 			setPreferredSize(viewport.getExtentSize());
 			viewport.setViewPosition(new Point(0,0));
 			revalidate(); 
 		}
 		else {
-			for (Box box: boxes)
-				updateBounds(box);
+			for(int i = 0; i < model.boxCount(); ++i)
+				updateBounds(model.getBox(i));
 		}
 	}
-	
+
 	@Override
 	public String getToolTipText(MouseEvent event) {		
 		int mouseX = event.getX();
 		int mouseY = event.getY();
 
-		for (Arrow arrow: arrows) {
+		for(int i = 0; i < model.arrowCount(); ++i) {
+			Arrow arrow = model.getArrow(i);
 			if (arrow.contains(mouseX, mouseY, zoom)) {
 				if( arrow.getText().trim().isEmpty() )
 					return null;
@@ -221,8 +167,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 					return arrow.getText();
 			}
 		}
-		
-		for (Box box: boxes) {
+
+		for (int i = 0; i < model.boxCount(); ++i) {
+			Box box = model.getBox(i);
 			if (box.contains(mouseX, mouseY, zoom)) {
 				if( box.getText().trim().isEmpty() )
 					return null;
@@ -233,10 +180,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 		return super.getToolTipText(event);
 	}
-	
+
 	@Override
 	public void mouseMoved(MouseEvent e) {
-	
 	}
 
 	@Override
@@ -260,26 +206,26 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	public void mousePressed(MouseEvent event) {
 		int mouseX = event.getX();
 		int mouseY = event.getY();
-		
+
 		//If currently trying to make an arrow from a box...
 		if( arrowCheck ) {
 			Box selectedBox = (Box) selected;
 			Box otherBox = null;
-			for(int i = 0; i < boxes.size() && otherBox == null; ++i) {
-				Box box = boxes.get(i);
+			for(int i = 0; i < model.boxCount() && otherBox == null; ++i) {
+				Box box = model.getBox(i);
 				if (box.contains(mouseX, mouseY, zoom))
 					otherBox = box;
 			}
-			
+
 			//Don't let a second arrow be added between boxes			
 			for( int i = 0; i < selectedBox.getOutgoing().size() && otherBox != null; ++i ) {
 				if( selectedBox.getOutgoing().get(i).getEnd() == otherBox )
 					otherBox = null;
 			}
-			
+
 			if(otherBox != null) {
 				Arrow arrow = new Arrow(selectedBox,otherBox,"");
-				arrows.add(arrow);
+				model.add(arrow);
 				selected = arrow;
 				main.selectArrow(arrow, true);				
 			} 
@@ -290,23 +236,21 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		//Otherwise, select whatever's been clicked on
 		else {
 			selected = null;
-			for( int i = 0; i < boxes.size(); ++i ) {
-				Box box = boxes.get(i);
+			for( int i = 0; i < model.boxCount(); ++i ) {
+				Box box = model.getBox(i);
 				if (box.contains(mouseX, mouseY, zoom)) {
 					selectBox(i);
 					startXBox = box.getX(zoom);
 					startYBox = box.getY(zoom);	
 					startXDrag = mouseX;
 					startYDrag = mouseY;
-					repaint();
 					return;
 				}
 			}			
-			for( int i = 0; i < arrows.size(); ++i ) {
-				Arrow arrow = arrows.get(i);
+			for( int i = 0; i < model.arrowCount(); ++i ) {
+				Arrow arrow = model.getArrow(i);
 				if (arrow.contains(mouseX, mouseY, zoom)) {
 					selectArrow(i);
-					repaint();
 					return;
 				}
 			}
@@ -314,30 +258,20 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			//if we reach here, nothing's selected
 			main.deselect();
 		}
-
-		repaint();
 	}
 
 	public void selectBox(int index) {
-		Box box = boxes.get(index);
+		Box box = model.getBox(index);
 		selected = box;
 		main.selectBox(box, false);
-		if( index != 0 ) {
-			boxes.remove(index);
-			boxes.add(0, box);
-			main.makeDirty();
-		}
+		model.selectBox(index);	
 	}
-	
+
 	public void selectArrow(int index) {
-		Arrow arrow = arrows.get(index);
+		Arrow arrow = model.getArrow(index);
 		selected = arrow;
 		main.selectArrow(arrow, false);
-		if( index != 0 ) {
-			arrows.remove(index);
-			arrows.add(0, arrow);
-			main.makeDirty();
-		}
+		model.selectArrow(index);
 	}
 
 	@Override
@@ -399,34 +333,30 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		}
 	}
 
-	public void addBox(Box box) {
-		boxes.add(box);
-		selected = box;
-		updateBounds(box);
-		repaint();
-	}
-
-	public List<Box> getBoxes() {
-		return boxes;
-	}
-
-	public List<Arrow> getArrows() {
-		return arrows;
-	}
-
 	public int getMaxX() {
 		return boxMaxX;
 	}
-	
+
 	public int getMaxY() {
 		return boxMaxY;
 	}
-	
+
 	public int getMinX() {
 		return boxMinX;
 	}
-	
+
 	public int getMinY() {
 		return boxMinY;
+	}
+
+	public void updateText(String text) {
+		if( selected != null ) {
+			model.setText(selected, text);
+		}
+	}
+
+	@Override
+	public void changeDirtiness(boolean dirty) {
+		repaint();		
 	}
 }

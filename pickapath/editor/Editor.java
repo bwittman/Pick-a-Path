@@ -15,8 +15,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -53,16 +51,18 @@ import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import pickapath.Arrow;
 import pickapath.BooleanExpression;
 import pickapath.BooleanExpressionException;
-import pickapath.Box;
-import pickapath.Item;
-import pickapath.Saving;
+import pickapath.model.Arrow;
+import pickapath.model.Box;
+import pickapath.model.DirtyListener;
+import pickapath.model.InvalidStartingBoxException;
+import pickapath.model.Model;
+import pickapath.model.State;
 import pickapath.player.PlayerModeGUI;
 
 @SuppressWarnings("serial")
-public class Editor extends JFrame {
+public class Editor extends JFrame implements DirtyListener {
 
 	//Editor window widgets
 	private JTextField titleField;
@@ -82,7 +82,6 @@ public class Editor extends JFrame {
 
 	//Details dialog widgets
 	private JDialog detailsDialog;
-	private ItemTableModel tableModel;
 	private JTextArea mustHaveTextArea;
 	private JTextArea gainedItemsTextArea;
 	private JTextArea lostItemsTextArea;
@@ -95,8 +94,7 @@ public class Editor extends JFrame {
 
 	//Functional members
 	private Font[] fonts;
-	private List<Box> boxes;
-	private List<Item> items;
+	private Model model = new Model();
 	private File saveFile = null;
 	private Random random = new Random();
 
@@ -122,10 +120,7 @@ public class Editor extends JFrame {
 
 	public Editor() {
 		super(TITLE + " - New Document");		
-		List<Arrow> arrows = new ArrayList<Arrow>();
-		boxes = new ArrayList<Box>();
-		items = new ArrayList<Item>();
-		tableModel = new ItemTableModel(items);
+		model.addDirtyListener(this);
 
 		detailsDialog = makeItemDialog();
 
@@ -133,9 +128,9 @@ public class Editor extends JFrame {
 		add(createSouthPanel(), BorderLayout.SOUTH);
 		add(createEastPanel(), BorderLayout.EAST);
 
-		createMenus(arrows, items);
+		createMenus();
 
-		canvas = new Canvas(arrows, boxes, this);
+		canvas = new Canvas(model, this);
 		JPanel extra = new JPanel(new BorderLayout());
 		extra.setOpaque(true);
 		extra.add(canvas, BorderLayout.CENTER);
@@ -163,15 +158,13 @@ public class Editor extends JFrame {
 	private boolean save() {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(saveFile));
-			Saving.write(out, boxes, items, titleField.getText().trim(), currencyField.getText().trim());
+			model.write(out);
 			out.close();
 		} 
 		catch (IOException e) {
 			return false;
 		}
 
-		setTitle(TITLE + " - " + saveFile.getName());		
-		saveItem.setEnabled(false);
 		return true;
 	}
 
@@ -208,9 +201,8 @@ public class Editor extends JFrame {
 	}
 
 
-	private void openFile(List<Box> boxes, List<Arrow> arrows, List<Item> items) {  //open a saved file
+	private void openFile() {  //open a saved file
 		JFileChooser fileSelect = new JFileChooser();
-		String[] strings = new String[2];
 		fileSelect.setFileFilter(new FileFilter() {
 
 			@Override
@@ -228,13 +220,11 @@ public class Editor extends JFrame {
 
 			try {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(saveFile));
-				Saving.read(in, boxes, arrows, items, strings);
+				model.read(in);
 				in.close();
 
-				setTitle(TITLE + " - " + saveFile.getName());
-				titleField.setText(strings[0]);
-				currencyField.setText(strings[1]);
-				saveItem.setEnabled(false);
+				titleField.setText(model.getTitle());
+				currencyField.setText(model.getCurrencyName());
 			} 
 			catch (IOException | ClassNotFoundException e) {
 			}
@@ -242,7 +232,7 @@ public class Editor extends JFrame {
 	}
 
 
-	private void createMenus(List<Arrow> arrows, List<Item> items) {
+	private void createMenus() {
 		JMenuBar bar = new JMenuBar(); // menu bar
 
 		JMenu file = new JMenu("File"); // file menu
@@ -254,14 +244,8 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if( saveIfNeeded("starting a new project") ) {
 					deselect();
-					items.clear();
-					arrows.clear();
-					boxes.clear();									
-					tableModel.setItemList(items);
-					canvas.deselect();				
 					saveFile = null;
-					setTitle(TITLE + " - New Document");
-					saveItem.setEnabled(false);
+					model.clear();
 				}
 			}
 		});
@@ -274,9 +258,8 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if( saveIfNeeded("opening another project") ) {					
 					deselect();	
-					openFile(boxes, arrows, items);
-					tableModel.setItemList(items);
-					canvas.deselect();
+					openFile();
+					
 				}
 			}
 		});
@@ -361,11 +344,10 @@ public class Editor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-				List<Box> startingBoxes = Box.getStartingBoxes(boxes);
-				if (startingBoxes.size() == 1) {					
+				try{					
 					setVisible(false);
-					new PlayerModeGUI(startingBoxes.get(0), Editor.this, boxes, arrows, items, titleField.getText().trim(), currencyField.getText().trim());
-				} else {
+					new PlayerModeGUI(new State(model), Editor.this);
+				} catch(InvalidStartingBoxException e) {
 					JOptionPane.showMessageDialog(Editor.this,
 							"You must have exactly one prompt with no incoming choices to make the game playable.", "Game Not Playable!", JOptionPane.ERROR_MESSAGE);
 				};
@@ -400,9 +382,10 @@ public class Editor extends JFrame {
 		int y = (int)Math.round((random.nextDouble()*(size.getHeight() - Box.HEIGHT) + viewport.getViewPosition().getY() + Box.HEIGHT / 2)*canvas.getZoom());
 
 		Box box = new Box(x, y, "");
-		canvas.addBox(box);
+		model.add(box);
+		canvas.updateBounds(box);
+		canvas.selectBox(model.boxCount() - 1);		
 		selectBox(box, true);
-		makeDirty();
 		textArea.grabFocus();
 	}
 
@@ -445,13 +428,10 @@ public class Editor extends JFrame {
 		recolorPromptButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent event) {
 				Box box = (Box) canvas.getSelected();
-				box.recolor();
-				canvas.repaint();
-				makeDirty();
+				model.recolorBox(box);
 			}
-
 		});
 		recolorPromptButton.setEnabled(false);
 		promptsPanel.add(recolorPromptButton);
@@ -462,12 +442,13 @@ public class Editor extends JFrame {
 		deletePromptButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				canvas.deleteBox();
+			public void actionPerformed(ActionEvent event) {
+				Box box = (Box) canvas.getSelected();
+				model.removeBox(box);
+				deselect();
+				canvas.resetBounds();
 				statusLabel.setText("Prompt deleted");
-				makeDirty();
 			}
-
 		});
 		deletePromptButton.setEnabled(false);
 
@@ -500,11 +481,11 @@ public class Editor extends JFrame {
 		upButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				canvas.makeArrowEarlier();
+				Arrow arrow = (Arrow) canvas.getSelected();
+				model.makeEarlier(arrow);	
+				choiceOrderLabel.setText("" + arrow.getOrder());
 				statusLabel.setText("Choice shifted to earlier position");
-				makeDirty();
 			}
-
 		});		
 		upButton.setEnabled(false);
 		choicesPanel.add(upButton);
@@ -517,9 +498,10 @@ public class Editor extends JFrame {
 		downButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				canvas.makeArrowLater();
+				Arrow arrow = (Arrow) canvas.getSelected();
+				model.makeLater(arrow);
+				choiceOrderLabel.setText("" + arrow.getOrder());
 				statusLabel.setText("Choice shifted to later position");
-				makeDirty();
 			}
 
 		});		
@@ -533,10 +515,12 @@ public class Editor extends JFrame {
 		deleteChoiceButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				canvas.deleteArrow();
+			public void actionPerformed(ActionEvent event) {				
+				Arrow arrow = (Arrow) canvas.getSelected();
+				model.removeArrow(arrow);
+				canvas.deselect();
+				deselect();
 				statusLabel.setText("Choice deleted");
-				makeDirty();
 			}
 
 		});
@@ -620,7 +604,48 @@ public class Editor extends JFrame {
 		JPanel fieldPanel = new JPanel(new GridLayout(2, 1, GAP, GAP));
 		fieldPanel.setBorder(border());
 		titleField = new JTextField();
+		titleField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			private void update() {
+				model.setTitle(titleField.getText().trim());
+			}
+		});		
+		
 		currencyField = new JTextField();
+		currencyField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			private void update() {
+				model.setCurrencyName(currencyField.getText().trim());
+			}
+		});
 		fieldPanel.add(titleField);
 		fieldPanel.add(currencyField);		
 		panel.add(fieldPanel, BorderLayout.CENTER);
@@ -664,11 +689,11 @@ public class Editor extends JFrame {
 		itemWindow.setLayout(new BorderLayout());
 
 		itemWindow.getRootPane().registerKeyboardAction(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						itemWindow.setVisible(false);
-					}
-				},
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				itemWindow.setVisible(false);
+			}
+		},
 				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
 				JComponent.WHEN_IN_FOCUSED_WINDOW);
 
@@ -676,7 +701,7 @@ public class Editor extends JFrame {
 		tablePanel.setBorder(border("Available Items"));
 		JPanel buttonPanel = new JPanel(new GridLayout(2,1, GAP, GAP));
 
-		JTable itemTable = new JTable(tableModel);
+		JTable itemTable = new JTable(model);
 		itemTable.setFillsViewportHeight(true);
 		JScrollPane tableScroll = new JScrollPane(itemTable);
 		tableScroll.setBorder(border());
@@ -695,14 +720,14 @@ public class Editor extends JFrame {
 				if( name != null ) {
 					name = name.trim();
 					if( name.isEmpty() )
-						tableModel.addItem("New Item");
+						model.addItem("New Item");
 					else
-						tableModel.addItem(name);
-					makeDirty();
+						model.addItem(name);
 				}
 			}
 
 		});
+		//TODO: Add support for multiple item selection deletion?
 		// Adding delete item button to the button panel
 		buttonPanel.add(deleteItem);
 		deleteItem.setToolTipText("Delete the selected item(s) from the list of available items.");
@@ -714,17 +739,9 @@ public class Editor extends JFrame {
 
 				if(itemTable.getSelectedRow()!= -1) {
 					if(JOptionPane.showConfirmDialog(itemWindow, "Are you sure you want to delete " + 
-							tableModel.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
-							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						Arrow selected = (Arrow) canvas.getSelected();
-						Item item = tableModel.getItems().get(itemTable.getSelectedRow());
-						for(Arrow arrow : canvas.getArrows()) 
-							arrow.deleteItem(item);
-						gainedItemsTextArea.setText(selected.getGainedItemsText());
-						lostItemsTextArea.setText(selected.getLostItemsText());
-						mustHaveTextArea.setText(selected.getMustHaveText());
-						tableModel.deleteItem(itemTable.getSelectedRow());
-						makeDirty();
+							model.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {	
+						model.deleteItem(itemTable.getSelectedRow());					
 					}	
 				}
 			}
@@ -738,13 +755,14 @@ public class Editor extends JFrame {
 
 		itemTable.putClientProperty("terminateEditOnFocusLost", true);
 
-		tableModel.addTableModelListener(new TableModelListener() {
+		model.addTableModelListener(new TableModelListener() {
 
 			@Override
 			public void tableChanged(TableModelEvent e) {
 				Arrow arrow = (Arrow) canvas.getSelected();
 				gainedItemsTextArea.setText(arrow.getGainedItemsText());
 				lostItemsTextArea.setText(arrow.getLostItemsText());
+				mustHaveTextArea.setText(arrow.getMustHaveText());
 			}			
 		});
 		//End table stuff
@@ -783,8 +801,8 @@ public class Editor extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Arrow arrow = (Arrow) canvas.getSelected();
-				for(int row:itemTable.getSelectedRows())
-					arrow.addGainedItem(tableModel.getItems().get(row));
+				for(int row: itemTable.getSelectedRows())
+					model.addGainedItem(arrow, model.getItem(row));
 
 				gainedItemsTextArea.setText(arrow.getGainedItemsText());
 			}
@@ -799,7 +817,7 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				Arrow arrow = (Arrow) canvas.getSelected();
 				for(int row:itemTable.getSelectedRows())
-					arrow.removeGainedItem(tableModel.getItems().get(row));
+					model.removeGainedItem(arrow, model.getItem(row));
 
 				gainedItemsTextArea.setText(arrow.getGainedItemsText());
 			}
@@ -878,7 +896,7 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				Arrow arrow = (Arrow) canvas.getSelected();
 				for(int row:itemTable.getSelectedRows())
-					arrow.addLostItem(tableModel.getItems().get(row));
+					model.addLostItem(arrow, model.getItem(row));
 
 				lostItemsTextArea.setText(arrow.getLostItemsText());
 			}
@@ -893,7 +911,7 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				Arrow arrow = (Arrow) canvas.getSelected();
 				for(int row:itemTable.getSelectedRows())
-					arrow.removeLostItems(tableModel.getItems().get(row));
+					model.removeLostItems(arrow, model.getItem(row));
 
 				lostItemsTextArea.setText(arrow.getLostItemsText());
 			}
@@ -951,9 +969,8 @@ public class Editor extends JFrame {
 				Arrow arrow = (Arrow)canvas.getSelected();
 
 				if( !text.isEmpty() ) {
-					List<Item> items = tableModel.getItems();
 					try {
-						arrow.setBooleanExpression(BooleanExpression.makeExpression(text, items));
+						arrow.setBooleanExpression(BooleanExpression.makeExpression(text, model));
 					} catch (BooleanExpressionException e) {
 						JOptionPane.showMessageDialog(itemWindow, "Your expression describing item requirements was invalid.", "Invalid Item Requirements!", JOptionPane.ERROR_MESSAGE);
 						return;
@@ -1002,8 +1019,8 @@ public class Editor extends JFrame {
 
 	public void selectBox(Box box, boolean isNew) {
 		textArea.setText(box.getText());
-		beginChoiceButton.setEnabled(boxes.size() >= 2);
-		beginChoiceItem.setEnabled(boxes.size() >= 2);
+		beginChoiceButton.setEnabled(model.boxCount() >= 2);
+		beginChoiceItem.setEnabled(model.boxCount() >= 2);
 		recolorPromptButton.setEnabled(true);
 		deletePromptButton.setEnabled(true);
 		deleteChoiceButton.setEnabled(false);
@@ -1030,10 +1047,8 @@ public class Editor extends JFrame {
 		downButton.setEnabled(arrow.getOrder() < arrow.getStart().getOutgoing().size());
 		choiceOrderLabel.setText(arrow.getOrder() + "");		
 
-		if( isNew ) {
+		if( isNew )
 			statusLabel.setText("Choice created");
-			makeDirty();
-		}
 		else
 			statusLabel.setText("Choice selected");
 	}
@@ -1053,15 +1068,10 @@ public class Editor extends JFrame {
 		choiceOrderLabel.setText("");		
 
 		statusLabel.setText("");
+		canvas.deselect();
 	}
 
-	public void makeDirty() {
-		if( saveFile != null )
-			setTitle(TITLE + " - *" + saveFile.getName());
-		else
-			setTitle(TITLE + " - *New Document");		
-		saveItem.setEnabled(true);		
-	}
+
 
 	//Tries to save if there's unsaved work
 	//Returns true is everything's fine and false if you need to stop what you're doing
@@ -1092,5 +1102,16 @@ public class Editor extends JFrame {
 
 	private static Border border() {	
 		return BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP);
+	}
+
+	@Override
+	public void changeDirtiness(boolean dirty) {
+		String asterisk = dirty ? "*" : "";
+		if( saveFile != null )
+			setTitle(TITLE + " - " + asterisk + saveFile.getName());
+		else
+			setTitle(TITLE + " - " + asterisk + "New Document");
+
+		saveItem.setEnabled(dirty);
 	}
 }

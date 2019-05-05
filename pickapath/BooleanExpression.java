@@ -1,7 +1,8 @@
 package pickapath;
 
-import java.util.List;
 import java.util.Set;
+
+import pickapath.model.Model;
 
 public class BooleanExpression {
 
@@ -53,10 +54,10 @@ public class BooleanExpression {
 	}
 
 
-	public static BooleanExpression makeExpression(String expressionText, List<Item> items) throws BooleanExpressionException {
-		return makeExpression(expressionText.toUpperCase(), items, 0, null);
+	public static BooleanExpression makeExpression(String expressionText, Model model) throws BooleanExpressionException {
+		return makeExpression(expressionText.toUpperCase(), model, 0, null);
 	}
-	private static BooleanExpression makeExpression(String expressionText, List<Item> items, int i, BooleanExpression previous) throws BooleanExpressionException {
+	private static BooleanExpression makeExpression(String expressionText, Model model, int i, BooleanExpression previous) throws BooleanExpressionException {
 		while(i < expressionText.length() && Character.isWhitespace(expressionText.charAt(i)))
 			i++;
 
@@ -64,7 +65,7 @@ public class BooleanExpression {
 
 			char c = expressionText.charAt(i);
 			if (c == '(') {
-				return makeExpression(expressionText, items, i + 1, previous);
+				return makeExpression(expressionText, model, i + 1, previous);
 			} else if (c ==')') {
 				return previous;
 			} 
@@ -75,29 +76,23 @@ public class BooleanExpression {
 					i++;
 				}
 
-
-
 				try {
-
 					int id = Integer.parseInt(number);
-
-					for( Item item : items) {
-						if( item.getId() == id ) 
-							return makeExpression(expressionText, items, i,  new BooleanExpression(item));
-
-					}
+					Item item = model.getItemById(id);
+					if( item != null )
+						return makeExpression(expressionText, model, i,  new BooleanExpression(item));
 				}
 				catch(NumberFormatException e) {}
 				throw new BooleanExpressionException();
 			}
 			else if(i + 2 < expressionText.length() && expressionText.substring(i, i + 3).equals("AND")) {
-				return and(previous, makeExpression(expressionText, items, i + 3, previous));
+				return and(previous, makeExpression(expressionText, model, i + 3, previous));
 			}
 			else if(i + 1 < expressionText.length() && expressionText.substring(i, i + 2).equals("OR")) {
-				return or(previous, makeExpression(expressionText, items, i + 2, previous));
+				return or(previous, makeExpression(expressionText, model, i + 2, previous));
 			}
 			else if(i + 2 < expressionText.length() && expressionText.substring(i, i + 3).equals("NOT")) {
-				return not( makeExpression(expressionText, items, i + 3, previous));
+				return not( makeExpression(expressionText, model, i + 3, previous));
 			} else {
 				throw new BooleanExpressionException();
 			}
