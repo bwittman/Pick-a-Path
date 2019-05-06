@@ -55,14 +55,15 @@ import pickapath.BooleanExpression;
 import pickapath.BooleanExpressionException;
 import pickapath.model.Arrow;
 import pickapath.model.Box;
-import pickapath.model.DirtyListener;
+import pickapath.model.CanvasObject;
+import pickapath.model.ModelListener;
 import pickapath.model.InvalidStartingBoxException;
 import pickapath.model.Model;
 import pickapath.model.State;
 import pickapath.player.PlayerModeGUI;
 
 @SuppressWarnings("serial")
-public class Editor extends JFrame implements DirtyListener {
+public class Editor extends JFrame implements ModelListener {
 
 	//Editor window widgets
 	private JTextField titleField;
@@ -74,6 +75,7 @@ public class Editor extends JFrame implements DirtyListener {
 	private JSlider slider;
 	private BasicArrowButton upButton;
 	private BasicArrowButton downButton;
+
 	private JButton deletePromptButton;
 	private JButton deleteChoiceButton;
 	private JButton recolorPromptButton;
@@ -91,18 +93,21 @@ public class Editor extends JFrame implements DirtyListener {
 	private JMenuItem saveItem;
 	private JMenuItem beginChoiceItem;
 	private JMenuItem detailsItem;
+	private JMenuItem recolorPromptItem;
 
 	//Functional members
 	private Font[] fonts;
 	private Model model = new Model();
 	private File saveFile = null;
 	private Random random = new Random();
+	private boolean listening = true;
 
 	//Constants
 	private static final int MAX_SLIDER = 5;
 	private static final int MIN_SLIDER = 1;
 	private static final int GAP = 5;
 	private static final String TITLE = "Pick-a-Path";	
+
 
 	public static void main(String[] args) {
 
@@ -120,7 +125,7 @@ public class Editor extends JFrame implements DirtyListener {
 
 	public Editor() {
 		super(TITLE + " - New Document");		
-		model.addDirtyListener(this);
+		model.addModelListener(this);
 
 		detailsDialog = makeItemDialog();
 
@@ -223,8 +228,10 @@ public class Editor extends JFrame implements DirtyListener {
 				model.read(in);
 				in.close();
 
+				listening = false;
 				titleField.setText(model.getTitle());
 				currencyField.setText(model.getCurrencyName());
+				listening = true;
 			} 
 			catch (IOException | ClassNotFoundException e) {
 			}
@@ -243,7 +250,6 @@ public class Editor extends JFrame implements DirtyListener {
 		newProject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if( saveIfNeeded("starting a new project") ) {
-					deselect();
 					saveFile = null;
 					model.clear();
 				}
@@ -257,9 +263,7 @@ public class Editor extends JFrame implements DirtyListener {
 		openProject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if( saveIfNeeded("opening another project") ) {					
-					deselect();	
 					openFile();
-					
 				}
 			}
 		});
@@ -310,7 +314,7 @@ public class Editor extends JFrame implements DirtyListener {
 				addBox();
 			}
 		});
-		beginChoiceItem = new JMenuItem("Begin Choice..."); //another way to make prompt
+		beginChoiceItem = new JMenuItem("Begin Choice..."); //another way to make a choice
 		beginChoiceItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK)); //hotkey to start a new choice
 		edit.add(beginChoiceItem);
 		beginChoiceItem.addActionListener(new ActionListener() {
@@ -320,6 +324,20 @@ public class Editor extends JFrame implements DirtyListener {
 			}
 		});		
 		beginChoiceItem.setEnabled(false);
+		
+	
+		recolorPromptItem = new JMenuItem("Recolor Prompt"); //another way to recolor a prompt
+		recolorPromptItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK)); //hotkey to recolor a prompt
+		edit.add(recolorPromptItem);
+		recolorPromptItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				model.recolorBox();
+			}
+		});		
+		recolorPromptItem.setEnabled(false);
+		
+		
 
 
 		detailsItem = new JMenuItem("Choice Details...");
@@ -367,7 +385,7 @@ public class Editor extends JFrame implements DirtyListener {
 	}
 
 	private void openDetails() {
-		Arrow arrow = (Arrow)canvas.getSelected();
+		Arrow arrow = (Arrow)model.getSelected();
 		gainedItemsTextArea.setText(arrow.getGainedItemsText());
 		mustHaveTextArea.setText(arrow.getMustHaveText());
 		detailsDialog.setVisible(true);		
@@ -383,10 +401,6 @@ public class Editor extends JFrame implements DirtyListener {
 
 		Box box = new Box(x, y, "");
 		model.add(box);
-		canvas.updateBounds(box);
-		canvas.selectBox(model.boxCount() - 1);		
-		selectBox(box, true);
-		textArea.grabFocus();
 	}
 
 	private JPanel createEastPanel() {		
@@ -429,8 +443,7 @@ public class Editor extends JFrame implements DirtyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				Box box = (Box) canvas.getSelected();
-				model.recolorBox(box);
+				model.recolorBox();
 			}
 		});
 		recolorPromptButton.setEnabled(false);
@@ -443,11 +456,7 @@ public class Editor extends JFrame implements DirtyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				Box box = (Box) canvas.getSelected();
-				model.removeBox(box);
-				deselect();
-				canvas.resetBounds();
-				statusLabel.setText("Prompt deleted");
+				model.removeBox();
 			}
 		});
 		deletePromptButton.setEnabled(false);
@@ -481,10 +490,7 @@ public class Editor extends JFrame implements DirtyListener {
 		upButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				Arrow arrow = (Arrow) canvas.getSelected();
-				model.makeEarlier(arrow);	
-				choiceOrderLabel.setText("" + arrow.getOrder());
-				statusLabel.setText("Choice shifted to earlier position");
+				model.makeArrowEarlier();
 			}
 		});		
 		upButton.setEnabled(false);
@@ -497,11 +503,8 @@ public class Editor extends JFrame implements DirtyListener {
 		downButton = new BasicArrowButton(BasicArrowButton.SOUTH);
 		downButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent event) {
-				Arrow arrow = (Arrow) canvas.getSelected();
-				model.makeLater(arrow);
-				choiceOrderLabel.setText("" + arrow.getOrder());
-				statusLabel.setText("Choice shifted to later position");
+			public void actionPerformed(ActionEvent event) {				
+				model.makeArrowLater();
 			}
 
 		});		
@@ -516,12 +519,7 @@ public class Editor extends JFrame implements DirtyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {				
-				Arrow arrow = (Arrow) canvas.getSelected();
-				model.removeArrow(arrow);
-				canvas.deselect();
-				deselect();
-				statusLabel.setText("Choice deleted");
-			}
+				model.removeArrow();			}
 
 		});
 		deleteChoiceButton.setEnabled(false);
@@ -575,7 +573,7 @@ public class Editor extends JFrame implements DirtyListener {
 			}
 
 			private void update() {
-				canvas.updateText(textArea.getText());
+				model.setText(textArea.getText());
 			}
 		});
 		JScrollPane scrolling = new JScrollPane(textArea);
@@ -624,7 +622,7 @@ public class Editor extends JFrame implements DirtyListener {
 				model.setTitle(titleField.getText().trim());
 			}
 		});		
-		
+
 		currencyField = new JTextField();
 		currencyField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -759,7 +757,7 @@ public class Editor extends JFrame implements DirtyListener {
 
 			@Override
 			public void tableChanged(TableModelEvent e) {
-				Arrow arrow = (Arrow) canvas.getSelected();
+				Arrow arrow = (Arrow) model.getSelected();
 				gainedItemsTextArea.setText(arrow.getGainedItemsText());
 				lostItemsTextArea.setText(arrow.getLostItemsText());
 				mustHaveTextArea.setText(arrow.getMustHaveText());
@@ -800,9 +798,9 @@ public class Editor extends JFrame implements DirtyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) canvas.getSelected();
+				Arrow arrow = (Arrow) model.getSelected();
 				for(int row: itemTable.getSelectedRows())
-					model.addGainedItem(arrow, model.getItem(row));
+					model.addGainedItem(model.getItem(row));
 
 				gainedItemsTextArea.setText(arrow.getGainedItemsText());
 			}
@@ -815,9 +813,9 @@ public class Editor extends JFrame implements DirtyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) canvas.getSelected();
+				Arrow arrow = (Arrow) model.getSelected();
 				for(int row:itemTable.getSelectedRows())
-					model.removeGainedItem(arrow, model.getItem(row));
+					model.removeGainedItem(model.getItem(row));
 
 				gainedItemsTextArea.setText(arrow.getGainedItemsText());
 			}
@@ -893,10 +891,10 @@ public class Editor extends JFrame implements DirtyListener {
 		lostAddButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) canvas.getSelected();
-				for(int row:itemTable.getSelectedRows())
-					model.addLostItem(arrow, model.getItem(row));
+			public void actionPerformed(ActionEvent event) {
+				Arrow arrow = (Arrow) model.getSelected();
+				for(int row: itemTable.getSelectedRows())
+					model.addLostItem(model.getItem(row));
 
 				lostItemsTextArea.setText(arrow.getLostItemsText());
 			}
@@ -909,9 +907,9 @@ public class Editor extends JFrame implements DirtyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) canvas.getSelected();
+				Arrow arrow = (Arrow) model.getSelected();
 				for(int row:itemTable.getSelectedRows())
-					model.removeLostItems(arrow, model.getItem(row));
+					model.removeLostItem(model.getItem(row));
 
 				lostItemsTextArea.setText(arrow.getLostItemsText());
 			}
@@ -966,21 +964,18 @@ public class Editor extends JFrame implements DirtyListener {
 				// read from text, convert to number, look through list,get it, then evaluate
 				String text = mustHaveTextArea.getText().trim();
 
-				Arrow arrow = (Arrow)canvas.getSelected();
-
 				if( !text.isEmpty() ) {
 					try {
-						arrow.setBooleanExpression(BooleanExpression.makeExpression(text, model));
+						model.setBooleanExpression(BooleanExpression.makeExpression(text, model));
 					} catch (BooleanExpressionException e) {
 						JOptionPane.showMessageDialog(itemWindow, "Your expression describing item requirements was invalid.", "Invalid Item Requirements!", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				}
 				else
-					arrow.setBooleanExpression(null);
+					model.setBooleanExpression(null);
 
 				itemWindow.setVisible(false);
-
 			}
 		});
 
@@ -1009,7 +1004,7 @@ public class Editor extends JFrame implements DirtyListener {
 
 			@Override
 			public void windowOpened(WindowEvent e) {
-				textArea.setText(canvas.getSelected().getText());
+				textArea.setText(model.getSelected().getText());
 			}
 		});
 
@@ -1017,66 +1012,75 @@ public class Editor extends JFrame implements DirtyListener {
 		return itemWindow;
 	}
 
-	public void selectBox(Box box, boolean isNew) {
-		textArea.setText(box.getText());
-		beginChoiceButton.setEnabled(model.boxCount() >= 2);
-		beginChoiceItem.setEnabled(model.boxCount() >= 2);
-		recolorPromptButton.setEnabled(true);
-		deletePromptButton.setEnabled(true);
-		deleteChoiceButton.setEnabled(false);
-		detailsButton.setEnabled(false);
-		detailsItem.setEnabled(false);
+	private void select(CanvasObject object, boolean isNew) {
+		//Deselect
+		if( object == null ) {
+			textArea.setText("");
+			beginChoiceButton.setEnabled(false);
+			beginChoiceItem.setEnabled(false);
+			recolorPromptButton.setEnabled(false);
+			recolorPromptItem.setEnabled(false);
+			deletePromptButton.setEnabled(false);
+			deleteChoiceButton.setEnabled(false);
+			detailsButton.setEnabled(false);
+			detailsItem.setEnabled(false);
 
-		if( isNew )
-			statusLabel.setText("Prompt created");
-		else
-			statusLabel.setText("Prompt selected");		
+			upButton.setEnabled(false);
+			downButton.setEnabled(false);
+			choiceOrderLabel.setText("");		
+
+			statusLabel.setText("");
+		}
+		else {
+			textArea.setText(object.getText());
+			String kind;
+
+			//Select arrow
+			if( object instanceof Arrow ) {				
+				Arrow arrow = (Arrow)object;
+				beginChoiceButton.setEnabled(false);
+				beginChoiceItem.setEnabled(false);
+				recolorPromptButton.setEnabled(false);
+				recolorPromptItem.setEnabled(false);
+				deletePromptButton.setEnabled(false);
+				deleteChoiceButton.setEnabled(true);
+				detailsButton.setEnabled(true);
+				detailsItem.setEnabled(true);
+
+				upButton.setEnabled(arrow.getOrder() > 1);
+				downButton.setEnabled(arrow.getOrder() < arrow.getStart().getOutgoing().size());
+				choiceOrderLabel.setText(arrow.getOrder() + "");	
+
+				kind = "Choice";				
+			}
+			//Select box
+			else {
+				beginChoiceButton.setEnabled(model.boxCount() >= 2);
+				beginChoiceItem.setEnabled(model.boxCount() >= 2);
+				recolorPromptButton.setEnabled(true);
+				recolorPromptItem.setEnabled(true);
+				deletePromptButton.setEnabled(true);
+				deleteChoiceButton.setEnabled(false);
+				detailsButton.setEnabled(false);
+				detailsItem.setEnabled(false);
+
+				kind = "Prompt";
+			}
+
+			if( isNew )
+				statusLabel.setText(kind + " created");
+			else
+				statusLabel.setText(kind + " selected");	
+			
+			textArea.grabFocus();
+		}
 	}
-
-	public void selectArrow(Arrow arrow, boolean isNew) {
-		textArea.setText(arrow.getText());
-		beginChoiceButton.setEnabled(false);
-		beginChoiceItem.setEnabled(false);
-		recolorPromptButton.setEnabled(false);
-		deletePromptButton.setEnabled(false);
-		deleteChoiceButton.setEnabled(true);
-		detailsButton.setEnabled(true);
-		detailsItem.setEnabled(true);
-
-		upButton.setEnabled(arrow.getOrder() > 1);
-		downButton.setEnabled(arrow.getOrder() < arrow.getStart().getOutgoing().size());
-		choiceOrderLabel.setText(arrow.getOrder() + "");		
-
-		if( isNew )
-			statusLabel.setText("Choice created");
-		else
-			statusLabel.setText("Choice selected");
-	}
-
-	public void deselect() {
-		textArea.setText("");
-		beginChoiceButton.setEnabled(false);
-		beginChoiceItem.setEnabled(false);
-		recolorPromptButton.setEnabled(false);
-		deletePromptButton.setEnabled(false);
-		deleteChoiceButton.setEnabled(false);
-		detailsButton.setEnabled(false);
-		detailsItem.setEnabled(false);
-
-		upButton.setEnabled(false);
-		downButton.setEnabled(false);
-		choiceOrderLabel.setText("");		
-
-		statusLabel.setText("");
-		canvas.deselect();
-	}
-
-
 
 	//Tries to save if there's unsaved work
 	//Returns true is everything's fine and false if you need to stop what you're doing
 	private boolean saveIfNeeded(String activity) {
-		if (saveItem.isEnabled()) { //save menu is only enabled when project has unsaved changes
+		
+		if (model.isDirty()) {
 			int ask = JOptionPane.showConfirmDialog(Editor.this, "Do you want to save before " + activity + "?", "Save?",
 					JOptionPane.YES_NO_CANCEL_OPTION);
 			if (ask == JOptionPane.YES_OPTION) {
@@ -1105,13 +1109,61 @@ public class Editor extends JFrame implements DirtyListener {
 	}
 
 	@Override
-	public void changeDirtiness(boolean dirty) {
-		String asterisk = dirty ? "*" : "";
+	public void updateModel(Model.Event event, CanvasObject object) {
+		if( !listening )
+			return;	
+		
+		String asterisk = model.isDirty() ? "*" : "";
 		if( saveFile != null )
 			setTitle(TITLE + " - " + asterisk + saveFile.getName());
 		else
 			setTitle(TITLE + " - " + asterisk + "New Document");
 
-		saveItem.setEnabled(dirty);
+		saveItem.setEnabled(model.isDirty());
+		boolean prompt = object instanceof Box;
+
+		switch(event) {
+		case CREATE: 
+			select(object, true);
+			break;
+		case DELETE:			
+			statusLabel.setText((prompt ? "Prompt" : "Choice") + " deleted");
+			break;
+		case SELECT: 
+			select(object, false);
+			break;
+		case MOVE:			
+			statusLabel.setText((prompt ? "Prompt" : "Choice") + " moved");
+			break;
+		case RECOLOR:
+			statusLabel.setText("Prompt recolored");
+			break;
+		case TEXT_CHANGE:
+			statusLabel.setText((prompt ? "Prompt" : "Choice") + " text changed");
+			break;		
+		case TITLE_CHANGE:
+			statusLabel.setText("Title changed to \"" + model.getTitle() + "\"");
+			break;
+		case CURRENCY_CHANGE:
+			statusLabel.setText("Currency name changed to \"" + model.getCurrencyName() + "\"");
+			break;
+		case DETAILS_CHANGE: 
+			statusLabel.setText("Choice details updated");			
+			break;		
+		case ORDER_EARLIER:
+		case ORDER_LATER: {
+			Arrow arrow = (Arrow) model.getSelected();
+			choiceOrderLabel.setText("" + arrow.getOrder());
+			statusLabel.setText("Choice shifted to " + (event == Model.Event.ORDER_EARLIER ? "earlier" : "later" ) + " position");			 
+			break;
+		}		
+		case SAVE:
+			statusLabel.setText("Successfully saved to file " + saveFile.getName());
+			break;
+		case LOAD:
+			select(null, false);
+			statusLabel.setText("Successfully loaded from file " + saveFile.getName());
+			break;
+		}	
 	}
 }

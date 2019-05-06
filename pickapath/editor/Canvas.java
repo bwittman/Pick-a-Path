@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -18,23 +20,20 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 
-import pickapath.BooleanExpression;
 import pickapath.model.Arrow;
 import pickapath.model.Box;
 import pickapath.model.CanvasObject;
-import pickapath.model.DirtyListener;
 import pickapath.model.Model;
+import pickapath.model.ModelListener;
 
 @SuppressWarnings("serial")
-public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable, DirtyListener {
+public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable, ModelListener {
 	private Model model;
-	private CanvasObject selected = null;
 	private int startXBox;
 	private int startYBox;
 	private int startXDrag;
 	private int startYDrag;
 	boolean mouseDragged;
-	private Editor main;
 	boolean arrowCheck;
 	private double zoom = 1.0;
 	private RenderingHints hints;
@@ -48,7 +47,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	//Canvas constructor 
 	public Canvas(Model model, Editor main) {
 		this.model = model;
-		model.addDirtyListener(this);
+		model.addModelListener(this);
 
 		ToolTipManager.sharedInstance().setInitialDelay(100);
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
@@ -57,10 +56,18 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		setBackground(Color.GRAY);
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		this.main = main;
+		
 		hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		
+		
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+		        resetBounds();  
+		    }
+		});
 
 		setPreferredSize(new Dimension(640, 480));
 		setMinimumSize(getPreferredSize());		
@@ -85,26 +92,22 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		//Draw arrows back to front
 		for( int i = model.arrowCount() - 1; i >= 0; --i ) {
 			Arrow arrow = model.getArrow(i);
-			arrow.draw(graphics, arrow == selected, font, zoom);
+			arrow.draw(graphics, arrow == model.getSelected(), font, zoom);
 		}
 
 		//Draw boxes back to front
 		for(int i = model.boxCount() - 1; i >= 0; --i) {
 			Box box = model.getBox(i);
-			box.draw(graphics, box == selected, font, zoom);
+			box.draw(graphics, box == model.getSelected(), font, zoom);
 		}
 
 	}
 
-	public void deselect() {
-		selected = null;
-		arrowCheck = false;
-		repaint();
-	}
 
 	@Override
 	//Determines if a mouse is inside a box based on its area and coordinates
 	public void mouseDragged(MouseEvent e) {
+		CanvasObject selected = model.getSelected();
 		if (selected != null && selected instanceof Box) {
 			Box selectedBox = (Box) selected;
 			int x = e.getX();
@@ -114,14 +117,12 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			if (x < width && x >= 0 && y < height && y >= 0) {
 				int deltaX =  x - startXDrag;
 				int deltaY = y - startYDrag;
-				model.setX(selectedBox, startXBox + deltaX, zoom);
-				model.setY(selectedBox, startYBox + deltaY, zoom);
-				updateBounds(selectedBox);
+				model.setPosition(selectedBox, startXBox + deltaX, startYBox + deltaY, zoom);
 			}
 		}
 	}
 
-	public void updateBounds(Box box) {
+	private void updateBounds(Box box) {
 		if ((box.getX()-Box.WIDTH/2)* zoom < boxMinX)
 			boxMinX = (int) Math.floor((box.getX()-Box.WIDTH/2)* zoom);
 		if ((box.getX()+Box.WIDTH/2)* zoom > boxMaxX)
@@ -132,7 +133,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			boxMaxY = (int) Math.ceil((box.getY()+Box.HEIGHT/2)* zoom);
 
 		setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
-		//revalidate(); 
+		revalidate(); 
 	}
 
 
@@ -209,7 +210,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 		//If currently trying to make an arrow from a box...
 		if( arrowCheck ) {
-			Box selectedBox = (Box) selected;
+			Box selectedBox = (Box) model.getSelected();
 			Box otherBox = null;
 			for(int i = 0; i < model.boxCount() && otherBox == null; ++i) {
 				Box box = model.getBox(i);
@@ -223,23 +224,21 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 					otherBox = null;
 			}
 
-			if(otherBox != null) {
+			if( otherBox == null )
+				model.deselect();
+			else if(otherBox != selectedBox) { //don't add an arrow from a box to itself
 				Arrow arrow = new Arrow(selectedBox,otherBox,"");
 				model.add(arrow);
-				selected = arrow;
-				main.selectArrow(arrow, true);				
 			} 
-			else
-				main.deselect();			
+						
 			arrowCheck = false;
 		}
 		//Otherwise, select whatever's been clicked on
 		else {
-			selected = null;
 			for( int i = 0; i < model.boxCount(); ++i ) {
 				Box box = model.getBox(i);
 				if (box.contains(mouseX, mouseY, zoom)) {
-					selectBox(i);
+					model.selectBox(i);
 					startXBox = box.getX(zoom);
 					startYBox = box.getY(zoom);	
 					startXDrag = mouseX;
@@ -250,36 +249,18 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			for( int i = 0; i < model.arrowCount(); ++i ) {
 				Arrow arrow = model.getArrow(i);
 				if (arrow.contains(mouseX, mouseY, zoom)) {
-					selectArrow(i);
+					model.selectArrow(i);
 					return;
 				}
 			}
 
 			//if we reach here, nothing's selected
-			main.deselect();
+			model.deselect();
 		}
-	}
-
-	public void selectBox(int index) {
-		Box box = model.getBox(index);
-		selected = box;
-		main.selectBox(box, false);
-		model.selectBox(index);	
-	}
-
-	public void selectArrow(int index) {
-		Arrow arrow = model.getArrow(index);
-		selected = arrow;
-		main.selectArrow(arrow, false);
-		model.selectArrow(index);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent event) {
-	}
-
-	public CanvasObject getSelected() {
-		return selected;
 	}
 
 	public double getZoom() {
@@ -326,13 +307,6 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		return 1;
 	}
 
-	public void setBooleanExpression(BooleanExpression expression) {
-		if (selected != null && selected instanceof Arrow) {
-			Arrow arrow = (Arrow) selected;
-			arrow.setBooleanExpression(expression);
-		}
-	}
-
 	public int getMaxX() {
 		return boxMaxX;
 	}
@@ -349,14 +323,15 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		return boxMinY;
 	}
 
-	public void updateText(String text) {
-		if( selected != null ) {
-			model.setText(selected, text);
-		}
-	}
-
 	@Override
-	public void changeDirtiness(boolean dirty) {
+	public void updateModel(Model.Event event, CanvasObject object) {
+		if(event == Model.Event.LOAD)
+			resetBounds();
+		else if( event == Model.Event.MOVE && object instanceof Box ) {
+			Box box = (Box)object;
+			updateBounds(box);
+		}	
+		
 		repaint();		
 	}
 }

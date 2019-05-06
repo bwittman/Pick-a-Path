@@ -13,6 +13,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import pickapath.BooleanExpression;
 import pickapath.Item;
 
 public class Model implements TableModel {
@@ -23,9 +24,26 @@ public class Model implements TableModel {
 	private String title = "";
 	private String currencyName = "";
 	private boolean dirty = false;
-	private List<DirtyListener> dirtyListeners = new ArrayList<DirtyListener>();
+	private List<ModelListener> modelListeners = new ArrayList<ModelListener>();
 	private ArrayList<TableModelListener> tableListeners = new ArrayList<>();
 	private int itemIdCount = 1;
+	private CanvasObject selected = null;
+
+	public enum Event {
+		CREATE,
+		DELETE,
+		SELECT,
+		MOVE,
+		RECOLOR,
+		TEXT_CHANGE,
+		TITLE_CHANGE,
+		CURRENCY_CHANGE,
+		DETAILS_CHANGE,
+		ORDER_EARLIER,
+		ORDER_LATER,
+		SAVE,
+		LOAD
+	}
 
 	public void clear() {
 		boxes.clear();
@@ -39,7 +57,17 @@ public class Model implements TableModel {
 		}
 		title = "";
 		currencyName = "";
-		setDirty(false);
+		selected = null;
+		updateListeners(Event.SELECT, null, false);
+	}
+
+	public void deselect() {
+		selected = null;
+		updateListeners(Event.SELECT, null, false);
+	}
+
+	public CanvasObject getSelected() {
+		return selected;
 	}
 
 	public boolean isDirty() {
@@ -52,49 +80,58 @@ public class Model implements TableModel {
 
 	public void add(Box box) {
 		boxes.add(box);
-		setDirty(true);
+		selected = box;
+		updateListeners(Event.CREATE, box, true);
 	}
 
 	public void add(Arrow arrow) {
 		arrows.add(arrow);
-		setDirty(true);
+		selected = arrow;
+		updateListeners(Event.CREATE, arrow, true);
 	}
 
-	public void removeBox(Box box) {
-		if( boxes.remove(box) ) {
-			for(Arrow arrow: box.getIncoming()) 
-				arrows.remove(arrow);
+	public void removeBox() {		
+		if( selected instanceof Box) {
+			Box box = (Box)selected;
+			if( boxes.remove(box) ) {
+				for(Arrow arrow: box.getIncoming()) 
+					arrows.remove(arrow);
 
-			for(Arrow arrow: box.getOutgoing())
-				arrows.remove(arrow);
+				for(Arrow arrow: box.getOutgoing())
+					arrows.remove(arrow);
 
-			setDirty(true);
-		}		
-	}
-
-	public void removeArrow(Arrow arrow) {		
-		if( arrows.remove(arrow) ) {
-			arrow.getStart().getOutgoing().remove(arrow);
-			arrow.getEnd().getIncoming().remove(arrow);
-
-			setDirty(true);
+				updateListeners(Event.DELETE, box, true);
+			}
 		}
 	}
 
-	public void makeEarlier(Arrow arrow) {
-		arrow.makeEarlier();
-		setDirty(true);
+	public void removeArrow() {	
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			if( arrows.remove(arrow) ) {
+				arrow.getStart().getOutgoing().remove(arrow);
+				arrow.getEnd().getIncoming().remove(arrow);
+
+				updateListeners(Event.DELETE, arrow, true);
+			}
+		}
 	}
 
-	public void makeLater(Arrow arrow) {
-		arrow.makeLater();
-		setDirty(true);
+	public void makeArrowEarlier() {
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			arrow.makeEarlier();
+			updateListeners(Event.ORDER_EARLIER, arrow, true);
+		}
 	}
 
-	//Intentionally package private
-	List<Item> getItems() {
-		return items;
-	}	
+	public void makeArrowLater() {
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			arrow.makeLater();
+			updateListeners(Event.ORDER_LATER, arrow, true);
+		}
+	}
 
 	public Arrow getArrow(int index) {
 		return arrows.get(index);
@@ -127,7 +164,7 @@ public class Model implements TableModel {
 
 	public void setTitle(String title) {
 		this.title = title;
-		setDirty(true);
+		updateListeners(Event.TITLE_CHANGE, null, true);
 	}
 
 	public String getCurrencyName() {
@@ -136,7 +173,7 @@ public class Model implements TableModel {
 
 	public void setCurrencyName(String currencyName) {
 		this.currencyName = currencyName;
-		setDirty(true);
+		updateListeners(Event.CURRENCY_CHANGE, null, true);
 	}
 
 	public void write(ObjectOutputStream out) throws FileNotFoundException, IOException{ //write out to a file
@@ -162,8 +199,10 @@ public class Model implements TableModel {
 		for (Box box: boxes)
 			for( Arrow arrow: box.getOutgoing() )
 				arrow.write(out, boxIndexes, items);
+		
+		dirty = false;
 
-		setDirty(false);
+		updateListeners(Event.SAVE, null, false);
 	}
 
 
@@ -184,12 +223,14 @@ public class Model implements TableModel {
 			itemIdCount = items.get(items.size() - 1).getId() + 1;
 		else
 			itemIdCount = 1;
-		
+
 		int arrowCount = in.readInt();
 		for (int i = 0; i <  arrowCount; ++i)
 			arrows.add(new Arrow(in, this));
+		
+		dirty = false;
 
-		setDirty(false);
+		updateListeners(Event.LOAD, null, false);
 	}
 
 	protected int getBoxIndex(Box box) {
@@ -212,37 +253,46 @@ public class Model implements TableModel {
 	}
 
 	public void selectBox(int index) {
-		if( index != 0 ) {
-			Box box = boxes.get(index);
+		Box box = boxes.get(index);
+		selected = box;
+		if( index != 0 ) {			
 			boxes.remove(index);
 			boxes.add(0, box);
-			setDirty(true);
-		}		
+			updateListeners(Event.SELECT, box, true);
+		}
+		else
+			updateListeners(Event.SELECT, box, false);
 	}
 
-	public void recolorBox(Box box) {
-		box.recolor();
-		setDirty(true);		
+	public void recolorBox() {
+		if( selected instanceof Box ) {
+			Box box = (Box) selected;
+			box.recolor();
+			updateListeners(Event.RECOLOR, box, true);
+		}
 	}
 
 	public void selectArrow(int index) {
-		if( index != 0 ) {
-			Arrow arrow = arrows.get(index);
+		Arrow arrow = arrows.get(index);
+		selected = arrow;
+		if( index != 0 ) {			
 			arrows.remove(index);
 			arrows.add(0, arrow);
-			setDirty(true);
-		}		
+			updateListeners(Event.SELECT, arrow, true);
+		}
+		else
+			updateListeners(Event.SELECT, arrow, false);
 	}
 
-	public void addDirtyListener(DirtyListener listener) {
-		dirtyListeners.add(listener);
+	public void addModelListener(ModelListener listener) {
+		modelListeners.add(listener);
 	}
 
-	private void setDirty(boolean dirty) {
-		this.dirty = dirty;
+	private void updateListeners(Event event, CanvasObject object, boolean makeDirty) {
+		dirty = dirty || makeDirty;
 
-		for( DirtyListener listener : dirtyListeners )
-			listener.changeDirtiness(dirty);
+		for( ModelListener listener : modelListeners )
+			listener.updateModel(event, object);
 	}
 
 	protected List<Box> getStartingBoxes() {
@@ -254,19 +304,17 @@ public class Model implements TableModel {
 		return startingBoxes;
 	}
 
-	public void setX(Box box, int x, double zoom) {
+	public void setPosition(Box box, int x, int y, double zoom) {
 		box.setX(x, zoom);
-		setDirty(true);
-	}
-
-	public void setY(Box box, int y, double zoom) {
 		box.setY(y, zoom);
-		setDirty(true);
+		updateListeners(Event.MOVE, box, true);
 	}
 
-	public void setText(CanvasObject selected, String text) {
-		selected.setText(text);
-		setDirty(true);		
+	public void setText(String text) {
+		if( selected != null ) {
+			selected.setText(text);
+			updateListeners(Event.TEXT_CHANGE, selected, true);
+		}
 	}
 
 
@@ -336,17 +384,17 @@ public class Model implements TableModel {
 			for (TableModelListener listener: tableListeners)
 				listener.tableChanged(event);
 		}
+		updateListeners(Event.DETAILS_CHANGE, null, true);
 	}
 
-	//Increments itemIdCount
 	public void addItem(String itemName) {
 		Item item = new Item(itemIdCount,itemName);
 		items.add(item);
-		itemIdCount ++;
+		itemIdCount++;
 		TableModelEvent event = new TableModelEvent(this, items.size() - 1, items.size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT);
 		for (TableModelListener listener: tableListeners)
 			listener.tableChanged(event);
-		setDirty(true);
+		updateListeners(Event.DETAILS_CHANGE, null, true);
 	}
 	public void deleteItem (int row) {
 		Item item = items.remove(row);
@@ -355,29 +403,46 @@ public class Model implements TableModel {
 		TableModelEvent event = new TableModelEvent(this, row, row, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE);
 		for (TableModelListener listener: tableListeners)
 			listener.tableChanged(event);		
-		setDirty(true);
+		updateListeners(Event.DETAILS_CHANGE, null, true);
 	}
 
-	public void addGainedItem(Arrow arrow, Item item) {
-		arrow.addGainedItem(item);
-		setDirty(true);
+	public void addGainedItem(Item item) {
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			arrow.addGainedItem(item);
+			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		}
 	}
 
-	//Package private
-	public void removeGainedItem(Arrow arrow, Item item) {
-		arrow.removeGainedItem(item);
-		setDirty(true);
+	public void removeGainedItem(Item item) {
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			arrow.removeGainedItem(item);
+			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		}
 	}
 
-	//Package private
-	public void addLostItem(Arrow arrow, Item item) {
-		arrow.addLostItem(item);
-		setDirty(true);
+	public void addLostItem(Item item) {
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			arrow.addLostItem(item);
+			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		}
 	}
 
-	//Package private
-	public void removeLostItems(Arrow arrow, Item item) {
-		arrow.removeLostItem(item);
-		setDirty(true);
+	public void removeLostItem(Item item) {
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			arrow.removeLostItem(item);
+			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		}
+	}
+
+	public void setBooleanExpression(BooleanExpression expression) {
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			arrow.setBooleanExpression(expression);
+			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		}		
 	}
 }
