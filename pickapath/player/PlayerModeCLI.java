@@ -9,9 +9,9 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Scanner;
 
-import pickapath.Item;
 import pickapath.model.Arrow;
 import pickapath.model.InvalidStartingBoxException;
+import pickapath.model.Item;
 import pickapath.model.Model;
 import pickapath.model.State;
 

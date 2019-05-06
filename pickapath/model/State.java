@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import pickapath.Item;
-
 public class State {
 	
 	private Model model;

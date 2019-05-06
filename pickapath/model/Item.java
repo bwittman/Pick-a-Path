@@ -1,4 +1,4 @@
-package pickapath;
+package pickapath.model;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -15,9 +15,14 @@ public class Item {
 	public String toString() {
 		return id + ": " + name;
 	}
-	public Item (int id,String name) {
+	public Item(int id,String name) {
 		this.id = id;
 		this.name = name;		
+	}
+	
+	public Item(Item other) {
+		id = other.id;
+		name = other.name;
 	}
 	
 	public int getId() {
@@ -34,8 +39,6 @@ public class Item {
 	public Item(ObjectInputStream in) throws IOException, ClassNotFoundException {	//read in item info from a file
 		id = in.readInt();
 		name = (String)in.readObject();
-		
-		
 	}
 	
 	public void write(ObjectOutputStream out) throws IOException {	//write out item info to file

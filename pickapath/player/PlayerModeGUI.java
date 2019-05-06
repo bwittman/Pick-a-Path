@@ -35,9 +35,9 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
 
-import pickapath.Item;
 import pickapath.model.Arrow;
 import pickapath.model.InvalidStartingBoxException;
+import pickapath.model.Item;
 import pickapath.model.Model;
 import pickapath.model.State;
 

@@ -14,10 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pickapath.BooleanExpression;
-import pickapath.BooleanExpressionException;
-import pickapath.Item;
-
 public class Arrow extends CanvasObject {
 	
 	private Box start;
@@ -40,6 +36,32 @@ public class Arrow extends CanvasObject {
 		end.addIncoming(this);
 		currencyChange = 0;
 		order = start.getOutgoing().size();		
+	}
+	
+	//Package-private
+	Arrow(Arrow other, Map<Box, Integer> boxMap, List<Box> boxes, Map<Item, Integer> itemMap, List<Item> items ) {
+		super(other.getText());
+		start = boxes.get(boxMap.get(other.start));
+		end = boxes.get(boxMap.get(other.end));
+		
+		start.addOutgoing(this);
+		end.addIncoming(this);
+		
+		order = other.order;
+		
+		for( Item item : other.gainedItems )
+			gainedItems.add(items.get(itemMap.get(item)));
+		
+		for( Item item : other.lostItems )
+			lostItems.add(items.get(itemMap.get(item)));
+		
+		if( other.expression == null )
+			expression = null;
+		else
+			expression = new BooleanExpression(other.expression, itemMap, items);
+		
+		currencyChange = other.currencyChange;
+		
 	}
 
 	public Arrow(ObjectInputStream in, Model model) throws IOException, ClassNotFoundException {	//populate info from saved file

@@ -28,6 +28,14 @@ public class Box extends CanvasObject {
 		this.y = y;
 		color = Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
 	}
+	
+	//Copies everything from another Box, except for the arrows
+	public Box(Box other) {
+		super(other.getText());
+		x = other.x;
+		y = other.y;
+		color = other.color;
+	}
 
 	public Box(ObjectInputStream in) throws IOException, ClassNotFoundException {	//read in box info from a file
 		super(in);

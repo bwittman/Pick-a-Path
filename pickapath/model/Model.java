@@ -13,9 +13,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import pickapath.BooleanExpression;
-import pickapath.Item;
-
 public class Model implements TableModel {
 
 	private List<Box> boxes = new ArrayList<>();
@@ -28,6 +25,7 @@ public class Model implements TableModel {
 	private ArrayList<TableModelListener> tableListeners = new ArrayList<>();
 	private int itemIdCount = 1;
 	private CanvasObject selected = null;
+	private SnapShot snapShot = null;
 
 	public enum Event {
 		CREATE,
@@ -43,6 +41,57 @@ public class Model implements TableModel {
 		ORDER_LATER,
 		SAVE,
 		LOAD
+	}
+	
+	private class SnapShot {
+		List<Box> boxes;
+		List<Arrow> arrows;
+		List<Item> items;
+		boolean dirty;
+		int itemIdCount;
+		CanvasObject selected = null;
+		
+		public SnapShot() {
+			Model model = Model.this;
+			boxes = new ArrayList<>(model.boxes.size());
+			arrows = new ArrayList<>(model.arrows.size());
+			items = new ArrayList<>(model.items.size());
+			
+			Map<Box, Integer> boxMap = new HashMap<>(model.boxes.size() * 2);
+			Map<Item, Integer> itemMap = new HashMap<>(model.items.size() * 2);
+			
+			//Recreate all boxes in order
+			//Make a mapping from old boxes to their indexes in the list
+			for( int i = 0; i < model.boxes.size(); ++i ) {
+				Box box = model.boxes.get(i);
+				boxMap.put(box, i);
+				boxes.add(new Box(box));
+				if( model.selected == box )
+					selected = boxes.get(i);
+			}
+			
+			
+			//Recreate all items in order
+			//Make a mapping from old items to their indexes in the list
+			for( int i = 0; i < model.items.size(); ++i ) {
+				Item item = model.items.get(i);
+				itemMap.put(item, i);
+				items.add(new Item(item));
+			}
+			
+			//Recreate all arrows
+			//Use the maps from boxes to indexes and items to indexes to put
+			//put the newly created boxes and items in the new arrows
+			for( int i = 0; i < model.arrows.size(); ++i ) {
+				Arrow arrow = model.arrows.get(i);
+				arrows.add(new Arrow(arrow, boxMap, boxes, itemMap, items));
+				if( model.selected == arrow )
+					selected = arrows.get(i);
+			}
+			
+			dirty = model.dirty;
+			itemIdCount = model.itemIdCount;			
+		}
 	}
 
 	public void clear() {
@@ -444,5 +493,36 @@ public class Model implements TableModel {
 			arrow.setBooleanExpression(expression);
 			updateListeners(Event.DETAILS_CHANGE, arrow, true);
 		}		
+	}
+	
+	public void makeSnapShot() {
+		snapShot = new SnapShot();
+	}
+	
+	public void restoreSnapShot() {
+		int rows = items.size();
+		if( rows > 0 ) {
+			TableModelEvent event = new TableModelEvent(this, 0, rows - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE);
+			for (TableModelListener listener: tableListeners)
+				listener.tableChanged(event);
+		}
+		
+		boxes = snapShot.boxes;
+		arrows = snapShot.arrows;
+		items = snapShot.items;
+		dirty = snapShot.dirty;
+		itemIdCount = snapShot.itemIdCount;
+		selected = snapShot.selected;
+		
+		rows = items.size();
+		if( rows > 0 ) {
+			TableModelEvent event = new TableModelEvent(this, 0, rows - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT);
+			for (TableModelListener listener: tableListeners)
+				listener.tableChanged(event);
+		}
+	}
+
+	public void saveDetails() {
+		// TODO Use to support undos for details changes
 	}
 }

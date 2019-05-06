@@ -14,12 +14,11 @@ import javax.swing.event.TableModelListener;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-import pickapath.Item;
 import pickapath.editor.Canvas;
 import pickapath.editor.Editor;
 import pickapath.model.Arrow;
 import pickapath.model.Box;
-import pickapath.model.ItemTableModel;
+import pickapath.model.Item;
 
 class Tests {
 

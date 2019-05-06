@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -15,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -51,14 +54,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import pickapath.BooleanExpression;
-import pickapath.BooleanExpressionException;
 import pickapath.model.Arrow;
+import pickapath.model.BooleanExpression;
+import pickapath.model.BooleanExpressionException;
 import pickapath.model.Box;
 import pickapath.model.CanvasObject;
-import pickapath.model.ModelListener;
 import pickapath.model.InvalidStartingBoxException;
 import pickapath.model.Model;
+import pickapath.model.ModelListener;
 import pickapath.model.State;
 import pickapath.player.PlayerModeGUI;
 
@@ -84,10 +87,6 @@ public class Editor extends JFrame implements ModelListener {
 
 	//Details dialog widgets
 	private JDialog detailsDialog;
-	private JTextArea mustHaveTextArea;
-	private JTextArea gainedItemsTextArea;
-	private JTextArea lostItemsTextArea;
-	private JTextArea currencyChangeTextArea;
 
 	//Menu items
 	private JMenuItem saveItem;
@@ -119,15 +118,13 @@ public class Editor extends JFrame implements ModelListener {
 		}
 
 		new Editor();
-	}	
-
-
+	}
 
 	public Editor() {
 		super(TITLE + " - New Document");		
 		model.addModelListener(this);
 
-		detailsDialog = makeItemDialog();
+		createDetailsDialog();
 
 		add(createNorthPanel(), BorderLayout.NORTH);
 		add(createSouthPanel(), BorderLayout.SOUTH);
@@ -346,7 +343,7 @@ public class Editor extends JFrame implements ModelListener {
 		detailsItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				openDetails();
+				detailsDialog.setVisible(true);
 			}
 		});
 		detailsItem.setEnabled(false);
@@ -383,14 +380,6 @@ public class Editor extends JFrame implements ModelListener {
 		if (saveIfNeeded("exiting"))
 			dispose();		
 	}
-
-	private void openDetails() {
-		Arrow arrow = (Arrow)model.getSelected();
-		gainedItemsTextArea.setText(arrow.getGainedItemsText());
-		mustHaveTextArea.setText(arrow.getMustHaveText());
-		detailsDialog.setVisible(true);		
-	}
-
 
 
 	private void addBox() {
@@ -481,7 +470,7 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				openDetails();
+				detailsDialog.setVisible(true);			
 			}
 
 		});
@@ -680,20 +669,21 @@ public class Editor extends JFrame implements ModelListener {
 		return panel;
 	}
 
-	private JDialog makeItemDialog(){
+	private void createDetailsDialog(){
 
 		//Setting parameters to create the table for item creation
-		JDialog itemWindow = new JDialog(this, "Choice Details", true);
-		itemWindow.setLayout(new BorderLayout());
+		detailsDialog = new JDialog(this, "Choice Details", true);
+		detailsDialog.setLayout(new BorderLayout());
 
-		itemWindow.getRootPane().registerKeyboardAction(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				itemWindow.setVisible(false);
-			}
-		},
-				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-				JComponent.WHEN_IN_FOCUSED_WINDOW);
+		detailsDialog.getRootPane().registerKeyboardAction(
+			new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					cancelDetails();
+				}
+			},
+			KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+			JComponent.WHEN_IN_FOCUSED_WINDOW);
 
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.setBorder(border("Available Items"));
@@ -714,7 +704,7 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				String name = JOptionPane.showInputDialog(itemWindow, "What is the name of the new item?", "Item Name?", JOptionPane.QUESTION_MESSAGE);
+				String name = JOptionPane.showInputDialog(detailsDialog, "What is the name of the new item?", "Item Name?", JOptionPane.QUESTION_MESSAGE);
 				if( name != null ) {
 					name = name.trim();
 					if( name.isEmpty() )
@@ -725,7 +715,7 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 		});
-		//TODO: Add support for multiple item selection deletion?
+	
 		// Adding delete item button to the button panel
 		buttonPanel.add(deleteItem);
 		deleteItem.setToolTipText("Delete the selected item(s) from the list of available items.");
@@ -735,12 +725,31 @@ public class Editor extends JFrame implements ModelListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-				if(itemTable.getSelectedRow()!= -1) {
-					if(JOptionPane.showConfirmDialog(itemWindow, "Are you sure you want to delete " + 
+				if(itemTable.getSelectedRowCount() == 1 ) {					
+					if(JOptionPane.showConfirmDialog(detailsDialog, "Are you sure you want to delete " + 
 							model.getValueAt(itemTable.getSelectedRow(), 1) + "?", "Delete Item?", 
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {	
 						model.deleteItem(itemTable.getSelectedRow());					
 					}	
+				}
+				else if(itemTable.getSelectedRowCount() > 1 ) {
+					int[] rows = itemTable.getSelectedRows();
+					Arrays.sort(rows); //in case they don't arrive in order
+					StringBuilder message = new StringBuilder("Are you sure you want to delete ");
+					if( rows.length == 2 )
+						message.append(model.getValueAt(rows[0], 1)).append(" and ").append(model.getValueAt(rows[1], 1));
+					else {
+						for(int i = 0; i < rows.length - 1; ++i )
+							message.append(model.getValueAt(rows[i], 1)).append(", ");
+						message.append("and ").append(model.getValueAt(rows[rows.length - 1], 1));
+					}
+					message.append("?");
+					
+					if(JOptionPane.showConfirmDialog(detailsDialog, message.toString(), "Delete Items?", 
+							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {							
+						for( int i = rows.length - 1; i >= 0; --i )
+							model.deleteItem(rows[i]);					
+					}					
 				}
 			}
 
@@ -749,20 +758,13 @@ public class Editor extends JFrame implements ModelListener {
 		itemTable.setRowSelectionAllowed(true);
 		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
 		tablePanel.add(tableScroll, BorderLayout.CENTER);
-		itemWindow.add(tablePanel, BorderLayout.WEST);
+		detailsDialog.add(tablePanel, BorderLayout.WEST);
 
+		//makes it so that clicking away finishes the table edit
+		//otherwise, item names might be saved after the user adds the item to gained or lost lists
 		itemTable.putClientProperty("terminateEditOnFocusLost", true);
 
-		model.addTableModelListener(new TableModelListener() {
-
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				Arrow arrow = (Arrow) model.getSelected();
-				gainedItemsTextArea.setText(arrow.getGainedItemsText());
-				lostItemsTextArea.setText(arrow.getLostItemsText());
-				mustHaveTextArea.setText(arrow.getMustHaveText());
-			}			
-		});
+	
 		//End table stuff
 
 
@@ -774,7 +776,26 @@ public class Editor extends JFrame implements ModelListener {
 		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 	
 		scrolling.setBorder(border("Choice Text"));
 
-		textArea.setEditable(false);	
+		textArea.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				update();
+			}
+
+			private void update() {
+				model.setText(textArea.getText());
+			}
+		});
 
 		mainPanel.add(scrolling, BorderLayout.NORTH);	
 
@@ -783,7 +804,7 @@ public class Editor extends JFrame implements ModelListener {
 		JPanel centerPanel = new JPanel(new GridLayout(2, 2, GAP, GAP));
 
 
-		gainedItemsTextArea = new JTextArea();
+		JTextArea gainedItemsTextArea = new JTextArea();
 		gainedItemsTextArea.setEditable(false);
 		JPanel itemsGottenPanel = new JPanel(new BorderLayout());//north
 		itemsGottenPanel.setBorder(border("Items Player Gains for this Choice"));
@@ -829,7 +850,7 @@ public class Editor extends JFrame implements ModelListener {
 		centerPanel.add(itemsGottenPanel);
 
 
-		mustHaveTextArea = new JTextArea();
+		JTextArea mustHaveTextArea = new JTextArea();
 		JPanel panel = new JPanel(new GridLayout(1,3, GAP, GAP));
 		panel.setBorder(border());
 		JButton and = new JButton("AND");
@@ -878,7 +899,7 @@ public class Editor extends JFrame implements ModelListener {
 
 
 
-		lostItemsTextArea = new JTextArea();
+		JTextArea lostItemsTextArea = new JTextArea();
 		lostItemsTextArea.setEditable(false);
 		JPanel itemsLostPanel = new JPanel(new BorderLayout());
 		itemsLostPanel.setBorder(border("Items Player Loses for this Choice"));
@@ -922,7 +943,7 @@ public class Editor extends JFrame implements ModelListener {
 		itemsLostPanel.add(lostButtons, BorderLayout.SOUTH);
 		centerPanel.add(itemsLostPanel);
 
-		currencyChangeTextArea = new JTextArea();
+		JTextArea currencyChangeTextArea = new JTextArea();
 		JPanel currencyPanel = new JPanel(new BorderLayout());
 		currencyPanel.setBorder(border("Currency Change for this Choice"));
 
@@ -968,48 +989,75 @@ public class Editor extends JFrame implements ModelListener {
 					try {
 						model.setBooleanExpression(BooleanExpression.makeExpression(text, model));
 					} catch (BooleanExpressionException e) {
-						JOptionPane.showMessageDialog(itemWindow, "Your expression describing item requirements was invalid.", "Invalid Item Requirements!", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(detailsDialog, "Your expression describing item requirements was invalid.", "Invalid Item Requirements!", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				}
 				else
 					model.setBooleanExpression(null);
 
-				itemWindow.setVisible(false);
+				Editor.this.textArea.setText(model.getSelected().getText());
+				model.saveDetails();
+				detailsDialog.setVisible(false);				
 			}
 		});
 
 		JButton cancel = new JButton("Cancel");
 		saveOrCancelPanel.add(cancel);
-		cancel.setToolTipText("Close the Details window without saving the expression in the Items the Player Needs field.");
+		cancel.setToolTipText("Close the Details window without saving any changes made.");
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				itemWindow.setVisible(false);
+				cancelDetails();
 			}			
 		});		
 
 		mainPanel.add(saveOrCancelPanel, BorderLayout.SOUTH);
 
-		itemWindow.add(mainPanel, BorderLayout.CENTER);
+		detailsDialog.add(mainPanel, BorderLayout.CENTER);
 
 
-		itemWindow.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		itemWindow.addWindowListener(new WindowAdapter() {
-
+		detailsDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		detailsDialog.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				itemWindow.setVisible(false);
-			}
+				cancelDetails();
+			}			
+		});
+		
+		detailsDialog.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent e) {
+				Arrow arrow = (Arrow)model.getSelected();
+				textArea.setText(arrow.getText());
+				gainedItemsTextArea.setText(arrow.getGainedItemsText());
+				lostItemsTextArea.setText(arrow.getLostItemsText());
+				mustHaveTextArea.setText(arrow.getMustHaveText());
+				if( arrow.getCurrencyChange() == 0 )
+					currencyChangeTextArea.setText("");
+				else
+					currencyChangeTextArea.setText("" + arrow.getCurrencyChange());
+				model.makeSnapShot();				
+			}					
+		});
+		
+		model.addTableModelListener(new TableModelListener() {
 
 			@Override
-			public void windowOpened(WindowEvent e) {
-				textArea.setText(model.getSelected().getText());
-			}
+			public void tableChanged(TableModelEvent e) {
+				Arrow arrow = (Arrow) model.getSelected();
+				gainedItemsTextArea.setText(arrow.getGainedItemsText());
+				lostItemsTextArea.setText(arrow.getLostItemsText());
+				mustHaveTextArea.setText(arrow.getMustHaveText());
+			}			
 		});
 
-		itemWindow.pack();
-		return itemWindow;
+		detailsDialog.pack();
+	}
+	
+	private void cancelDetails() {
+		detailsDialog.setVisible(false);
+		model.restoreSnapShot();
 	}
 
 	private void select(CanvasObject object, boolean isNew) {

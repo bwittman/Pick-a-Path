@@ -1,8 +1,8 @@
-package pickapath;
+package pickapath.model;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import pickapath.model.Model;
 
 public class BooleanExpression {
 
@@ -53,6 +53,19 @@ public class BooleanExpression {
 		this.op2 = op2;
 	}
 
+
+	//Package-private
+	BooleanExpression(BooleanExpression other, Map<Item, Integer> itemMap, List<Item> items) {
+		kind = other.kind;
+		if( kind == Kind.ITEM )
+			item = items.get(itemMap.get(other.item));
+		else {
+			op1 = new BooleanExpression(other.op1, itemMap, items);
+			
+			if( kind != Kind.NOT )
+				op2 = new BooleanExpression(other.op2, itemMap, items);
+		}
+	}
 
 	public static BooleanExpression makeExpression(String expressionText, Model model) throws BooleanExpressionException {
 		return makeExpression(expressionText.toUpperCase(), model, 0, null);
