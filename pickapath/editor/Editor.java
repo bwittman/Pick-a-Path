@@ -321,8 +321,8 @@ public class Editor extends JFrame implements ModelListener {
 			}
 		});		
 		beginChoiceItem.setEnabled(false);
-		
-	
+
+
 		recolorPromptItem = new JMenuItem("Recolor Prompt"); //another way to recolor a prompt
 		recolorPromptItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK)); //hotkey to recolor a prompt
 		edit.add(recolorPromptItem);
@@ -333,8 +333,8 @@ public class Editor extends JFrame implements ModelListener {
 			}
 		});		
 		recolorPromptItem.setEnabled(false);
-		
-		
+
+
 
 
 		detailsItem = new JMenuItem("Choice Details...");
@@ -676,14 +676,14 @@ public class Editor extends JFrame implements ModelListener {
 		detailsDialog.setLayout(new BorderLayout());
 
 		detailsDialog.getRootPane().registerKeyboardAction(
-			new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					cancelDetails();
-				}
-			},
-			KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-			JComponent.WHEN_IN_FOCUSED_WINDOW);
+				new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						cancelDetails();
+					}
+				},
+				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
 
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.setBorder(border("Available Items"));
@@ -715,7 +715,7 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 		});
-	
+
 		// Adding delete item button to the button panel
 		buttonPanel.add(deleteItem);
 		deleteItem.setToolTipText("Delete the selected item(s) from the list of available items.");
@@ -744,7 +744,7 @@ public class Editor extends JFrame implements ModelListener {
 						message.append("and ").append(model.getValueAt(rows[rows.length - 1], 1));
 					}
 					message.append("?");
-					
+
 					if(JOptionPane.showConfirmDialog(detailsDialog, message.toString(), "Delete Items?", 
 							JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {							
 						for( int i = rows.length - 1; i >= 0; --i )
@@ -764,7 +764,7 @@ public class Editor extends JFrame implements ModelListener {
 		//otherwise, item names might be saved after the user adds the item to gained or lost lists
 		itemTable.putClientProperty("terminateEditOnFocusLost", true);
 
-	
+
 		//End table stuff
 
 
@@ -1024,7 +1024,7 @@ public class Editor extends JFrame implements ModelListener {
 				cancelDetails();
 			}			
 		});
-		
+
 		detailsDialog.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
@@ -1040,21 +1040,23 @@ public class Editor extends JFrame implements ModelListener {
 				model.makeSnapShot();				
 			}					
 		});
-		
+
 		model.addTableModelListener(new TableModelListener() {
 
 			@Override
 			public void tableChanged(TableModelEvent e) {
-				Arrow arrow = (Arrow) model.getSelected();
-				gainedItemsTextArea.setText(arrow.getGainedItemsText());
-				lostItemsTextArea.setText(arrow.getLostItemsText());
-				mustHaveTextArea.setText(arrow.getMustHaveText());
+				if( model.getSelected() instanceof Arrow ) {
+					Arrow arrow = (Arrow) model.getSelected();
+					gainedItemsTextArea.setText(arrow.getGainedItemsText());
+					lostItemsTextArea.setText(arrow.getLostItemsText());
+					mustHaveTextArea.setText(arrow.getMustHaveText());
+				}
 			}			
 		});
 
 		detailsDialog.pack();
 	}
-	
+
 	private void cancelDetails() {
 		detailsDialog.setVisible(false);
 		model.restoreSnapShot();
@@ -1119,7 +1121,7 @@ public class Editor extends JFrame implements ModelListener {
 				statusLabel.setText(kind + " created");
 			else
 				statusLabel.setText(kind + " selected");	
-			
+
 			textArea.grabFocus();
 		}
 	}
@@ -1127,7 +1129,7 @@ public class Editor extends JFrame implements ModelListener {
 	//Tries to save if there's unsaved work
 	//Returns true is everything's fine and false if you need to stop what you're doing
 	private boolean saveIfNeeded(String activity) {
-		
+
 		if (model.isDirty()) {
 			int ask = JOptionPane.showConfirmDialog(Editor.this, "Do you want to save before " + activity + "?", "Save?",
 					JOptionPane.YES_NO_CANCEL_OPTION);
@@ -1160,7 +1162,7 @@ public class Editor extends JFrame implements ModelListener {
 	public void updateModel(Model.Event event, CanvasObject object) {
 		if( !listening )
 			return;	
-		
+
 		String asterisk = model.isDirty() ? "*" : "";
 		if( saveFile != null )
 			setTitle(TITLE + " - " + asterisk + saveFile.getName());

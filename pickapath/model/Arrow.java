@@ -121,7 +121,7 @@ public class Arrow extends CanvasObject {
 
 	//Write arrow information to a file
 	//Package private
-	void write(ObjectOutputStream out, Map<Box, Integer> boxIndexes, List<Item> items) throws IOException {	
+	void write(ObjectOutputStream out, Map<Box, Integer> boxIndexes, Map<Item, Integer> itemIndexes) throws IOException {	
 		super.write(out);
 		int startIndex = boxIndexes.get(start);
 		int endIndex = boxIndexes.get(end);
@@ -130,11 +130,11 @@ public class Arrow extends CanvasObject {
 		out.writeInt(endIndex);
 		out.writeInt(gainedItems.size());
 		for(Item item: gainedItems)
-			out.writeInt(item.getId());
+			out.writeInt(itemIndexes.get(item));
 		
 		out.writeInt(lostItems.size());
 		for(Item item: lostItems)
-			out.writeInt(item.getId());
+			out.writeInt(itemIndexes.get(item));
 
 		if(expression == null)
 			out.writeObject("");
@@ -268,7 +268,6 @@ public class Arrow extends CanvasObject {
 			g.setColor(Color.WHITE);
 		else
 			g.setColor(start.getColor());
-		//g.setColor(fill);
 		
 		double startX = start.getX();
 		double startY = start.getY();
@@ -312,9 +311,12 @@ public class Arrow extends CanvasObject {
 		g.fillPolygon(xPoints, yPoints, 3);
 		
 		g.setColor(Color.BLACK);
-		//g.setColor(outline);
 		
 		String text = "" + order;
+		
+		if( gainedItems.size() > 0 || lostItems.size() > 0 || expression != null || currencyChange != 0 )
+			text += "*";
+		
 		FontMetrics metrics;
 		if( font != null ) {
 			g.setFont(font);
@@ -328,6 +330,51 @@ public class Arrow extends CanvasObject {
 		int textY = (int)Math.round(2*midY*zoom/3 + tipY*zoom/3 + stringHeight/2.0); 
 		g.drawString(text, textX, textY);
 	}
+	
+	public String getToolTipText() {
+		StringBuilder builder = new StringBuilder(getText().trim());
+		
+		if( gainedItems.size() > 0 ) {
+			if( builder.length() > 0 )
+				builder.append("<br/>");
+			builder.append("Gained items: ").append(toString(gainedItems));
+		}
+		
+		if( lostItems.size() > 0 ) {
+			if( builder.length() > 0 )
+				builder.append("<br/>");
+			builder.append("Lost items: ").append(toString(lostItems));
+		}
+		
+		if( expression != null ) {
+			if( builder.length() > 0 )
+				builder.append("<br/>");
+			builder.append("Must have: ").append(expression.getToolTipText());
+		}
+		
+		if( currencyChange > 0 ) {
+			if( builder.length() > 0 )
+				builder.append("<br/>");
+			builder.append("Currency gained: " + currencyChange);
+		}
+		else if( currencyChange > 0 ) {
+			if( builder.length() > 0 )
+				builder.append("<br/>");
+			builder.append("Currency lost: " + -currencyChange);
+		}		
+		
+		if( builder.indexOf("<br/>") > -1 ) {
+			builder.insert(0, "<html>");
+			builder.append("</html>");
+		}
+		
+		String result = builder.toString().trim();
+		if( result.isEmpty() )
+			return null;
+		else
+			return result;
+	}
+	
 
 	private boolean isTandem() {
 		for(Arrow arrow : end.getOutgoing() )
@@ -365,5 +412,19 @@ public class Arrow extends CanvasObject {
 	
 	public int getOrder() {
 		return order;
+	}
+	
+	private static String toString(Set<Item> items) {
+		StringBuilder builder = new StringBuilder();
+		boolean first = true;
+		for(Item item : items) {
+			if( first )
+				first = false;
+			else
+				builder.append(", ");
+			builder.append(item.getName());
+		}
+		
+		return builder.toString();
 	}
 }

@@ -27,6 +27,16 @@ public class BooleanExpression {
 		}
 		return "";
 	}
+	
+	public String getToolTipText() {
+		switch(kind) {
+		case ITEM: return "" + item.getName();
+		case AND: return "(" + op1.getToolTipText() + " AND " + op2.getToolTipText() + ")";
+		case OR: return "(" + op1.getToolTipText() + " OR " + op2.getToolTipText() + ")";
+		case NOT: return "NOT (" + op1.getToolTipText() + ")";
+		}
+		return "";
+	}
 
 	public Kind getKind() {
 		return kind;

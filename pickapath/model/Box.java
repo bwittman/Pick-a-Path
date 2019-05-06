@@ -157,6 +157,14 @@ public class Box extends CanvasObject {
 		g.setClip(oldClip);	
 	}
 	
+	public String getToolTipText() {
+		String result = getText().trim();
+		if( result.isEmpty() )
+			return null;
+		else
+			return result;
+	}
+	
 	
 	public boolean contains(int x, int y, double zoom) {
 	 return (x >= zoom*(this.x-(WIDTH/2)) && x <= zoom*(this.x + (WIDTH/2)) && y >= zoom*(this.y - (HEIGHT/2)) && y <= zoom*(this.y + (HEIGHT/2)));

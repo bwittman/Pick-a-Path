@@ -98,15 +98,19 @@ public class Model implements TableModel {
 		boxes.clear();
 		arrows.clear();
 
-		if( items.size() > 0 ) {
-			items.clear();	
+		if( items.size() > 0 ) {			
 			TableModelEvent event = new TableModelEvent(this, 0, items.size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE);
+			items.clear();	
 			for (TableModelListener listener: tableListeners)
 				listener.tableChanged(event);
+			
 		}
 		title = "";
 		currencyName = "";
 		selected = null;
+		
+		dirty = false;
+		
 		updateListeners(Event.SELECT, null, false);
 	}
 
@@ -231,7 +235,9 @@ public class Model implements TableModel {
 		out.writeObject(currencyName);
 
 		Map<Box, Integer> boxIndexes = new HashMap<>();
+		Map<Item, Integer> itemIndexes = new HashMap<>();
 
+		
 		out.writeInt(boxes.size());
 		for(int i = 0; i < boxes.size(); ++i ) {
 			Box box = boxes.get(i);
@@ -240,14 +246,17 @@ public class Model implements TableModel {
 		}
 
 		out.writeInt(items.size());
-		for (Item item:items)
+		for (int i = 0; i < items.size(); ++i ) {
+			Item item = items.get(i);
+			itemIndexes.put(item, i);
 			item.write(out);
+		}
 
 		//Write arrows from boxes to preserve their internal ordering
 		out.writeInt(arrows.size());
 		for (Box box: boxes)
 			for( Arrow arrow: box.getOutgoing() )
-				arrow.write(out, boxIndexes, items);
+				arrow.write(out, boxIndexes, itemIndexes);
 		
 		dirty = false;
 
@@ -276,8 +285,7 @@ public class Model implements TableModel {
 		int arrowCount = in.readInt();
 		for (int i = 0; i <  arrowCount; ++i)
 			arrows.add(new Arrow(in, this));
-		
-		dirty = false;
+
 
 		updateListeners(Event.LOAD, null, false);
 	}

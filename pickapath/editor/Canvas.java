@@ -159,24 +159,16 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		int mouseX = event.getX();
 		int mouseY = event.getY();
 
-		for(int i = 0; i < model.arrowCount(); ++i) {
-			Arrow arrow = model.getArrow(i);
-			if (arrow.contains(mouseX, mouseY, zoom)) {
-				if( arrow.getText().trim().isEmpty() )
-					return null;
-				else
-					return arrow.getText();
-			}
-		}
-
 		for (int i = 0; i < model.boxCount(); ++i) {
 			Box box = model.getBox(i);
-			if (box.contains(mouseX, mouseY, zoom)) {
-				if( box.getText().trim().isEmpty() )
-					return null;
-				else
-					return box.getText();		
-			}
+			if (box.contains(mouseX, mouseY, zoom))
+				return box.getToolTipText();		
+		}		
+		
+		for(int i = 0; i < model.arrowCount(); ++i) {
+			Arrow arrow = model.getArrow(i);
+			if (arrow.contains(mouseX, mouseY, zoom))
+				return arrow.getToolTipText();			
 		}
 
 		return super.getToolTipText(event);
