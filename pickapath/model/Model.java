@@ -13,6 +13,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import pickapath.editor.Canvas;
+
 public class Model implements TableModel {
 
 	private List<Box> boxes = new ArrayList<>();

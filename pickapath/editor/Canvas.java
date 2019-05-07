@@ -38,11 +38,11 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private double zoom = 1.0;
 	private RenderingHints hints;
 	private Font font = null;
-	private int boxMaxX;
-	private int boxMaxY;
-	private int boxMinX;
-	private int boxMinY;
 	private JViewport viewport = null;
+
+	public static int MIN_WIDTH = 640;
+	public static int MIN_HEIGHT = 480;
+	public static int SPACING = Box.HEIGHT;
 
 	//Canvas constructor 
 	public Canvas(Model model, Editor main) {
@@ -56,21 +56,21 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		setBackground(Color.GRAY);
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		
+
 		hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		
-		
+
+
 		addComponentListener(new ComponentAdapter() {
 			@Override
-			public void componentResized(ComponentEvent e) {
-		        resetBounds();  
-		    }
+			public void componentResized(ComponentEvent e) {	
+				setPreferredSize(viewport.getExtentSize());
+				resetBounds();  
+			}
 		});
 
-		setPreferredSize(new Dimension(640, 480));
-		setMinimumSize(getPreferredSize());		
+		//setPreferredSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));		
 	}
 
 	public void setViewport(JViewport viewport) {
@@ -100,7 +100,6 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			Box box = model.getBox(i);
 			box.draw(graphics, box == model.getSelected(), font, zoom);
 		}
-
 	}
 
 
@@ -108,40 +107,21 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	//Determines if a mouse is inside a box based on its area and coordinates
 	public void mouseDragged(MouseEvent e) {
 		CanvasObject selected = model.getSelected();
-		if (selected != null && selected instanceof Box) {
+		if( selected instanceof Box ) {
 			Box selectedBox = (Box) selected;
 			int x = e.getX();
 			int y = e.getY();
-			int width = getWidth();
-			int height = getHeight();
-			if (x < width && x >= 0 && y < height && y >= 0) {
-				int deltaX =  x - startXDrag;
-				int deltaY = y - startYDrag;
-				model.setPosition(selectedBox, startXBox + deltaX, startYBox + deltaY, zoom);
-			}
+			int deltaX =  x - startXDrag;
+			int deltaY = y - startYDrag;
+			int xMin = (int)Math.round((SPACING + Box.WIDTH /2)*zoom);
+			int yMin = (int)Math.round((SPACING + Box.HEIGHT /2)*zoom);
+			model.setPosition(selectedBox, Math.max(startXBox + deltaX, xMin), Math.max(startYBox + deltaY, yMin), zoom);
 		}
 	}
 
-	private void updateBounds(Box box) {
-		if ((box.getX()-Box.WIDTH/2)* zoom < boxMinX)
-			boxMinX = (int) Math.floor((box.getX()-Box.WIDTH/2)* zoom);
-		if ((box.getX()+Box.WIDTH/2)* zoom > boxMaxX)
-			boxMaxX = (int) Math.ceil((box.getX()+Box.WIDTH/2)* zoom);
-		if ((box.getY()-Box.HEIGHT/2)* zoom < boxMinY)
-			boxMinY = (int) Math.floor((box.getY()-Box.HEIGHT/2)* zoom);
-		if ((box.getY()+Box.HEIGHT/2)* zoom > boxMaxY)
-			boxMaxY = (int) Math.ceil((box.getY()+Box.HEIGHT/2)* zoom);
-
-		setPreferredSize(new Dimension (boxMaxX-boxMinX, boxMaxY-boxMinY));
-		revalidate(); 
-	}
-
-
 	public void resetBounds() {
-		boxMaxX = Integer.MIN_VALUE;
-		boxMaxY = Integer.MIN_VALUE;
-		boxMinX = Integer.MAX_VALUE;
-		boxMinY = Integer.MAX_VALUE;
+		int width = viewport.getWidth();
+		int height = viewport.getHeight();
 
 		if( model.boxCount() == 0 ) {
 			setPreferredSize(viewport.getExtentSize());
@@ -149,8 +129,20 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			revalidate(); 
 		}
 		else {
-			for(int i = 0; i < model.boxCount(); ++i)
-				updateBounds(model.getBox(i));
+			for(int i = 0; i < model.boxCount(); ++i) {
+				Box box = model.getBox(i);
+				if ((box.getX()+Box.WIDTH/2 + SPACING)* zoom > width)
+					width = (int) Math.ceil((box.getX()+Box.WIDTH/2 + SPACING)* zoom);
+				if ((box.getY()+Box.HEIGHT/2 + SPACING)* zoom > height)
+					height = (int) Math.ceil((box.getY()+3*Box.HEIGHT/2)* zoom);	
+			}
+
+			if( width >  viewport.getWidth() || height > viewport.getHeight() ) {
+				width = Math.max(width, viewport.getWidth());
+				height = Math.max(height, viewport.getHeight());
+				setPreferredSize(new Dimension (width, height));
+				revalidate(); 
+			}
 		}
 	}
 
@@ -164,7 +156,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			if (box.contains(mouseX, mouseY, zoom))
 				return box.getToolTipText();		
 		}		
-		
+
 		for(int i = 0; i < model.arrowCount(); ++i) {
 			Arrow arrow = model.getArrow(i);
 			if (arrow.contains(mouseX, mouseY, zoom))
@@ -222,7 +214,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				Arrow arrow = new Arrow(selectedBox,otherBox,"");
 				model.add(arrow);
 			} 
-						
+
 			arrowCheck = false;
 		}
 		//Otherwise, select whatever's been clicked on
@@ -260,8 +252,17 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 	public void setZoom(double zoom, Font font) {
+
+		Point position = viewport.getViewPosition();
+		double x = position.x / this.zoom;
+		double y = position.y / this.zoom;
+
 		this.zoom = zoom;
 		this.font = font;
+
+
+		viewport.setViewPosition(new Point((int)Math.round(x * zoom), (int)Math.round(y * zoom)));
+
 		resetBounds();
 		repaint();
 	}
@@ -279,9 +280,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			int orientation,
 			int direction) {
 		if( orientation == SwingConstants.HORIZONTAL )
-			return (boxMaxX  - boxMinX) / 5;
+			return visibleRect.width / 5;
 		else
-			return (boxMaxY  - boxMinY) / 5;
+			return visibleRect.height / 5;
 	}
 
 	@Override
@@ -295,35 +296,46 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 	@Override
-	public int getScrollableUnitIncrement(Rectangle arg0, int arg1, int arg2) {
-		return 1;
-	}
-
-	public int getMaxX() {
-		return boxMaxX;
-	}
-
-	public int getMaxY() {
-		return boxMaxY;
-	}
-
-	public int getMinX() {
-		return boxMinX;
-	}
-
-	public int getMinY() {
-		return boxMinY;
+	public int getScrollableUnitIncrement(Rectangle visibleRect,
+			int orientation,
+			int direction) {
+		if( orientation == SwingConstants.HORIZONTAL )
+			return visibleRect.width / 10;
+		else
+			return visibleRect.height / 10;
 	}
 
 	@Override
 	public void updateModel(Model.Event event, CanvasObject object) {
-		if(event == Model.Event.LOAD)
+		if(event == Model.Event.LOAD || event == Model.Event.MOVE || event == Model.Event.DELETE )
 			resetBounds();
-		else if( event == Model.Event.MOVE && object instanceof Box ) {
-			Box box = (Box)object;
-			updateBounds(box);
-		}	
-		
+
+
+		if( event == Model.Event.MOVE && object instanceof Box ) {
+			Box box = (Box) object;
+			Rectangle view = viewport.getViewRect();
+			int x = view.x;
+			int y = view.y;
+
+			if ((box.getX()-Box.WIDTH/2 - SPACING)* zoom < view.x)
+				x = (int) Math.floor((box.getX()-Box.WIDTH/2 - SPACING)* zoom);
+			else if ((box.getX()+Box.WIDTH/2 + SPACING)* zoom > view.x + view.width)
+				x = (int) Math.ceil((box.getX()+Box.WIDTH/2 + SPACING)* zoom) - view.width;
+
+			if ((box.getY()-Box.HEIGHT/2 - SPACING)* zoom < view.y)
+				y = (int) Math.floor((box.getY()-Box.HEIGHT/2 - SPACING)* zoom);
+			else if ((box.getY()+Box.HEIGHT/2 + SPACING)* zoom > view.y + view.height)
+				y = (int) Math.ceil((box.getY()+Box.HEIGHT/2 + SPACING)* zoom) - view.height;	
+
+			x = Math.max(x, 0);
+			y = Math.max(y, 0);			
+
+			if( x != view.x || y != view.y ) {
+				viewport.setViewPosition(new Point(x, y));
+				revalidate();
+			}
+		}			
+
 		repaint();		
 	}
 }

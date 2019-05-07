@@ -133,10 +133,8 @@ public class Editor extends JFrame implements ModelListener {
 		createMenus();
 
 		canvas = new Canvas(model, this);
-		JPanel extra = new JPanel(new BorderLayout());
-		extra.setOpaque(true);
-		extra.add(canvas, BorderLayout.CENTER);
-		JScrollPane scrollPane = new JScrollPane(extra); //adding the scrollpane to our canvas
+		JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
+		scrollPane.setPreferredSize(new Dimension(Canvas.MIN_WIDTH, Canvas.MIN_HEIGHT));
 		scrollPane.setBorder(border());
 		canvas.setViewport(scrollPane.getViewport());
 		add(scrollPane, BorderLayout.CENTER);
@@ -385,8 +383,8 @@ public class Editor extends JFrame implements ModelListener {
 	private void addBox() {
 		JViewport viewport = canvas.getViewport();
 		Dimension size = viewport.getExtentSize();
-		int x = (int)Math.round((random.nextDouble()*(size.getWidth() - Box.WIDTH) + viewport.getViewPosition().getX() + Box.WIDTH / 2)*canvas.getZoom());
-		int y = (int)Math.round((random.nextDouble()*(size.getHeight() - Box.HEIGHT) + viewport.getViewPosition().getY() + Box.HEIGHT / 2)*canvas.getZoom());
+		int x = (int)Math.round((random.nextDouble()*(size.getWidth() - Box.WIDTH - 2*Canvas.SPACING) + viewport.getViewPosition().getX() + Box.WIDTH / 2 + Canvas.SPACING)*canvas.getZoom());
+		int y = (int)Math.round((random.nextDouble()*(size.getHeight() - Box.HEIGHT - 2*Canvas.SPACING) + viewport.getViewPosition().getY() + Box.HEIGHT / 2 + Canvas.SPACING)*canvas.getZoom());
 
 		Box box = new Box(x, y, "");
 		model.add(box);
@@ -593,17 +591,17 @@ public class Editor extends JFrame implements ModelListener {
 		titleField = new JTextField();
 		titleField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
-			public void changedUpdate(DocumentEvent arg0) {
+			public void changedUpdate(DocumentEvent event) {
 				update();
 			}
 
 			@Override
-			public void insertUpdate(DocumentEvent arg0) {
+			public void insertUpdate(DocumentEvent event) {
 				update();
 			}
 
 			@Override
-			public void removeUpdate(DocumentEvent arg0) {
+			public void removeUpdate(DocumentEvent event) {
 				update();
 			}
 
