@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -17,6 +19,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 
 import pickapath.model.Arrow;
@@ -298,8 +302,18 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	@Override
 	public void updateModel(Model.Event event, CanvasObject object) {
-		if(event == Model.Event.LOAD || event == Model.Event.MOVE || event == Model.Event.DELETE )
+		if(event == Model.Event.LOAD || event == Model.Event.MOVE || event == Model.Event.DELETE ) {
 			resetBounds();
+		}
+		
+		/*
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+								
+				}				
+			});
+			*/
 
 		if( event == Model.Event.MOVE && object instanceof Box ) {
 			JViewport viewport = scrollPane.getViewport();

@@ -1,7 +1,6 @@
 package pickapath.editor;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -10,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -139,9 +140,26 @@ public class Editor extends JFrame implements ModelListener {
 		viewport.setPreferredSize(new Dimension(Canvas.MIN_WIDTH, Canvas.MIN_HEIGHT));
 		scrollPane.setBorder(border());
 		canvas.setScrollPane(scrollPane);
+		
+		//Change mouse-wheel listener so that it only fires if Ctrl is not down.
+		//That way, Ctrl is used for zoom and no Ctrl is used for scrolling.
+		MouseWheelListener[] listeners = scrollPane.getMouseWheelListeners();
+		if( listeners.length > 0 ) {
+			MouseWheelListener oldListener = listeners[0];
+			scrollPane.removeMouseWheelListener(oldListener);
+			scrollPane.addMouseWheelListener(new MouseWheelListener() {
+	
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) {
+					if( !e.isControlDown() ) {
+						oldListener.mouseWheelMoved(e);
+					}
+				}				
+			});
+		}
 		add(scrollPane, BorderLayout.CENTER);
 
-		
+
 		scrollPane.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -150,8 +168,9 @@ public class Editor extends JFrame implements ModelListener {
 				canvas.resetBounds();  
 			}
 		});
-		
-		
+
+
+
 		pack();
 		setMinimumSize(getPreferredSize());
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
@@ -161,12 +180,12 @@ public class Editor extends JFrame implements ModelListener {
 				exit();
 			}
 		});
-		
+
 		setLocationRelativeTo(null); //starts the GUI centered (when not maximized)
 		setVisible(true); // allows the GUI to start as visible
 		setExtendedState(JFrame.MAXIMIZED_BOTH); //maximizes GUI
 
-		
+
 	}
 
 
@@ -676,8 +695,27 @@ public class Editor extends JFrame implements ModelListener {
 		zoomPanel.setBorder(border("Zoom"));
 		zoomPanel.add(slider, BorderLayout.CENTER);
 
-		panel.add(zoomPanel, BorderLayout.SOUTH);	
+		panel.add(zoomPanel, BorderLayout.SOUTH);
 
+		//Adds Ctrl+mouse wheel for zooming in and out		
+		addMouseWheelListener(new MouseWheelListener() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+
+				if( e.isControlDown() ) {
+					int value = slider.getValue();
+					if( e.getWheelRotation() > 0 ) {
+						if( value < slider.getMaximum() )
+							slider.setValue(value + 1);
+					}
+					else if( e.getWheelRotation() < 0 ) {
+						if( value > slider.getMinimum() )
+							slider.setValue(value - 1);
+					}	
+				}
+			}
+
+		});
 
 		return panel;
 	}
