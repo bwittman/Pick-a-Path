@@ -8,8 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -207,7 +205,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 			if( otherBox == null )
 				model.deselect();
-			else if(otherBox != selectedBox) { //don't add an arrow from a box to itself
+			else { //It is possible to add an arrow from a box to itself
 				Arrow arrow = new Arrow(selectedBox,otherBox,"");
 				model.add(arrow);
 			} 

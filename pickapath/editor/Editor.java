@@ -1118,8 +1118,8 @@ public class Editor extends JFrame implements ModelListener {
 			}
 			//Select box
 			else {
-				beginChoiceButton.setEnabled(model.boxCount() >= 2);
-				beginChoiceItem.setEnabled(model.boxCount() >= 2);
+				beginChoiceButton.setEnabled(true);
+				beginChoiceItem.setEnabled(true);
 				recolorPromptButton.setEnabled(true);
 				recolorPromptItem.setEnabled(true);
 				deletePromptButton.setEnabled(true);
