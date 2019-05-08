@@ -1,6 +1,7 @@
 package pickapath.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -134,11 +135,23 @@ public class Editor extends JFrame implements ModelListener {
 
 		canvas = new Canvas(model, this);
 		JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
-		scrollPane.setPreferredSize(new Dimension(Canvas.MIN_WIDTH, Canvas.MIN_HEIGHT));
+		JViewport viewport = scrollPane.getViewport();
+		viewport.setPreferredSize(new Dimension(Canvas.MIN_WIDTH, Canvas.MIN_HEIGHT));
 		scrollPane.setBorder(border());
-		canvas.setViewport(scrollPane.getViewport());
+		canvas.setScrollPane(scrollPane);
 		add(scrollPane, BorderLayout.CENTER);
 
+		
+		scrollPane.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				viewport.setViewSize(scrollPane.getSize());
+				//viewport.setSize(scrollPane.getSize());
+				canvas.resetBounds();  
+			}
+		});
+		
+		
 		pack();
 		setMinimumSize(getPreferredSize());
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
@@ -148,10 +161,12 @@ public class Editor extends JFrame implements ModelListener {
 				exit();
 			}
 		});
-
+		
 		setLocationRelativeTo(null); //starts the GUI centered (when not maximized)
 		setVisible(true); // allows the GUI to start as visible
 		setExtendedState(JFrame.MAXIMIZED_BOTH); //maximizes GUI
+
+		
 	}
 
 
@@ -381,7 +396,7 @@ public class Editor extends JFrame implements ModelListener {
 
 
 	private void addBox() {
-		JViewport viewport = canvas.getViewport();
+		JViewport viewport = canvas.getScrollPane().getViewport();
 		Dimension size = viewport.getExtentSize();
 		int x = (int)Math.round((random.nextDouble()*(size.getWidth() - Box.WIDTH - 2*Canvas.SPACING) + viewport.getViewPosition().getX() + Box.WIDTH / 2 + Canvas.SPACING)*canvas.getZoom());
 		int y = (int)Math.round((random.nextDouble()*(size.getHeight() - Box.HEIGHT - 2*Canvas.SPACING) + viewport.getViewPosition().getY() + Box.HEIGHT / 2 + Canvas.SPACING)*canvas.getZoom());

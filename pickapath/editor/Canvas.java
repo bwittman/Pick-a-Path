@@ -15,6 +15,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
@@ -33,16 +34,18 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private int startYBox;
 	private int startXDrag;
 	private int startYDrag;
-	boolean mouseDragged;
-	boolean arrowCheck;
+	private boolean arrowCheck;
 	private double zoom = 1.0;
 	private RenderingHints hints;
 	private Font font = null;
-	private JViewport viewport = null;
+	private JScrollPane scrollPane = null;
 
 	public static int MIN_WIDTH = 640;
 	public static int MIN_HEIGHT = 480;
 	public static int SPACING = Box.HEIGHT;
+	
+	private int width = MIN_WIDTH;
+	private int height = MIN_HEIGHT;
 
 	//Canvas constructor 
 	public Canvas(Model model, Editor main) {
@@ -62,23 +65,16 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
 
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {	
-				setPreferredSize(viewport.getExtentSize());
-				resetBounds();  
-			}
-		});
-
 		//setPreferredSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));		
 	}
 
-	public void setViewport(JViewport viewport) {
-		this.viewport = viewport;
+	public void setScrollPane(JScrollPane scrollPane) {
+		this.scrollPane = scrollPane;
+		scrollPane.getViewport().setViewPosition(new Point(0,0));
 	}
 
-	public JViewport  getViewport() {
-		return viewport;
+	public JScrollPane  getScrollPane() {
+		return scrollPane;
 	}
 
 	@Override
@@ -118,32 +114,33 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 			model.setPosition(selectedBox, Math.max(startXBox + deltaX, xMin), Math.max(startYBox + deltaY, yMin), zoom);
 		}
 	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(width, height);
+	}
 
 	public void resetBounds() {
-		int width = viewport.getWidth();
-		int height = viewport.getHeight();
-
+		JViewport viewport = scrollPane.getViewport();
+		width = Math.max(MIN_WIDTH, viewport.getExtentSize().width);
+		height = Math.max(MIN_HEIGHT, viewport.getExtentSize().height);
+		
+		
 		if( model.boxCount() == 0 ) {
-			setPreferredSize(viewport.getExtentSize());
-			viewport.setViewPosition(new Point(0,0));
-			revalidate(); 
+			//setPreferredSize(viewport.getExtentSize());
+			viewport.setViewPosition(new Point(0,0)); 
 		}
 		else {
 			for(int i = 0; i < model.boxCount(); ++i) {
 				Box box = model.getBox(i);
-				if ((box.getX()+Box.WIDTH/2 + SPACING)* zoom > width)
-					width = (int) Math.ceil((box.getX()+Box.WIDTH/2 + SPACING)* zoom);
-				if ((box.getY()+Box.HEIGHT/2 + SPACING)* zoom > height)
-					height = (int) Math.ceil((box.getY()+3*Box.HEIGHT/2)* zoom);	
-			}
-
-			if( width >  viewport.getWidth() || height > viewport.getHeight() ) {
-				width = Math.max(width, viewport.getWidth());
-				height = Math.max(height, viewport.getHeight());
-				setPreferredSize(new Dimension (width, height));
-				revalidate(); 
-			}
+				width = Math.max(width, (int) Math.ceil((box.getX()+Box.WIDTH/2 + SPACING)* zoom));
+				height = Math.max(height, (int) Math.ceil((box.getY()+3*Box.HEIGHT/2)* zoom));	
+			}		 
 		}
+		
+		revalidate();
+		repaint();
+
 	}
 
 	@Override
@@ -253,7 +250,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	public void setZoom(double zoom, Font font) {
 
-		Point position = viewport.getViewPosition();
+		Point position = scrollPane.getViewport().getViewPosition();
 		double x = position.x / this.zoom;
 		double y = position.y / this.zoom;
 
@@ -261,18 +258,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		this.font = font;
 
 
-		viewport.setViewPosition(new Point((int)Math.round(x * zoom), (int)Math.round(y * zoom)));
+		scrollPane.getViewport().setViewPosition(new Point((int)Math.round(x * zoom), (int)Math.round(y * zoom)));
 
 		resetBounds();
-		repaint();
 	}
 
 	@Override
 	public Dimension getPreferredScrollableViewportSize() {
-		if( viewport == null )
-			return getSize();
-		else
-			return viewport.getExtentSize();
+		return getPreferredSize();
 	}
 
 	@Override
@@ -310,8 +303,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		if(event == Model.Event.LOAD || event == Model.Event.MOVE || event == Model.Event.DELETE )
 			resetBounds();
 
-
 		if( event == Model.Event.MOVE && object instanceof Box ) {
+			JViewport viewport = scrollPane.getViewport();
 			Box box = (Box) object;
 			Rectangle view = viewport.getViewRect();
 			int x = view.x;
@@ -332,7 +325,6 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 			if( x != view.x || y != view.y ) {
 				viewport.setViewPosition(new Point(x, y));
-				revalidate();
 			}
 		}			
 
