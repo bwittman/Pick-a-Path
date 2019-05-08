@@ -533,5 +533,16 @@ public class Model implements TableModel {
 
 	public void saveDetails() {
 		// TODO Use to support undos for details changes
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		}
+	}
+
+	public void setCurrencyChange(int change) {
+		if( selected instanceof Arrow) {
+			Arrow arrow = (Arrow)selected;
+			arrow.setCurrencyChange(change);
+		}		
 	}
 }

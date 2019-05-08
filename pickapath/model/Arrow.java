@@ -100,6 +100,11 @@ public class Arrow extends CanvasObject {
 	public int getCurrencyChange() {
 		return currencyChange;
 	}
+	
+	//Package-private
+	void setCurrencyChange(int change) {
+		currencyChange = change;
+	}
 
 	public String getGainedItemsText() {
 		return itemsToString(gainedItems);

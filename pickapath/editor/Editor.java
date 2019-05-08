@@ -1040,15 +1040,23 @@ public class Editor extends JFrame implements ModelListener {
 					try {
 						model.setBooleanExpression(BooleanExpression.makeExpression(text, model));
 					} catch (BooleanExpressionException e) {
-						JOptionPane.showMessageDialog(detailsDialog, "Your expression describing item requirements was invalid.", "Invalid Item Requirements!", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(detailsDialog, "The expression describing what items the player must have was invalid.", "Invalid Must-Have Items!", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				}
 				else
 					model.setBooleanExpression(null);
 
-				Editor.this.textArea.setText(model.getSelected().getText());
+				try {
+					model.setCurrencyChange(Integer.parseInt(currencyChangeTextArea.getText().trim()));
+				}
+				catch(NumberFormatException e) {
+					JOptionPane.showMessageDialog(detailsDialog, "The currency change must be a positive or negative integer.", "Invalid Currency Change!", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				model.saveDetails();
+				Editor.this.textArea.setText(model.getSelected().getText());
 				detailsDialog.setVisible(false);				
 			}
 		});
