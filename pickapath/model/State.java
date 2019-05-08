@@ -94,8 +94,6 @@ public class State {
 	public void makeChoice(int choice) {
 		if( choice >= 0 && choice < choices.size() ) {
 			Arrow arrow = choices.get(choice);
-	
-			choices.clear();
 			
 			//remove items first
 			inventory.removeAll(arrow.getLostItems());
@@ -103,6 +101,8 @@ public class State {
 			currency += arrow.getCurrencyChange();
 			
 			prompt = arrow.getEnd();
+			
+			updateChoices();			
 		}
 	}
 }

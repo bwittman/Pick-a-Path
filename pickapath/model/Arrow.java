@@ -165,8 +165,8 @@ public class Arrow extends CanvasObject {
 
 		if( start == end ) {
 			theta = 3.0*Math.PI/2.0;			
-			midX = startX + Box.WIDTH;
-			midY = startY + Arrow.HEIGHT/2;
+			midX = startX + Box.WIDTH/2.0 + Box.HEIGHT/2.0;
+			midY = startY - Box.HEIGHT/2.0 + Arrow.HEIGHT/2.0;
 		}		
 		else {
 			theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
@@ -307,10 +307,10 @@ public class Arrow extends CanvasObject {
 		g.setStroke(newStroke);
 
 		if( start == end ) {
-			g.drawOval(fix(startX, zoom), fix(startY - Box.WIDTH/2.0, zoom), fix(Box.WIDTH, zoom), fix(Box.WIDTH, zoom));
+			g.drawOval(fix(startX + Box.WIDTH/2.0 - Box.HEIGHT/2.0, zoom), fix(startY - Box.HEIGHT, zoom), fix(Box.HEIGHT, zoom), fix(Box.HEIGHT, zoom));
 
-			midX = startX + Box.WIDTH;
-			midY = startY + Arrow.HEIGHT/2;
+			midX = startX + Box.WIDTH/2.0 + Box.HEIGHT/2.0;
+			midY = startY - Box.HEIGHT/2.0 + Arrow.HEIGHT/2.0;
 		}
 		else {			
 			double endX = end.getX();

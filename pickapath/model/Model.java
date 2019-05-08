@@ -13,8 +13,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import pickapath.editor.Canvas;
-
 public class Model implements TableModel {
 
 	private List<Box> boxes = new ArrayList<>();
@@ -355,9 +353,10 @@ public class Model implements TableModel {
 	}
 
 	protected List<Box> getStartingBoxes() {
-		List<Box> startingBoxes = new ArrayList<Box>();
+		List<Box> startingBoxes = new ArrayList<>();
 		for (Box box : boxes) {
-			if (box.getIncoming().isEmpty())
+			//Boxes with nothing incoming or whose only incoming is a self loop can be starting points 
+			if (box.getIncoming().isEmpty() || (box.getIncoming().size() == 1 && box.getIncoming().get(0).getStart() == box ))
 				startingBoxes.add(box);
 		}
 		return startingBoxes;
