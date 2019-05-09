@@ -19,21 +19,47 @@ public class BooleanExpression {
 	private Kind kind;
 
 	public String toString() {
+		return toString(null);
+	}
+	
+	private String toString(Kind parent) {
 		switch(kind) {
 		case ITEM: return "" + item.getId();
-		case AND: return "(" + op1 + " AND " + op2 + ")";
-		case OR: return "(" + op1 + " OR " + op2 + ")";
-		case NOT: return "NOT (" + op1 + ")";
+		case AND: 
+			if( parent == Kind.AND || parent == null )
+				return op1.toString(kind) + " AND " + op2.toString(kind);
+			else
+				return "(" +  op1.toString(kind) + " AND " + op2.toString(kind) + ")";
+		case OR: 
+			if( parent == Kind.OR || parent == null )
+				return op1.toString(kind) + " OR " + op2.toString(kind);
+			else
+				return "(" +  op1.toString(kind) + " OR " + op2.toString(kind) + ")";
+		case NOT:			
+				return "NOT " + op1.toString(kind);
 		}
 		return "";
 	}
 	
 	public String getToolTipText() {
+		return getToolTipText(null);
+	}
+	
+	private String getToolTipText(Kind parent) {
 		switch(kind) {
 		case ITEM: return "" + item.getName();
-		case AND: return "(" + op1.getToolTipText() + " AND " + op2.getToolTipText() + ")";
-		case OR: return "(" + op1.getToolTipText() + " OR " + op2.getToolTipText() + ")";
-		case NOT: return "NOT (" + op1.getToolTipText() + ")";
+		case AND: 
+			if( parent == Kind.AND || parent == null )
+				return op1.getToolTipText(kind) + " AND " + op2.getToolTipText(kind);
+			else
+				return "(" +  op1.getToolTipText(kind) + " AND " + op2.getToolTipText(kind) + ")";
+		case OR: 
+			if( parent == Kind.OR || parent == null )
+				return op1.getToolTipText(kind) + " OR " + op2.getToolTipText(kind);
+			else
+				return "(" +  op1.getToolTipText(kind) + " OR " + op2.getToolTipText(kind) + ")";
+		case NOT:			
+				return "NOT " + op1.getToolTipText(kind);
 		}
 		return "";
 	}
@@ -77,53 +103,94 @@ public class BooleanExpression {
 		}
 	}
 
-	public static BooleanExpression makeExpression(String expressionText, Model model) throws BooleanExpressionException {
-		return makeExpression(expressionText.toUpperCase(), model, 0, null);
+	public static BooleanExpression makeExpression(String text, Model model) throws BooleanExpressionException {
+		text = text.toUpperCase();
+		int[] length = new int[1];
+
+		BooleanExpression operand = makeOperand(text, model, length);
+		
+		int i = length[0];
+		
+		while( i < text.length() ) {
+		
+			while(i < text.length() && Character.isWhitespace(text.charAt(i)))
+				i++;
+			
+			if( i < text.length() ) {
+				if(i + 2 < text.length() && text.substring(i, i + 3).equals("AND")) {
+					operand = and(operand, makeOperand(text.substring(i + 3), model, length));
+					i += 3 + length[0];
+				}
+				else if(i + 1 < text.length() && text.substring(i, i + 2).equals("OR")) {
+					operand = or(operand, makeOperand(text.substring(i + 2), model, length));
+					i += 2 + length[0];
+				}
+				else
+					throw new BooleanExpressionException();
+			}
+		}
+		
+		return operand;
 	}
-	private static BooleanExpression makeExpression(String expressionText, Model model, int i, BooleanExpression previous) throws BooleanExpressionException {
-		while(i < expressionText.length() && Character.isWhitespace(expressionText.charAt(i)))
+	
+	
+	private static BooleanExpression makeOperand(String text, Model model, int[] length) throws BooleanExpressionException {
+		int i = 0;
+		
+		while(i < text.length() && Character.isWhitespace(text.charAt(i)))
 			i++;
 
-		if( i < expressionText.length() ) {
-
-			char c = expressionText.charAt(i);
+		if( i < text.length() ) {
+			char c = text.charAt(i);
 			if (c == '(') {
-				return makeExpression(expressionText, model, i + 1, previous);
-			} else if (c ==')') {
-				return previous;
-			} 
+				int start = i;
+				int count = 1;
+				i++;
+				while( i < text.length() && count > 0 ) {
+					char symbol = text.charAt(i);
+					if( symbol == ')' )
+						count--;
+					else if( symbol == '(')
+						count++;
+					
+					i++;
+				}
+				if( count == 0 ) {
+					length[0] = i;
+					return makeExpression(text.substring(start + 1, i - 1), model);
+				}
+				else
+					throw new BooleanExpressionException();
+				
+			}
 			else if (Character.isDigit(c)) {	
 				String number = "";
-				while (i < expressionText.length() && Character.isDigit(expressionText.charAt(i))) {
-					number += expressionText.charAt(i);
+				while (i < text.length() && Character.isDigit(text.charAt(i))) {
+					number += text.charAt(i);
 					i++;
 				}
 
 				try {
 					int id = Integer.parseInt(number);
 					Item item = model.getItemById(id);
-					if( item != null )
-						return makeExpression(expressionText, model, i,  new BooleanExpression(item));
+					if( item != null ) {
+						length[0] = i;
+						return new BooleanExpression(item);
+					}						
 				}
 				catch(NumberFormatException e) {}
-				throw new BooleanExpressionException();
+				throw new BooleanExpressionException();			
+		
 			}
-			else if(i + 2 < expressionText.length() && expressionText.substring(i, i + 3).equals("AND")) {
-				return and(previous, makeExpression(expressionText, model, i + 3, previous));
+			else if( i + 2 < text.length() && text.substring(i, i + 3).equals("NOT") ) {
+				int[] notLength = new int[1];
+				BooleanExpression expression = makeOperand(text.substring(i + 3), model, notLength);
+				length[0] = i + 3 + notLength[0];
+				return not(expression);				
 			}
-			else if(i + 1 < expressionText.length() && expressionText.substring(i, i + 2).equals("OR")) {
-				return or(previous, makeExpression(expressionText, model, i + 2, previous));
-			}
-			else if(i + 2 < expressionText.length() && expressionText.substring(i, i + 3).equals("NOT")) {
-				return not( makeExpression(expressionText, model, i + 3, previous));
-			} else {
-				throw new BooleanExpressionException();
-			}
-
-
 		}
-
-		return previous;
+			
+		throw new BooleanExpressionException();		
 	}
 
 	public static BooleanExpression and(BooleanExpression op1, BooleanExpression op2) {

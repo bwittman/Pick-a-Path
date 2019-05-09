@@ -1051,13 +1051,20 @@ public class Editor extends JFrame implements ModelListener {
 				else
 					model.setBooleanExpression(null);
 
-				try {
-					model.setCurrencyChange(Integer.parseInt(currencyChangeTextArea.getText().trim()));
+				
+				text = currencyChangeTextArea.getText().trim();
+				
+				if( !text.isEmpty() ) {				
+					try {
+						model.setCurrencyChange(Integer.parseInt(currencyChangeTextArea.getText().trim()));
+					}
+					catch(NumberFormatException e) {
+						JOptionPane.showMessageDialog(detailsDialog, "The currency change must be a positive or negative integer.", "Invalid Currency Change!", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
 				}
-				catch(NumberFormatException e) {
-					JOptionPane.showMessageDialog(detailsDialog, "The currency change must be a positive or negative integer.", "Invalid Currency Change!", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
+				else
+					model.setCurrencyChange(0);
 				
 				model.saveDetails();
 				Editor.this.textArea.setText(model.getSelected().getText());
