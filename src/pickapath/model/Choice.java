@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Arrow extends CanvasObject {
+public class Choice extends CanvasObject {
 
-	private Box start;
-	private Box end;
+	private Prompt start;
+	private Prompt end;
 	private BooleanExpression expression;
 	public final static int HEIGHT = 24;
 	public final static int HALF_WIDTH = 18;
@@ -30,8 +30,8 @@ public class Arrow extends CanvasObject {
 	private int[] xPoints = new int[3];
 	private int[] yPoints = new int[3];	
 
-	//Constructor for arrows
-	public Arrow(Box start, Box end, String text) {
+	//Constructor for choices
+	public Choice(Prompt start, Prompt end, String text) {
 		super(text);
 		this.start = start;
 		this.end = end;
@@ -43,10 +43,10 @@ public class Arrow extends CanvasObject {
 	}
 
 	//Package-private
-	Arrow(Arrow other, Map<Box, Integer> boxMap, List<Box> boxes, Map<Item, Integer> itemMap, List<Item> items ) {
+	Choice(Choice other, Map<Prompt, Integer> promptIndexes, List<Prompt> prompts, Map<Item, Integer> itemMap, List<Item> items ) {
 		super(other.getText());
-		start = boxes.get(boxMap.get(other.start));
-		end = boxes.get(boxMap.get(other.end));
+		start = prompts.get(promptIndexes.get(other.start));
+		end = prompts.get(promptIndexes.get(other.end));
 
 		start.addOutgoing(this);
 		end.addIncoming(this);
@@ -68,12 +68,12 @@ public class Arrow extends CanvasObject {
 
 	}
 
-	public Arrow(ObjectInputStream in, Model model) throws IOException, ClassNotFoundException {	//populate info from saved file
+	public Choice(ObjectInputStream in, Model model) throws IOException, ClassNotFoundException {	//populate info from saved file
 		super(in);
 		int startIndex = in.readInt();
 		int endIndex = in.readInt();
-		start = model.getBox(startIndex);
-		end = model.getBox(endIndex);
+		start = model.getPrompt(startIndex);
+		end = model.getPrompt(endIndex);
 		start.addOutgoing(this);
 		end.addIncoming(this);
 		order = start.getOutgoing().size();
@@ -130,10 +130,10 @@ public class Arrow extends CanvasObject {
 
 	//Write arrow information to a file
 	//Package private
-	void write(ObjectOutputStream out, Map<Box, Integer> boxIndexes, Map<Item, Integer> itemIndexes) throws IOException {	
+	void write(ObjectOutputStream out, Map<Prompt, Integer> promptIndexes, Map<Item, Integer> itemIndexes) throws IOException {	
 		super.write(out);
-		int startIndex = boxIndexes.get(start);
-		int endIndex = boxIndexes.get(end);
+		int startIndex = promptIndexes.get(start);
+		int endIndex = promptIndexes.get(end);
 
 		out.writeInt(startIndex);
 		out.writeInt(endIndex);
@@ -153,11 +153,11 @@ public class Arrow extends CanvasObject {
 		out.writeInt(currencyChange);
 	}
 
-	public Box getStart() {
+	public Prompt getStart() {
 		return start;
 	}
 
-	public Box getEnd() {
+	public Prompt getEnd() {
 		return end;
 	}
 
@@ -170,8 +170,8 @@ public class Arrow extends CanvasObject {
 
 		if( start == end ) {
 			theta = 3.0*Math.PI/2.0;			
-			midX = startX + Box.WIDTH/2.0 + Box.HEIGHT/2.0;
-			midY = startY - Box.HEIGHT/2.0 + Arrow.HEIGHT/2.0;
+			midX = startX + Prompt.WIDTH/2.0 + Prompt.HEIGHT/2.0;
+			midY = startY - Prompt.HEIGHT/2.0 + Choice.HEIGHT/2.0;
 		}		
 		else {
 			theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
@@ -181,8 +181,8 @@ public class Arrow extends CanvasObject {
 			if( isTandem() ) {
 
 				double perpendicular = theta - Math.PI/2.0;
-				double deltaX = Math.cos(perpendicular)*Box.WIDTH/5.0;
-				double deltaY = Math.sin(perpendicular)*Box.WIDTH/5.0;
+				double deltaX = Math.cos(perpendicular)*Prompt.WIDTH/5.0;
+				double deltaY = Math.sin(perpendicular)*Prompt.WIDTH/5.0;
 
 				startX += deltaX;
 				endX += deltaX;
@@ -195,12 +195,12 @@ public class Arrow extends CanvasObject {
 		}
 
 
-		double tipX = midX - Arrow.HEIGHT*Math.sin(theta-Math.PI/2.0);
-		double tipY = midY + Arrow.HEIGHT*Math.cos(theta-Math.PI/2.0);
-		double leftX = midX + Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2.0);
-		double leftY = midY + Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2.0);
-		double rightX = midX -Arrow.HALF_WIDTH*Math.cos(theta-Math.PI/2.0);
-		double rightY = midY - Arrow.HALF_WIDTH*Math.sin(theta-Math.PI/2.0);
+		double tipX = midX - Choice.HEIGHT*Math.sin(theta-Math.PI/2.0);
+		double tipY = midY + Choice.HEIGHT*Math.cos(theta-Math.PI/2.0);
+		double leftX = midX + Choice.HALF_WIDTH*Math.cos(theta-Math.PI/2.0);
+		double leftY = midY + Choice.HALF_WIDTH*Math.sin(theta-Math.PI/2.0);
+		double rightX = midX -Choice.HALF_WIDTH*Math.cos(theta-Math.PI/2.0);
+		double rightY = midY - Choice.HALF_WIDTH*Math.sin(theta-Math.PI/2.0);
 
 		//zoom variables
 		x[0] = fix(tipX, zoom);		
@@ -312,10 +312,10 @@ public class Arrow extends CanvasObject {
 		g.setStroke(newStroke);
 
 		if( start == end ) {
-			g.drawOval(fix(startX + Box.WIDTH/2.0 - Box.HEIGHT/2.0, zoom), fix(startY - Box.HEIGHT, zoom), fix(Box.HEIGHT, zoom), fix(Box.HEIGHT, zoom));
+			g.drawOval(fix(startX + Prompt.WIDTH/2.0 - Prompt.HEIGHT/2.0, zoom), fix(startY - Prompt.HEIGHT, zoom), fix(Prompt.HEIGHT, zoom), fix(Prompt.HEIGHT, zoom));
 
-			midX = startX + Box.WIDTH/2.0 + Box.HEIGHT/2.0;
-			midY = startY - Box.HEIGHT/2.0 + Arrow.HEIGHT/2.0;
+			midX = startX + Prompt.WIDTH/2.0 + Prompt.HEIGHT/2.0;
+			midY = startY - Prompt.HEIGHT/2.0 + Choice.HEIGHT/2.0;
 		}
 		else {			
 			double endX = end.getX();
@@ -324,8 +324,8 @@ public class Arrow extends CanvasObject {
 			if( isTandem() ) {
 				double theta = Math.atan2(end.getY()-start.getY(), end.getX()-start.getX());
 				double perpendicular = theta - Math.PI/2.0;
-				double deltaX = Math.cos(perpendicular)*Box.WIDTH/5.0;
-				double deltaY = Math.sin(perpendicular)*Box.WIDTH/5.0;
+				double deltaX = Math.cos(perpendicular)*Prompt.WIDTH/5.0;
+				double deltaY = Math.sin(perpendicular)*Prompt.WIDTH/5.0;
 
 				startX += deltaX;
 				endX += deltaX;
@@ -412,8 +412,8 @@ public class Arrow extends CanvasObject {
 
 
 	private boolean isTandem() {
-		for(Arrow arrow : end.getOutgoing() )
-			if( arrow.end == start)
+		for(Choice choice : end.getOutgoing() )
+			if( choice.end == start)
 				return true;
 
 		return false;
@@ -422,26 +422,26 @@ public class Arrow extends CanvasObject {
 	//Package private
 	void makeEarlier() {
 		int index = order - 1;
-		List<Arrow> arrows = start.getOutgoing();
+		List<Choice> choices = start.getOutgoing();
 		if( index > 0 ) {
-			Arrow swap = arrows.get(index - 1);
+			Choice swap = choices.get(index - 1);
 			swap.order++;
 			order--;
-			arrows.set(index, swap);
-			arrows.set(index - 1, this);
+			choices.set(index, swap);
+			choices.set(index - 1, this);
 		}
 	}
 
 	//Package private
 	void makeLater() {
 		int index = order - 1;
-		List<Arrow> arrows = start.getOutgoing();
-		if( index < arrows.size() - 1 ) {
-			Arrow swap = arrows.get(index + 1);
+		List<Choice> choices = start.getOutgoing();
+		if( index < choices.size() - 1 ) {
+			Choice swap = choices.get(index + 1);
 			swap.order--;
 			order++;
-			arrows.set(index, swap);
-			arrows.set(index + 1, this);
+			choices.set(index, swap);
+			choices.set(index + 1, this);
 		}		
 	}
 

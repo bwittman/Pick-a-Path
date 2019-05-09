@@ -15,8 +15,8 @@ import javax.swing.table.TableModel;
 
 public class Model implements TableModel {
 
-	private List<Box> boxes = new ArrayList<>();
-	private List<Arrow> arrows = new ArrayList<>();
+	private List<Prompt> prompts = new ArrayList<>();
+	private List<Choice> choices = new ArrayList<>();
 	private List<Item> items = new ArrayList<>();
 	private String title = "";
 	private String currencyName = "";
@@ -45,8 +45,8 @@ public class Model implements TableModel {
 	}
 	
 	private class SnapShot {
-		List<Box> boxes;
-		List<Arrow> arrows;
+		List<Prompt> prompts;
+		List<Choice> choices;
 		List<Item> items;
 		boolean dirty;
 		int itemIdCount;
@@ -54,21 +54,21 @@ public class Model implements TableModel {
 		
 		public SnapShot() {
 			Model model = Model.this;
-			boxes = new ArrayList<>(model.boxes.size());
-			arrows = new ArrayList<>(model.arrows.size());
+			prompts = new ArrayList<>(model.prompts.size());
+			choices = new ArrayList<>(model.choices.size());
 			items = new ArrayList<>(model.items.size());
 			
-			Map<Box, Integer> boxMap = new HashMap<>(model.boxes.size() * 2);
+			Map<Prompt, Integer> promptIndexes = new HashMap<>(model.prompts.size() * 2);
 			Map<Item, Integer> itemMap = new HashMap<>(model.items.size() * 2);
 			
-			//Recreate all boxes in order
-			//Make a mapping from old boxes to their indexes in the list
-			for( int i = 0; i < model.boxes.size(); ++i ) {
-				Box box = model.boxes.get(i);
-				boxMap.put(box, i);
-				boxes.add(new Box(box));
-				if( model.selected == box )
-					selected = boxes.get(i);
+			//Recreate all prompts in order
+			//Make a mapping from old prompts to their indexes in the list
+			for( int i = 0; i < model.prompts.size(); ++i ) {
+				Prompt prompt = model.prompts.get(i);
+				promptIndexes.put(prompt, i);
+				prompts.add(new Prompt(prompt));
+				if( model.selected == prompt )
+					selected = prompts.get(i);
 			}
 			
 			
@@ -80,14 +80,14 @@ public class Model implements TableModel {
 				items.add(new Item(item));
 			}
 			
-			//Recreate all arrows
-			//Use the maps from boxes to indexes and items to indexes to put
-			//put the newly created boxes and items in the new arrows
-			for( int i = 0; i < model.arrows.size(); ++i ) {
-				Arrow arrow = model.arrows.get(i);
-				arrows.add(new Arrow(arrow, boxMap, boxes, itemMap, items));
-				if( model.selected == arrow )
-					selected = arrows.get(i);
+			//Recreate all choices
+			//Use the maps from prompts to indexes and items to indexes to put
+			//put the newly created prompts and items in the new choices
+			for( int i = 0; i < model.choices.size(); ++i ) {
+				Choice choice = model.choices.get(i);
+				choices.add(new Choice(choice, promptIndexes, prompts, itemMap, items));
+				if( model.selected == choice )
+					selected = choices.get(i);
 			}
 			
 			dirty = model.dirty;
@@ -96,8 +96,8 @@ public class Model implements TableModel {
 	}
 
 	private void clear() {
-		boxes.clear();
-		arrows.clear();
+		prompts.clear();
+		choices.clear();
 
 		if( items.size() > 0 ) {			
 			TableModelEvent event = new TableModelEvent(this, 0, items.size() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE);
@@ -126,75 +126,75 @@ public class Model implements TableModel {
 		return dirty;
 	}
 
-	public Box getBox(int index) {
-		return boxes.get(index);
+	public Prompt getPrompt(int index) {
+		return prompts.get(index);
 	}
 
-	public void add(Box box) {
-		boxes.add(box);
-		selected = box;
-		updateListeners(Event.CREATE, box, true);
+	public void add(Prompt prompt) {
+		prompts.add(prompt);
+		selected = prompt;
+		updateListeners(Event.CREATE, prompt, true);
 	}
 
-	public void add(Arrow arrow) {
-		arrows.add(arrow);
-		selected = arrow;
-		updateListeners(Event.CREATE, arrow, true);
+	public void add(Choice choice) {
+		choices.add(choice);
+		selected = choice;
+		updateListeners(Event.CREATE, choice, true);
 	}
 
-	public void removeBox() {		
-		if( selected instanceof Box) {
-			Box box = (Box)selected;
-			if( boxes.remove(box) ) {
-				for(Arrow arrow: box.getIncoming()) 
-					arrows.remove(arrow);
+	public void removePrompt() {		
+		if( selected instanceof Prompt) {
+			Prompt prompt = (Prompt)selected;
+			if( prompts.remove(prompt) ) {
+				for(Choice choice: prompt.getIncoming()) 
+					choices.remove(choice);
 
-				for(Arrow arrow: box.getOutgoing())
-					arrows.remove(arrow);
+				for(Choice choice: prompt.getOutgoing())
+					choices.remove(choice);
 
-				updateListeners(Event.DELETE, box, true);
+				updateListeners(Event.DELETE, prompt, true);
 			}
 		}
 	}
 
 	public void removeArrow() {	
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			if( arrows.remove(arrow) ) {
-				arrow.getStart().getOutgoing().remove(arrow);
-				arrow.getEnd().getIncoming().remove(arrow);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			if( choices.remove(choice) ) {
+				choice.getStart().getOutgoing().remove(choice);
+				choice.getEnd().getIncoming().remove(choice);
 
-				updateListeners(Event.DELETE, arrow, true);
+				updateListeners(Event.DELETE, choice, true);
 			}
 		}
 	}
 
 	public void makeArrowEarlier() {
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			arrow.makeEarlier();
-			updateListeners(Event.ORDER_EARLIER, arrow, true);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			choice.makeEarlier();
+			updateListeners(Event.ORDER_EARLIER, choice, true);
 		}
 	}
 
 	public void makeArrowLater() {
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			arrow.makeLater();
-			updateListeners(Event.ORDER_LATER, arrow, true);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			choice.makeLater();
+			updateListeners(Event.ORDER_LATER, choice, true);
 		}
 	}
 
-	public Arrow getArrow(int index) {
-		return arrows.get(index);
+	public Choice getArrow(int index) {
+		return choices.get(index);
 	}
 
 	public int arrowCount() {
-		return arrows.size();
+		return choices.size();
 	}
 
-	public int boxCount() {
-		return boxes.size();
+	public int promptCount() {
+		return prompts.size();
 	}
 
 	public Item getItem(int index) {
@@ -233,15 +233,15 @@ public class Model implements TableModel {
 		out.writeObject(title);
 		out.writeObject(currencyName);
 
-		Map<Box, Integer> boxIndexes = new HashMap<>();
+		Map<Prompt, Integer> promptIndexes = new HashMap<>();
 		Map<Item, Integer> itemIndexes = new HashMap<>();
 
 		
-		out.writeInt(boxes.size());
-		for(int i = 0; i < boxes.size(); ++i ) {
-			Box box = boxes.get(i);
-			boxIndexes.put(box, i);
-			box.write(out);
+		out.writeInt(prompts.size());
+		for(int i = 0; i < prompts.size(); ++i ) {
+			Prompt prompt = prompts.get(i);
+			promptIndexes.put(prompt, i);
+			prompt.write(out);
 		}
 
 		out.writeInt(items.size());
@@ -251,11 +251,11 @@ public class Model implements TableModel {
 			item.write(out);
 		}
 
-		//Write arrows from boxes to preserve their internal ordering
-		out.writeInt(arrows.size());
-		for (Box box: boxes)
-			for( Arrow arrow: box.getOutgoing() )
-				arrow.write(out, boxIndexes, itemIndexes);
+		//Write choices from prompts to preserve their internal ordering
+		out.writeInt(choices.size());
+		for (Prompt prompt: prompts)
+			for( Choice choice: prompt.getOutgoing() )
+				choice.write(out, promptIndexes, itemIndexes);
 		
 		dirty = false;
 
@@ -274,9 +274,9 @@ public class Model implements TableModel {
 		title = (String)in.readObject(); //title
 		currencyName = (String)in.readObject(); //currency
 
-		int boxCount = in.readInt();
-		for (int i = 0; i < boxCount; ++i )
-			boxes.add(new Box(in));
+		int promptCount = in.readInt();
+		for (int i = 0; i < promptCount; ++i )
+			prompts.add(new Prompt(in));
 
 		int itemCount = in.readInt();
 		for (int i = 0; i <  itemCount; ++i)
@@ -288,15 +288,15 @@ public class Model implements TableModel {
 
 		int arrowCount = in.readInt();
 		for (int i = 0; i <  arrowCount; ++i)
-			arrows.add(new Arrow(in, this));
+			choices.add(new Choice(in, this));
 
 
 		updateListeners(Event.LOAD, null, false);
 	}
 
-	protected int getBoxIndex(Box box) {
-		for (int i = 0; i < boxes.size(); i++) {
-			if (boxes.get(i) == box)
+	protected int getPromptIndex(Prompt prompt) {
+		for (int i = 0; i < prompts.size(); i++) {
+			if (prompts.get(i) == prompt)
 				return i;
 		}
 
@@ -313,36 +313,36 @@ public class Model implements TableModel {
 		return -1;
 	}
 
-	public void selectBox(int index) {
-		Box box = boxes.get(index);
-		selected = box;
+	public void selectPrompt(int index) {
+		Prompt prompt = prompts.get(index);
+		selected = prompt;
 		if( index != 0 ) {			
-			boxes.remove(index);
-			boxes.add(0, box);
-			updateListeners(Event.SELECT, box, true);
+			prompts.remove(index);
+			prompts.add(0, prompt);
+			updateListeners(Event.SELECT, prompt, true);
 		}
 		else
-			updateListeners(Event.SELECT, box, false);
+			updateListeners(Event.SELECT, prompt, false);
 	}
 
-	public void recolorBox() {
-		if( selected instanceof Box ) {
-			Box box = (Box) selected;
-			box.recolor();
-			updateListeners(Event.RECOLOR, box, true);
+	public void recolorPrompt() {
+		if( selected instanceof Prompt ) {
+			Prompt prompt = (Prompt) selected;
+			prompt.recolor();
+			updateListeners(Event.RECOLOR, prompt, true);
 		}
 	}
 
 	public void selectArrow(int index) {
-		Arrow arrow = arrows.get(index);
-		selected = arrow;
+		Choice choice = choices.get(index);
+		selected = choice;
 		if( index != 0 ) {			
-			arrows.remove(index);
-			arrows.add(0, arrow);
-			updateListeners(Event.SELECT, arrow, true);
+			choices.remove(index);
+			choices.add(0, choice);
+			updateListeners(Event.SELECT, choice, true);
 		}
 		else
-			updateListeners(Event.SELECT, arrow, false);
+			updateListeners(Event.SELECT, choice, false);
 	}
 
 	public void addModelListener(ModelListener listener) {
@@ -356,20 +356,20 @@ public class Model implements TableModel {
 			listener.updateModel(event, object);
 	}
 
-	protected List<Box> getStartingBoxes() {
-		List<Box> startingBoxes = new ArrayList<>();
-		for (Box box : boxes) {
-			//Boxes with nothing incoming or whose only incoming is a self loop can be starting points 
-			if (box.getIncoming().isEmpty() || (box.getIncoming().size() == 1 && box.getIncoming().get(0).getStart() == box ))
-				startingBoxes.add(box);
+	protected List<Prompt> getStartingPrompts() {
+		List<Prompt> startingPrompts = new ArrayList<>();
+		for (Prompt prompt : prompts) {
+			//Prompts with no choices incoming or whose only incoming choice is a self-loop can be starting points 
+			if (prompt.getIncoming().isEmpty() || (prompt.getIncoming().size() == 1 && prompt.getIncoming().get(0).getStart() == prompt ))
+				startingPrompts.add(prompt);
 		}
-		return startingBoxes;
+		return startingPrompts;
 	}
 
-	public void setPosition(Box box, int x, int y, double zoom) {
-		box.setX(x, zoom);
-		box.setY(y, zoom);
-		updateListeners(Event.MOVE, box, true);
+	public void setPosition(Prompt prompt, int x, int y, double zoom) {
+		prompt.setX(x, zoom);
+		prompt.setY(y, zoom);
+		updateListeners(Event.MOVE, prompt, true);
 	}
 
 	public void setText(String text) {
@@ -460,8 +460,8 @@ public class Model implements TableModel {
 	}
 	public void deleteItem (int row) {
 		Item item = items.remove(row);
-		for(Arrow arrow : arrows)
-			arrow.deleteItem(item);
+		for(Choice choice : choices)
+			choice.deleteItem(item);
 		TableModelEvent event = new TableModelEvent(this, row, row, TableModelEvent.ALL_COLUMNS, TableModelEvent.DELETE);
 		for (TableModelListener listener: tableListeners)
 			listener.tableChanged(event);		
@@ -469,42 +469,42 @@ public class Model implements TableModel {
 	}
 
 	public void addGainedItem(Item item) {
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			arrow.addGainedItem(item);
-			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			choice.addGainedItem(item);
+			updateListeners(Event.DETAILS_CHANGE, choice, true);
 		}
 	}
 
 	public void removeGainedItem(Item item) {
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			arrow.removeGainedItem(item);
-			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			choice.removeGainedItem(item);
+			updateListeners(Event.DETAILS_CHANGE, choice, true);
 		}
 	}
 
 	public void addLostItem(Item item) {
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			arrow.addLostItem(item);
-			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			choice.addLostItem(item);
+			updateListeners(Event.DETAILS_CHANGE, choice, true);
 		}
 	}
 
 	public void removeLostItem(Item item) {
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			arrow.removeLostItem(item);
-			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			choice.removeLostItem(item);
+			updateListeners(Event.DETAILS_CHANGE, choice, true);
 		}
 	}
 
 	public void setBooleanExpression(BooleanExpression expression) {
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			arrow.setBooleanExpression(expression);
-			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			choice.setBooleanExpression(expression);
+			updateListeners(Event.DETAILS_CHANGE, choice, true);
 		}		
 	}
 	
@@ -520,8 +520,8 @@ public class Model implements TableModel {
 				listener.tableChanged(event);
 		}
 		
-		boxes = snapShot.boxes;
-		arrows = snapShot.arrows;
+		prompts = snapShot.prompts;
+		choices = snapShot.choices;
 		items = snapShot.items;
 		dirty = snapShot.dirty;
 		itemIdCount = snapShot.itemIdCount;
@@ -537,16 +537,16 @@ public class Model implements TableModel {
 
 	public void saveDetails() {
 		// TODO Use to support undos for details changes
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			updateListeners(Event.DETAILS_CHANGE, arrow, true);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			updateListeners(Event.DETAILS_CHANGE, choice, true);
 		}
 	}
 
 	public void setCurrencyChange(int change) {
-		if( selected instanceof Arrow) {
-			Arrow arrow = (Arrow)selected;
-			arrow.setCurrencyChange(change);
+		if( selected instanceof Choice) {
+			Choice choice = (Choice)selected;
+			choice.setCurrencyChange(change);
 		}		
 	}
 }

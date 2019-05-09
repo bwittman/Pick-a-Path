@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
 
 import pickapath.editor.Canvas;
 import pickapath.editor.Editor;
-import pickapath.model.Arrow;
-import pickapath.model.Box;
+import pickapath.model.Choice;
+import pickapath.model.Prompt;
 import pickapath.model.Item;
 
 class Tests {
@@ -25,97 +25,97 @@ class Tests {
 	/*
 	
 	@Test
-	public void deleteAllBoxesTest() { //test to see if all boxes are successfully deleted from the canvas
+	public void deleteAllPromptsTest() { //test to see if all prompts are successfully deleted from the canvas
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box box1 = new Box(40,60,"Olivia");
-		canvas.addBox(box1);
-		Box box2 = new Box(25,70, "Lucia");
-		canvas.addBox(box2);
+		Prompt prompt1 = new Prompt(40,60,"Olivia");
+		canvas.addPrompt(prompt1);
+		Prompt prompt2 = new Prompt(25,70, "Lucia");
+		canvas.addPrompt(prompt2);
 
-		List<Arrow> arrows = canvas.getArrows();
-		arrows.add(new Arrow (box1, box2, "friends"));
+		List<Choice> choices = canvas.getChoices();
+		choices.add(new Choice (prompt1, prompt2, "friends"));
 
-		canvas.selectBox(0);
-		canvas.deleteBox();
+		canvas.selectPrompt(0);
+		canvas.deletePrompt();
 		
-		canvas.selectBox(0);
-		canvas.deleteBox();
+		canvas.selectPrompt(0);
+		canvas.deletePrompt();
 		main.dispose();
 
-		Assert.assertEquals("boxes not deleted", true, canvas.getBoxes().size()==0 && arrows.size()==0);
+		Assert.assertEquals("prompts not deleted", true, canvas.getPrompts().size()==0 && choices.size()==0);
 	}
 
 
 	@Test
-	public void addIncomingTest1() { //test to check if a box has an arrow incoming from another box
-		Box box0 = new Box(40,60,"Olivia");
-		Box box1 = new Box(25,70,"Lucia");
-		Arrow arrow = new Arrow (box0, box1, "friends");
-		Assert.assertEquals("Incoming arrow not added", 1, box1.getIncoming().size());
+	public void addIncomingTest1() { //test to check if a prompt has an choice incoming from another prompt
+		Prompt prompt0 = new Prompt(40,60,"Olivia");
+		Prompt prompt1 = new Prompt(25,70,"Lucia");
+		Choice choice = new Choice (prompt0, prompt1, "friends");
+		Assert.assertEquals("Incoming choice not added", 1, prompt1.getIncoming().size());
 	}
 
 
 	@Test
-	public void addIncomingTest2() { //test to check that a box has two arrows incoming from two other boxes
-		Box box0 = new Box(40,60,"Olivia");
-		Box box1 = new Box(25,70,"Lucia");
-		Box box2 = new Box(25,70,"Jimmy");
-		Arrow arrow0 = new Arrow (box0, box1, "friends");
-		Arrow arrow1 = new Arrow (box2, box1, "enemies");
-		Assert.assertEquals("Incoming arrows not added", 2, box1.getIncoming().size());
+	public void addIncomingTest2() { //test to check that a prompt has two choices incoming from two other prompts
+		Prompt prompt0 = new Prompt(40,60,"Olivia");
+		Prompt prompt1 = new Prompt(25,70,"Lucia");
+		Prompt prompt2 = new Prompt(25,70,"Jimmy");
+		Choice choice0 = new Choice (prompt0, prompt1, "friends");
+		Choice choice1 = new Choice (prompt2, prompt1, "enemies");
+		Assert.assertEquals("Incoming choices not added", 2, prompt1.getIncoming().size());
 	}
 
 
 
 	@Test
-	public void addOutgoingTest1() { //test to check if a box has an outgoing arrow connecting it to another box
-		Box box0 = new Box(40,60,"Olivia");
-		Box box1 = new Box(25,70,"Lucia");
-		Arrow arrow = new Arrow (box0, box1, "friends");
-		Assert.assertEquals("Outgoing arrow not added", 1, box0.getOutgoing().size());
+	public void addOutgoingTest1() { //test to check if a prompt has an outgoing choice connecting it to another prompt
+		Prompt prompt0 = new Prompt(40,60,"Olivia");
+		Prompt prompt1 = new Prompt(25,70,"Lucia");
+		Choice choice = new Choice (prompt0, prompt1, "friends");
+		Assert.assertEquals("Outgoing choice not added", 1, prompt0.getOutgoing().size());
 	}
 
 	@Test
-	public void addOutgoingTest2() { //test to check if a box has two outgoing arrows connecting to different boxes
-		Box box0 = new Box(40,60,"Olivia");
-		Box box1 = new Box(25,70,"Lucia");
-		Box box2 = new Box(25,70,"Jimmy");
-		Arrow arrow0 = new Arrow (box1, box0, "friends");
-		Arrow arrow1 = new Arrow (box1, box2, "enemies");
-		Assert.assertEquals("Outgoing arrows not added", 2, box1.getOutgoing().size());
+	public void addOutgoingTest2() { //test to check if a prompt has two outgoing choices connecting to different prompts
+		Prompt prompt0 = new Prompt(40,60,"Olivia");
+		Prompt prompt1 = new Prompt(25,70,"Lucia");
+		Prompt prompt2 = new Prompt(25,70,"Jimmy");
+		Choice choice0 = new Choice (prompt1, prompt0, "friends");
+		Choice choice1 = new Choice (prompt1, prompt2, "enemies");
+		Assert.assertEquals("Outgoing choices not added", 2, prompt1.getOutgoing().size());
 	}
 
 	@Test
-	public void boxContainsTest() { //test to check if the specified box contains the specified points
+	public void promptContainsTest() { //test to check if the specified prompt contains the specified points
 		int x = 45;
 		int y = 50;
-		Box box = new Box(40,60,"Olivia");
-		Assert.assertEquals("points not contained in box", true, box.contains(x, y, 1.0));
+		Prompt prompt = new Prompt(40,60,"Olivia");
+		Assert.assertEquals("points not contained in prompt", true, prompt.contains(x, y, 1.0));
 	}
 
 	@Test
-	public void boxDoesntContainTest() { //test to check that a random set of points are outside of a specific box
+	public void promptDoesntContainTest() { //test to check that a random set of points are outside of a specific prompt
 		int x = 45;
 		int y = 50;
-		Box box = new Box(40,60,"Olivia");
-		Assert.assertEquals("points are within box", false, box.contains(30, 29, 1.0));
+		Prompt prompt = new Prompt(40,60,"Olivia");
+		Assert.assertEquals("points are within prompt", false, prompt.contains(30, 29, 1.0));
 	}
 
 	//sucks
 	@Test
-	public void arrowContainsTest() { //test to check if an arrow is made to connect box x and box y
-		List<Box> boxes = new ArrayList<Box>();
-		List<Arrow> arrows = new ArrayList<Arrow>();
-		boxes.add(new Box(40,60,"Olivia"));
-		boxes.add(new Box(25,70,"Lucia"));
-		arrows.add(new Arrow(boxes.get(0), boxes.get(1), "friends"));
-		Arrow arrow = new Arrow(boxes.get(0), boxes.get(1), null);
-		int boxX =  boxes.get(0).getX();
-		int boxY = boxes.get(0).getY();
+	public void choiceContainsTest() { //test to check if an choice is made to connect prompt x and prompt y
+		List<Prompt> prompts = new ArrayList<Prompt>();
+		List<Choice> choices = new ArrayList<Choice>();
+		prompts.add(new Prompt(40,60,"Olivia"));
+		prompts.add(new Prompt(25,70,"Lucia"));
+		choices.add(new Choice(prompts.get(0), prompts.get(1), "friends"));
+		Choice choice = new Choice(prompts.get(0), prompts.get(1), null);
+		int promptX =  prompts.get(0).getX();
+		int promptY = prompts.get(0).getY();
 
-		Assert.assertEquals("mouse X and Y not inside arrow", false, arrow.contains(boxX, boxY, 1.0));
+		Assert.assertEquals("mouse X and Y not inside choice", false, choice.contains(promptX, promptY, 1.0));
 	}
 
 
@@ -125,25 +125,25 @@ class Tests {
 
 
 
-	public void deleteButtonTest() { //test to check if the delete button deletes a selected box
+	public void deleteButtonTest() { //test to check if the delete button deletes a selected prompt
 
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box box1 = new Box(40,60,"Olivia");
-		canvas.addBox(box1);
-		Box box2 = new Box(25,70,"Lucia");
-		canvas.addBox(box2);
+		Prompt prompt1 = new Prompt(40,60,"Olivia");
+		canvas.addPrompt(prompt1);
+		Prompt prompt2 = new Prompt(25,70,"Lucia");
+		canvas.addPrompt(prompt2);
 
-		List<Arrow> arrows = canvas.getArrows();
-		arrows.add(new Arrow (box1, box2, "friends"));
+		List<Choice> choices = canvas.getChoices();
+		choices.add(new Choice (prompt1, prompt2, "friends"));
 
-		List<Box> boxes = canvas.getBoxes();
+		List<Prompt> prompts = canvas.getPrompts();
 
 		canvas.mousePressed(new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, System.nanoTime(), 0, 30, 75, 1, false));
-		canvas.deleteBox();
+		canvas.deletePrompt();
 		main.dispose();
-		Assert.assertEquals("box not deleted", true, boxes.size() == 1 && arrows.size() == 0);
+		Assert.assertEquals("prompt not deleted", true, prompts.size() == 1 && choices.size() == 0);
 	}
 
 
@@ -155,17 +155,17 @@ class Tests {
 
 
 	@Test
-	public void boxXTest(){
-		List<Box> boxes = new ArrayList<Box>();
-		boxes.add(new Box(40,60,"Logan"));
-		Assert.assertEquals("That is not the width",true,boxes.get(0).getX() == 40);
+	public void promptXTest(){
+		List<Prompt> prompts = new ArrayList<Prompt>();
+		prompts.add(new Prompt(40,60,"Logan"));
+		Assert.assertEquals("That is not the width",true,prompts.get(0).getX() == 40);
 		
 		}
 	
 	@Test
-	public void boxYTest(){
-		Box box = new Box(40,60,"Logan");
-		Assert.assertEquals("That is not the y location",60,box.getY());
+	public void promptYTest(){
+		Prompt prompt = new Prompt(40,60,"Logan");
+		Assert.assertEquals("That is not the y location",60,prompt.getY());
 		
 		}
 	@Test // Checks to make sure an item knows its ID number
@@ -261,7 +261,7 @@ class Tests {
 	}
 
 	@Test 
-	public void scrollbarDefaultTest() { //tests to see if the scroll bar is visible when it's not supposed to be (when boxes are in the default viewing area)
+	public void scrollbarDefaultTest() { //tests to see if the scroll bar is visible when it's not supposed to be (when prompts are in the default viewing area)
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
@@ -275,15 +275,15 @@ class Tests {
 	}
 
 	@Test 
-	public void scrollbarIsVisibleTest() { //tests to see if the scroll bar is visible when a box is created outside of the viewing area
+	public void scrollbarIsVisibleTest() { //tests to see if the scroll bar is visible when a prompt is created outside of the viewing area
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 		
-		Box boxy = new Box(200,100,"Boxy"); //creating a new box within the default viewing area
-		canvas.addBox(boxy);
+		Prompt prompty = new Prompt(200,100,"Prompty"); //creating a new prompt within the default viewing area
+		canvas.addPrompt(prompty);
 		
-		Box boxy2 = new Box(2000,1000,"Boxy"); //creating a new box outside of default viewing area
-		canvas.addBox(boxy2);
+		Prompt prompty2 = new Prompt(2000,1000,"Prompty"); //creating a new prompt outside of default viewing area
+		canvas.addPrompt(prompty2);
 
 		
 		JViewport viewport = canvas.getViewport();
@@ -308,13 +308,13 @@ class Tests {
 	} 
 
 	@Test
-	public void updateBoundsTest() { //tests to see if the scroll bar is visible when it's not supposed to be (when boxes are in the default viewing area)
+	public void updateBoundsTest() { //tests to see if the scroll bar is visible when it's not supposed to be (when prompts are in the default viewing area)
 
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box boxy = new Box(2000,1000,"Boxy"); //creating a new box out of default viewing area
-		canvas.addBox(boxy);
+		Prompt prompty = new Prompt(2000,1000,"Prompty"); //creating a new prompt out of default viewing area
+		canvas.addPrompt(prompty);
 		Dimension currentBounds = canvas.getPreferredSize();
 
 
@@ -324,15 +324,15 @@ class Tests {
 	}
 
 	@Test
-	public void resetBoundsTest() { //test to check if the bounds were reset after removing the last box in the canvas
+	public void resetBoundsTest() { //test to check if the bounds were reset after removing the last prompt in the canvas
 
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box boxy = new Box(2000,1000,"Boxy"); //creating a new box out of default viewing area
-		canvas.addBox(boxy);
+		Prompt prompty = new Prompt(2000,1000,"Prompty"); //creating a new prompt out of default viewing area
+		canvas.addPrompt(prompty);
 		canvas.mousePressed(new MouseEvent(canvas, MouseEvent.MOUSE_PRESSED, System.nanoTime(), 0, 2010, 1005, 1, false));
-		canvas.deleteBox();
+		canvas.deletePrompt();
 		Dimension currentBounds = canvas.getPreferredSize();
 
 
@@ -342,18 +342,18 @@ class Tests {
 	}
 
 
-	public void newBoxInBounds() { //tests to make sure that a new box populates within the viewing area
+	public void newPromptInBounds() { //tests to make sure that a new prompt populates within the viewing area
 
 		Editor main = new Editor();
 		Canvas canvas = main.getCanvas();
 
-		Box boxy = new Box(2000,1000,"Boxy"); //creating a new box out of default viewing area
-		canvas.addBox(boxy);
+		Prompt prompty = new Prompt(2000,1000,"Prompty"); //creating a new prompt out of default viewing area
+		canvas.addPrompt(prompty);
 		
-		Box randomLocationBox = new Box((int)Math.random(),(int)Math.random(),"randomLocationBox"); //creates a new box at random coordinates in the canvas 
+		Prompt randomLocationPrompt = new Prompt((int)Math.random(),(int)Math.random(),"randomLocationPrompt"); //creates a new prompt at random coordinates in the canvas 
 		
 		 
-		Assert.assertEquals("The box was not created within bounds", true, canvas.contains(new Point(randomLocationBox.getX(), randomLocationBox.getY())));
+		Assert.assertEquals("The prompt was not created within bounds", true, canvas.contains(new Point(randomLocationPrompt.getX(), randomLocationPrompt.getY())));
 		main.dispose();
 
 		

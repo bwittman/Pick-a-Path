@@ -19,8 +19,8 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 
-import pickapath.model.Arrow;
-import pickapath.model.Box;
+import pickapath.model.Choice;
+import pickapath.model.Prompt;
 import pickapath.model.CanvasObject;
 import pickapath.model.Model;
 import pickapath.model.ModelListener;
@@ -28,8 +28,8 @@ import pickapath.model.ModelListener;
 @SuppressWarnings("serial")
 public class Canvas extends JPanel implements MouseMotionListener, MouseListener, Scrollable, ModelListener {
 	private Model model;
-	private int startXBox;
-	private int startYBox;
+	private int startXPrompt;
+	private int startYPrompt;
 	private int startXDrag;
 	private int startYDrag;
 	private boolean arrowCheck;
@@ -40,7 +40,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	public static int MIN_WIDTH = 640;
 	public static int MIN_HEIGHT = 480;
-	public static int SPACING = Box.HEIGHT;
+	public static int SPACING = Prompt.HEIGHT;
 	
 	private int width = MIN_WIDTH;
 	private int height = MIN_HEIGHT;
@@ -76,40 +76,40 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 	@Override
-	//Paints the boxes and arrows
+	//Draws the prompts and choices
 	public void paint(Graphics g) {
 		super.paint(g);
 
 		Graphics2D graphics = (Graphics2D) g;		
 		graphics.addRenderingHints(hints);
 
-		//Draw arrows back to front
+		//Draw choices back to front
 		for( int i = model.arrowCount() - 1; i >= 0; --i ) {
-			Arrow arrow = model.getArrow(i);
-			arrow.draw(graphics, arrow == model.getSelected(), font, zoom);
+			Choice choice = model.getArrow(i);
+			choice.draw(graphics, choice == model.getSelected(), font, zoom);
 		}
 
-		//Draw boxes back to front
-		for(int i = model.boxCount() - 1; i >= 0; --i) {
-			Box box = model.getBox(i);
-			box.draw(graphics, box == model.getSelected(), font, zoom);
+		//Draw prompts back to front
+		for(int i = model.promptCount() - 1; i >= 0; --i) {
+			Prompt prompt = model.getPrompt(i);
+			prompt.draw(graphics, prompt == model.getSelected(), font, zoom);
 		}
 	}
 
 
 	@Override
-	//Determines if a mouse is inside a box based on its area and coordinates
+	//Determines if a mouse is inside a prompt based on its area and coordinates
 	public void mouseDragged(MouseEvent e) {
 		CanvasObject selected = model.getSelected();
-		if( selected instanceof Box ) {
-			Box selectedBox = (Box) selected;
+		if( selected instanceof Prompt ) {
+			Prompt selectedPrompt = (Prompt) selected;
 			int x = e.getX();
 			int y = e.getY();
 			int deltaX =  x - startXDrag;
 			int deltaY = y - startYDrag;
-			int xMin = (int)Math.round((SPACING + Box.WIDTH /2)*zoom);
-			int yMin = (int)Math.round((SPACING + Box.HEIGHT /2)*zoom);
-			model.setPosition(selectedBox, Math.max(startXBox + deltaX, xMin), Math.max(startYBox + deltaY, yMin), zoom);
+			int xMin = (int)Math.round((SPACING + Prompt.WIDTH /2)*zoom);
+			int yMin = (int)Math.round((SPACING + Prompt.HEIGHT /2)*zoom);
+			model.setPosition(selectedPrompt, Math.max(startXPrompt + deltaX, xMin), Math.max(startYPrompt + deltaY, yMin), zoom);
 		}
 	}
 	
@@ -124,15 +124,15 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		height = Math.max(MIN_HEIGHT, viewport.getExtentSize().height);
 		
 		
-		if( model.boxCount() == 0 ) {
+		if( model.promptCount() == 0 ) {
 			//setPreferredSize(viewport.getExtentSize());
 			viewport.setViewPosition(new Point(0,0)); 
 		}
 		else {
-			for(int i = 0; i < model.boxCount(); ++i) {
-				Box box = model.getBox(i);
-				width = Math.max(width, (int) Math.ceil((box.getX()+Box.WIDTH/2 + SPACING)* zoom));
-				height = Math.max(height, (int) Math.ceil((box.getY()+3*Box.HEIGHT/2)* zoom));	
+			for(int i = 0; i < model.promptCount(); ++i) {
+				Prompt prompt = model.getPrompt(i);
+				width = Math.max(width, (int) Math.ceil((prompt.getX()+Prompt.WIDTH/2 + SPACING)* zoom));
+				height = Math.max(height, (int) Math.ceil((prompt.getY()+3*Prompt.HEIGHT/2)* zoom));	
 			}		 
 		}
 		
@@ -146,16 +146,16 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		int mouseX = event.getX();
 		int mouseY = event.getY();
 
-		for (int i = 0; i < model.boxCount(); ++i) {
-			Box box = model.getBox(i);
-			if (box.contains(mouseX, mouseY, zoom))
-				return box.getToolTipText();		
+		for (int i = 0; i < model.promptCount(); ++i) {
+			Prompt prompt = model.getPrompt(i);
+			if (prompt.contains(mouseX, mouseY, zoom))
+				return prompt.getToolTipText();		
 		}		
 
 		for(int i = 0; i < model.arrowCount(); ++i) {
-			Arrow arrow = model.getArrow(i);
-			if (arrow.contains(mouseX, mouseY, zoom))
-				return arrow.getToolTipText();			
+			Choice choice = model.getArrow(i);
+			if (choice.contains(mouseX, mouseY, zoom))
+				return choice.getToolTipText();			
 		}
 
 		return super.getToolTipText(event);
@@ -182,52 +182,52 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 	@Override
-	//Performs "selected" functions when a box or arrow is clicked 
+	//Reacts when a choice or prompt is clicked 
 	public void mousePressed(MouseEvent event) {
 		int mouseX = event.getX();
 		int mouseY = event.getY();
 
-		//If currently trying to make an arrow from a box...
+		//If currently trying to make a choice from a prompt...
 		if( arrowCheck ) {
-			Box selectedBox = (Box) model.getSelected();
-			Box otherBox = null;
-			for(int i = 0; i < model.boxCount() && otherBox == null; ++i) {
-				Box box = model.getBox(i);
-				if (box.contains(mouseX, mouseY, zoom))
-					otherBox = box;
+			Prompt selectedPrompt = (Prompt) model.getSelected();
+			Prompt otherPrompt = null;
+			for(int i = 0; i < model.promptCount() && otherPrompt == null; ++i) {
+				Prompt prompt = model.getPrompt(i);
+				if (prompt.contains(mouseX, mouseY, zoom))
+					otherPrompt = prompt;
 			}
 
-			//Don't let a second arrow be added between boxes			
-			for( int i = 0; i < selectedBox.getOutgoing().size() && otherBox != null; ++i ) {
-				if( selectedBox.getOutgoing().get(i).getEnd() == otherBox )
-					otherBox = null;
+			//Don't let a second choice be added between prompts			
+			for( int i = 0; i < selectedPrompt.getOutgoing().size() && otherPrompt != null; ++i ) {
+				if( selectedPrompt.getOutgoing().get(i).getEnd() == otherPrompt )
+					otherPrompt = null;
 			}
 
-			if( otherBox == null )
+			if( otherPrompt == null )
 				model.deselect();
-			else { //It is possible to add an arrow from a box to itself
-				Arrow arrow = new Arrow(selectedBox,otherBox,"");
-				model.add(arrow);
+			else { //It is possible to add a choice from a prompt to itself
+				Choice choice = new Choice(selectedPrompt,otherPrompt,"");
+				model.add(choice);
 			} 
 
 			arrowCheck = false;
 		}
 		//Otherwise, select whatever's been clicked on
 		else {
-			for( int i = 0; i < model.boxCount(); ++i ) {
-				Box box = model.getBox(i);
-				if (box.contains(mouseX, mouseY, zoom)) {
-					model.selectBox(i);
-					startXBox = box.getX(zoom);
-					startYBox = box.getY(zoom);	
+			for( int i = 0; i < model.promptCount(); ++i ) {
+				Prompt prompt = model.getPrompt(i);
+				if (prompt.contains(mouseX, mouseY, zoom)) {
+					model.selectPrompt(i);
+					startXPrompt = prompt.getX(zoom);
+					startYPrompt = prompt.getY(zoom);	
 					startXDrag = mouseX;
 					startYDrag = mouseY;
 					return;
 				}
 			}			
 			for( int i = 0; i < model.arrowCount(); ++i ) {
-				Arrow arrow = model.getArrow(i);
-				if (arrow.contains(mouseX, mouseY, zoom)) {
+				Choice choice = model.getArrow(i);
+				if (choice.contains(mouseX, mouseY, zoom)) {
 					model.selectArrow(i);
 					return;
 				}
@@ -301,22 +301,22 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		if(event == Model.Event.LOAD || event == Model.Event.MOVE || event == Model.Event.DELETE || event == Model.Event.NEW )
 			resetBounds();
 
-		if( event == Model.Event.MOVE && object instanceof Box ) {
+		if( event == Model.Event.MOVE && object instanceof Prompt ) {
 			JViewport viewport = scrollPane.getViewport();
-			Box box = (Box) object;
+			Prompt prompt = (Prompt) object;
 			Rectangle view = viewport.getViewRect();
 			int x = view.x;
 			int y = view.y;
 
-			if ((box.getX()-Box.WIDTH/2 - SPACING)* zoom < view.x)
-				x = (int) Math.floor((box.getX()-Box.WIDTH/2 - SPACING)* zoom);
-			else if ((box.getX()+Box.WIDTH/2 + SPACING)* zoom > view.x + view.width)
-				x = (int) Math.ceil((box.getX()+Box.WIDTH/2 + SPACING)* zoom) - view.width;
+			if ((prompt.getX()-Prompt.WIDTH/2 - SPACING)* zoom < view.x)
+				x = (int) Math.floor((prompt.getX()-Prompt.WIDTH/2 - SPACING)* zoom);
+			else if ((prompt.getX()+Prompt.WIDTH/2 + SPACING)* zoom > view.x + view.width)
+				x = (int) Math.ceil((prompt.getX()+Prompt.WIDTH/2 + SPACING)* zoom) - view.width;
 
-			if ((box.getY()-Box.HEIGHT/2 - SPACING)* zoom < view.y)
-				y = (int) Math.floor((box.getY()-Box.HEIGHT/2 - SPACING)* zoom);
-			else if ((box.getY()+Box.HEIGHT/2 + SPACING)* zoom > view.y + view.height)
-				y = (int) Math.ceil((box.getY()+Box.HEIGHT/2 + SPACING)* zoom) - view.height;	
+			if ((prompt.getY()-Prompt.HEIGHT/2 - SPACING)* zoom < view.y)
+				y = (int) Math.floor((prompt.getY()-Prompt.HEIGHT/2 - SPACING)* zoom);
+			else if ((prompt.getY()+Prompt.HEIGHT/2 + SPACING)* zoom > view.y + view.height)
+				y = (int) Math.ceil((prompt.getY()+Prompt.HEIGHT/2 + SPACING)* zoom) - view.height;	
 
 			x = Math.max(x, 0);
 			y = Math.max(y, 0);			

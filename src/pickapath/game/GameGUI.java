@@ -18,6 +18,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -38,8 +39,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
 
 import pickapath.editor.Editor;
-import pickapath.model.Arrow;
-import pickapath.model.InvalidStartingBoxException;
+import pickapath.model.Choice;
+import pickapath.model.InvalidStartingPromptException;
 import pickapath.model.Item;
 import pickapath.model.Model;
 import pickapath.model.State;
@@ -140,7 +141,7 @@ public class GameGUI extends JFrame {
 						
 						return true;
 					}
-					catch(InvalidStartingBoxException e) {
+					catch(InvalidStartingPromptException e) {
 						JOptionPane.showMessageDialog(this, "This is an unplayable game because no starting point is indicated.",
 								"Game is not Playable!", JOptionPane.ERROR_MESSAGE);
 					}
@@ -326,23 +327,22 @@ public class GameGUI extends JFrame {
 	private void populateChoices() {
 		buttonList.clear();
 		choicePanel.removeAll();
-		List<Arrow> choices = state.getChoices();
+		List<Choice> choices = state.getChoices();
 		promptArea.setText(state.getPrompt().getText());
 		ButtonGroup group = new ButtonGroup();
-		for (Arrow arrow : choices) {			
-			JRadioButton button = new JRadioButton("<html>" + arrow.getText().replaceAll("\\n", "<br/>") + "</html>");
+		for (Choice choice : choices) {			
+			JRadioButton button = new JRadioButton("<html>" + choice.getText().replaceAll("\\n", "<br/>") + "</html>");
 			group.add(button);
 			buttonList.add(button);
 			choicePanel.add(button);			
 		}
 		
-		choicePanel.add(javax.swing.Box.createVerticalGlue());
+		choicePanel.add(Box.createVerticalGlue());
 		choicePanel.revalidate();
 		choicePanel.repaint();
 		
 		if( choices.size() == 0)
-			submitButton.setText("End");
-			
+			submitButton.setText("End");			
 	}
 }
 

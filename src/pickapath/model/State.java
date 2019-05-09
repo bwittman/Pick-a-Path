@@ -12,19 +12,19 @@ import java.util.Set;
 public class State {
 	
 	private Model model;
-	private Box prompt = null;
+	private Prompt prompt = null;
 	private Set<Item> inventory = new HashSet<Item>();
 	private int currency = 0;
-	private List<Arrow> choices = new ArrayList<Arrow>();
+	private List<Choice> choices = new ArrayList<Choice>();
 	
-	public State(Model model) throws InvalidStartingBoxException {
+	public State(Model model) throws InvalidStartingPromptException {
 		this.model = model;
 		
-		List<Box> startingBoxes = model.getStartingBoxes();
-		if( startingBoxes.size() == 1 )
-			prompt = startingBoxes.get(0);
+		List<Prompt> startingPrompts = model.getStartingPrompts();
+		if( startingPrompts.size() == 1 )
+			prompt = startingPrompts.get(0);
 		else
-			throw new InvalidStartingBoxException();
+			throw new InvalidStartingPromptException();
 		
 		updateChoices();
 	}
@@ -39,7 +39,7 @@ public class State {
 	public void writeProgress(ObjectOutputStream out) throws FileNotFoundException, IOException {
 		model.write(out);
 		
-		out.writeInt(model.getBoxIndex(prompt));	
+		out.writeInt(model.getPromptIndex(prompt));	
 	
 		out.writeInt(inventory.size());
 		for(Item item : inventory)
@@ -50,8 +50,8 @@ public class State {
 	
 	public void readProgress(ObjectInputStream in) throws FileNotFoundException, IOException, ClassNotFoundException { 
 		model.read(in);
-		int boxIndex = in.readInt();
-		prompt = model.getBox(boxIndex);
+		int promptIndex = in.readInt();
+		prompt = model.getPrompt(promptIndex);
 				
 		inventory.clear();
 		int totalItems = in.readInt();
@@ -70,20 +70,20 @@ public class State {
 		return currency;
 	}
 	
-	public Box getPrompt() {
+	public Prompt getPrompt() {
 		return prompt;
 	}
 	
 	private void updateChoices() {
 		choices.clear();
 
-		for (Arrow arrow : prompt.getOutgoing()) {
-			if( arrow.satisfies(inventory, currency) )
-				choices.add(arrow);
+		for (Choice choice : prompt.getOutgoing()) {
+			if( choice.satisfies(inventory, currency) )
+				choices.add(choice);
 		}
 	}
 	
-	public List<Arrow> getChoices() {
+	public List<Choice> getChoices() {
 		return choices;
 	}
 	
@@ -91,16 +91,16 @@ public class State {
 		return model;
 	}
 	
-	public void makeChoice(int choice) {
-		if( choice >= 0 && choice < choices.size() ) {
-			Arrow arrow = choices.get(choice);
+	public void makeChoice(int index) {
+		if( index >= 0 && index < choices.size() ) {
+			Choice choice = choices.get(index);
 			
 			//remove items first
-			inventory.removeAll(arrow.getLostItems());
-			inventory.addAll(arrow.getGainedItems());
-			currency += arrow.getCurrencyChange();
+			inventory.removeAll(choice.getLostItems());
+			inventory.addAll(choice.getGainedItems());
+			currency += choice.getCurrencyChange();
 			
-			prompt = arrow.getEnd();
+			prompt = choice.getEnd();
 			
 			updateChoices();			
 		}

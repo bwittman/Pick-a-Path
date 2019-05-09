@@ -9,8 +9,8 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Scanner;
 
-import pickapath.model.Arrow;
-import pickapath.model.InvalidStartingBoxException;
+import pickapath.model.Choice;
+import pickapath.model.InvalidStartingPromptException;
 import pickapath.model.Item;
 import pickapath.model.Model;
 import pickapath.model.State;
@@ -41,7 +41,7 @@ public class GameCLI {
 							state = new State(model);
 							return;
 						}
-						catch(InvalidStartingBoxException e){
+						catch(InvalidStartingPromptException e){
 							System.out.println("This is an unplayable game because no starting point is indicated.");
 						}
 					}
@@ -91,7 +91,7 @@ public class GameCLI {
 		System.out.println();
 
 		
-		List<Arrow> choices = state.getChoices();
+		List<Choice> choices = state.getChoices();
 		while(choices.size() > 0) {
 			
 			System.out.println(state.getPrompt().getText());
@@ -133,31 +133,31 @@ public class GameCLI {
 			}
 			else {
 				try {		
-					int choice = Integer.parseInt(input)-1;
-					if( choice >= 0 && choice < choices.size() ) {
-						Arrow arrow = choices.get(choice);
-						if( arrow.getLostItems().size() > 0 ) {
-							if( arrow.getLostItems().size() > 1 ) 
+					int index = Integer.parseInt(input)-1;
+					if( index >= 0 && index < choices.size() ) {
+						Choice choice = choices.get(index);
+						if( choice.getLostItems().size() > 0 ) {
+							if( choice.getLostItems().size() > 1 ) 
 								System.out.println("You lost the following items:");
 							else
 								System.out.println("You lost the following item:");
-							for( Item item : arrow.getLostItems())
+							for( Item item : choice.getLostItems())
 								System.out.println("\t" + item.getName());
 						}
-						if( arrow.getGainedItems().size() > 0 ) {
-							if( arrow.getGainedItems().size() > 1 ) 
+						if( choice.getGainedItems().size() > 0 ) {
+							if( choice.getGainedItems().size() > 1 ) 
 								System.out.println("You gained the following items:");
 							else
 								System.out.println("You gained the following item:");
-							for( Item item : arrow.getGainedItems())
+							for( Item item : choice.getGainedItems())
 								System.out.println("\t" + item.getName());
 						}
-						if( arrow.getCurrencyChange() > 0)
-							System.out.println("Your " + currencyName.toLowerCase() + " increased by " + arrow.getCurrencyChange() + ".");
-						else if( arrow.getCurrencyChange() < 0 )
-							System.out.println("Your " + currencyName.toLowerCase() + " decreased by " + -arrow.getCurrencyChange() + ".");
+						if( choice.getCurrencyChange() > 0)
+							System.out.println("Your " + currencyName.toLowerCase() + " increased by " + choice.getCurrencyChange() + ".");
+						else if( choice.getCurrencyChange() < 0 )
+							System.out.println("Your " + currencyName.toLowerCase() + " decreased by " + -choice.getCurrencyChange() + ".");
 						
-						state.makeChoice(choice);	
+						state.makeChoice(index);	
 					}
 					else
 						System.out.println("Invalid choice. Please enter another one.");

@@ -13,38 +13,40 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Box extends CanvasObject {
+public class Prompt extends CanvasObject {
 	private int x;
 	private int y;
 	public static int WIDTH = 100;
 	public static int HEIGHT = 50;
-	private List<Arrow> incoming = new ArrayList<Arrow>();
-	private List<Arrow> outgoing = new ArrayList<Arrow>();
+	private List<Choice> incoming = new ArrayList<Choice>();
+	private List<Choice> outgoing = new ArrayList<Choice>();
 	private Color color;
 	
-	public Box(int x, int y, String text) {
+	public Prompt(int x, int y, String text) {
 		super(text);
 		this.x = x;
 		this.y = y;
 		color = Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
 	}
 	
-	//Copies everything from another Box, except for the arrows
-	public Box(Box other) {
+	//Copies everything from another Prompt, except for the choices
+	public Prompt(Prompt other) {
 		super(other.getText());
 		x = other.x;
 		y = other.y;
 		color = other.color;
 	}
 
-	public Box(ObjectInputStream in) throws IOException, ClassNotFoundException {	//read in box info from a file
+	//Read in prompt info from a file
+	public Prompt(ObjectInputStream in) throws IOException, ClassNotFoundException {	
 		super(in);
 		x = in.readInt();
 		y = in.readInt();
 		color = (Color)in.readObject();
 	}
 	
-	public void write(ObjectOutputStream out) throws IOException {	//write out box info to a file
+	//Write out prompt info to a file
+	public void write(ObjectOutputStream out) throws IOException {	
 		super.write(out);
 		out.writeInt(x);
 		out.writeInt(y);
@@ -96,24 +98,24 @@ public class Box extends CanvasObject {
 		return color;
 	}
 
-	public void addIncoming(Arrow arrow) {
-		incoming.add(arrow);
+	public void addIncoming(Choice choice) {
+		incoming.add(choice);
 	}
-	public void addOutgoing(Arrow arrow) {
-		outgoing.add(arrow);
+	public void addOutgoing(Choice choice) {
+		outgoing.add(choice);
 	}
-	public List<Arrow> getIncoming(){
+	public List<Choice> getIncoming(){
 		return incoming;
 	}
-	public List<Arrow> getOutgoing(){
+	public List<Choice> getOutgoing(){
 		return outgoing;
 	}
 	
 	public void draw(Graphics2D g, boolean selected, Font font, double zoom) {
-		int x = (int)Math.round(zoom*(this.x - Box.WIDTH/2));
-		int y = (int)Math.round(zoom*(this.y - Box.HEIGHT/2));
-		int width = (int)Math.round(zoom*Box.WIDTH);
-		int height = (int)Math.round(zoom*Box.HEIGHT);
+		int x = (int)Math.round(zoom*(this.x - Prompt.WIDTH/2));
+		int y = (int)Math.round(zoom*(this.y - Prompt.HEIGHT/2));
+		int width = (int)Math.round(zoom*Prompt.WIDTH);
+		int height = (int)Math.round(zoom*Prompt.HEIGHT);
 		
 		g.setColor(color);
 		g.fillRect(x, y, width, height);
@@ -130,9 +132,7 @@ public class Box extends CanvasObject {
 		}
 		
 		
-		//Draws text characters in the box
-		//g.setColor(outline);
-
+		//Draws text characters in the prompt
 		g.setColor(Color.BLACK);
 		Shape oldClip = g.getClip();
 		g.setClip(x, y, width, height);
@@ -148,7 +148,7 @@ public class Box extends CanvasObject {
 		String text = getText();
 		int stringLength = metrics.stringWidth(text);
 		int stringHeight = metrics.getAscent();
-		if( stringLength > WIDTH ) {
+		if( stringLength > WIDTH * zoom ) {
 			int space = text.indexOf(' ');
 			text = text.substring(0, Math.min(space < 0 ? text.length() : space,10))+ "...";
 			stringLength = metrics.stringWidth(text);

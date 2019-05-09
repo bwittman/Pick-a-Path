@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -57,12 +58,12 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import pickapath.game.GameGUI;
-import pickapath.model.Arrow;
+import pickapath.model.Choice;
 import pickapath.model.BooleanExpression;
 import pickapath.model.BooleanExpressionException;
-import pickapath.model.Box;
+import pickapath.model.Prompt;
 import pickapath.model.CanvasObject;
-import pickapath.model.InvalidStartingBoxException;
+import pickapath.model.InvalidStartingPromptException;
 import pickapath.model.Model;
 import pickapath.model.ModelListener;
 import pickapath.model.State;
@@ -329,19 +330,19 @@ public class Editor extends JFrame implements ModelListener {
 			}
 		});	
 
-		JMenu edit = new JMenu("Edit"); // edit menu
-		JMenuItem makebox = new JMenuItem("Make Prompt"); //another way to make prompt
-		makebox.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new prompt
-		edit.add(makebox);
-		makebox.addActionListener(new ActionListener() {
+		JMenu editMenu = new JMenu("Edit"); // edit menu
+		JMenuItem makePromptItem = new JMenuItem("Make Prompt"); //another way to make prompt
+		makePromptItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new prompt
+		editMenu.add(makePromptItem);
+		makePromptItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				addBox();
+				addPrompt();
 			}
 		});
 		beginChoiceItem = new JMenuItem("Begin Choice..."); //another way to make a choice
 		beginChoiceItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK)); //hotkey to start a new choice
-		edit.add(beginChoiceItem);
+		editMenu.add(beginChoiceItem);
 		beginChoiceItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -353,11 +354,11 @@ public class Editor extends JFrame implements ModelListener {
 
 		recolorPromptItem = new JMenuItem("Recolor Prompt"); //another way to recolor a prompt
 		recolorPromptItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK)); //hotkey to recolor a prompt
-		edit.add(recolorPromptItem);
+		editMenu.add(recolorPromptItem);
 		recolorPromptItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				model.recolorBox();
+				model.recolorPrompt();
 			}
 		});		
 		recolorPromptItem.setEnabled(false);
@@ -367,7 +368,7 @@ public class Editor extends JFrame implements ModelListener {
 
 		detailsItem = new JMenuItem("Choice Details...");
 		detailsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new prompt
-		edit.add(detailsItem);
+		editMenu.add(detailsItem);
 		detailsItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -376,7 +377,7 @@ public class Editor extends JFrame implements ModelListener {
 		});
 		detailsItem.setEnabled(false);
 
-		bar.add(edit);
+		bar.add(editMenu);
 
 
 		JMenu mode = new JMenu("Game"); // game menu
@@ -390,7 +391,7 @@ public class Editor extends JFrame implements ModelListener {
 				try{					
 					setVisible(false);
 					new GameGUI(new State(model), Editor.this);
-				} catch(InvalidStartingBoxException e) {
+				} catch(InvalidStartingPromptException e) {
 					JOptionPane.showMessageDialog(Editor.this,
 							"You must have exactly one prompt with no incoming choices to make the game playable.", "Game Not Playable!", JOptionPane.ERROR_MESSAGE);
 				};
@@ -410,14 +411,14 @@ public class Editor extends JFrame implements ModelListener {
 	}
 
 
-	private void addBox() {
+	private void addPrompt() {
 		JViewport viewport = canvas.getScrollPane().getViewport();
 		Dimension size = viewport.getExtentSize();
-		int x = (int)Math.round((random.nextDouble()*(size.getWidth() - Box.WIDTH - 2*Canvas.SPACING) + viewport.getViewPosition().getX() + Box.WIDTH / 2 + Canvas.SPACING)*canvas.getZoom());
-		int y = (int)Math.round((random.nextDouble()*(size.getHeight() - Box.HEIGHT - 2*Canvas.SPACING) + viewport.getViewPosition().getY() + Box.HEIGHT / 2 + Canvas.SPACING)*canvas.getZoom());
+		int x = (int)Math.round((random.nextDouble()*(size.getWidth() - Prompt.WIDTH - 2*Canvas.SPACING) + viewport.getViewPosition().getX() + Prompt.WIDTH / 2 + Canvas.SPACING)*canvas.getZoom());
+		int y = (int)Math.round((random.nextDouble()*(size.getHeight() - Prompt.HEIGHT - 2*Canvas.SPACING) + viewport.getViewPosition().getY() + Prompt.HEIGHT / 2 + Canvas.SPACING)*canvas.getZoom());
 
-		Box box = new Box(x, y, "");
-		model.add(box);
+		Prompt prompt = new Prompt(x, y, "");
+		model.add(prompt);
 	}
 
 	private JPanel createEastPanel() {		
@@ -435,7 +436,7 @@ public class Editor extends JFrame implements ModelListener {
 		makePromptButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				addBox();
+				addPrompt();
 			}
 		});
 
@@ -460,7 +461,7 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				model.recolorBox();
+				model.recolorPrompt();
 			}
 		});
 		recolorPromptButton.setEnabled(false);
@@ -473,7 +474,7 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				model.removeBox();
+				model.removePrompt();
 			}
 		});
 		deletePromptButton.setEnabled(false);
@@ -483,7 +484,7 @@ public class Editor extends JFrame implements ModelListener {
 
 		panel.add(promptsPanel);
 
-		panel.add(javax.swing.Box.createVerticalStrut(GAP));
+		panel.add(Box.createVerticalStrut(GAP));
 
 
 		//Panel for choices-related buttons
@@ -647,22 +648,22 @@ public class Editor extends JFrame implements ModelListener {
 		JPanel currencyPanel = new JPanel();
 		currencyPanel.setLayout(new BoxLayout(currencyPanel, BoxLayout.X_AXIS));
 		currencyPanel.add(new JLabel("Currency:"));		
-		currencyPanel.add(javax.swing.Box.createHorizontalStrut(GAP));	
+		currencyPanel.add(Box.createHorizontalStrut(GAP));	
 
 		currencyField = new JTextField();
 		currencyField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
-			public void changedUpdate(DocumentEvent arg0) {
+			public void changedUpdate(DocumentEvent e) {
 				update();
 			}
 
 			@Override
-			public void insertUpdate(DocumentEvent arg0) {
+			public void insertUpdate(DocumentEvent e) {
 				update();
 			}
 
 			@Override
-			public void removeUpdate(DocumentEvent arg0) {
+			public void removeUpdate(DocumentEvent e) {
 				update();
 			}
 
@@ -877,11 +878,11 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) model.getSelected();
+				Choice choice = (Choice) model.getSelected();
 				for(int row: itemTable.getSelectedRows())
 					model.addGainedItem(model.getItem(row));
 
-				gainedItemsTextArea.setText(arrow.getGainedItemsText());
+				gainedItemsTextArea.setText(choice.getGainedItemsText());
 			}
 
 		});
@@ -892,11 +893,11 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) model.getSelected();
+				Choice choice = (Choice) model.getSelected();
 				for(int row:itemTable.getSelectedRows())
 					model.removeGainedItem(model.getItem(row));
 
-				gainedItemsTextArea.setText(arrow.getGainedItemsText());
+				gainedItemsTextArea.setText(choice.getGainedItemsText());
 			}
 
 		});
@@ -971,11 +972,11 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				Arrow arrow = (Arrow) model.getSelected();
+				Choice choice = (Choice) model.getSelected();
 				for(int row: itemTable.getSelectedRows())
 					model.addLostItem(model.getItem(row));
 
-				lostItemsTextArea.setText(arrow.getLostItemsText());
+				lostItemsTextArea.setText(choice.getLostItemsText());
 			}
 
 		});
@@ -986,11 +987,11 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Arrow arrow = (Arrow) model.getSelected();
+				Choice choice = (Choice) model.getSelected();
 				for(int row:itemTable.getSelectedRows())
 					model.removeLostItem(model.getItem(row));
 
-				lostItemsTextArea.setText(arrow.getLostItemsText());
+				lostItemsTextArea.setText(choice.getLostItemsText());
 			}
 
 		});
@@ -1090,15 +1091,15 @@ public class Editor extends JFrame implements ModelListener {
 		detailsDialog.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
-				Arrow arrow = (Arrow)model.getSelected();
-				textArea.setText(arrow.getText());
-				gainedItemsTextArea.setText(arrow.getGainedItemsText());
-				lostItemsTextArea.setText(arrow.getLostItemsText());
-				mustHaveTextArea.setText(arrow.getMustHaveText());
-				if( arrow.getCurrencyChange() == 0 )
+				Choice choice = (Choice)model.getSelected();
+				textArea.setText(choice.getText());
+				gainedItemsTextArea.setText(choice.getGainedItemsText());
+				lostItemsTextArea.setText(choice.getLostItemsText());
+				mustHaveTextArea.setText(choice.getMustHaveText());
+				if( choice.getCurrencyChange() == 0 )
 					currencyChangeTextArea.setText("");
 				else
-					currencyChangeTextArea.setText("" + arrow.getCurrencyChange());
+					currencyChangeTextArea.setText("" + choice.getCurrencyChange());
 				model.makeSnapShot();				
 			}					
 		});
@@ -1107,11 +1108,11 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void tableChanged(TableModelEvent e) {
-				if( model.getSelected() instanceof Arrow ) {
-					Arrow arrow = (Arrow) model.getSelected();
-					gainedItemsTextArea.setText(arrow.getGainedItemsText());
-					lostItemsTextArea.setText(arrow.getLostItemsText());
-					mustHaveTextArea.setText(arrow.getMustHaveText());
+				if( model.getSelected() instanceof Choice ) {
+					Choice choice = (Choice) model.getSelected();
+					gainedItemsTextArea.setText(choice.getGainedItemsText());
+					lostItemsTextArea.setText(choice.getLostItemsText());
+					mustHaveTextArea.setText(choice.getMustHaveText());
 				}
 			}			
 		});
@@ -1149,18 +1150,18 @@ public class Editor extends JFrame implements ModelListener {
 			boolean isPrompt;
 
 			//Select arrow
-			if( object instanceof Arrow ) {				
-				Arrow arrow = (Arrow)object;				
+			if( object instanceof Choice ) {				
+				Choice choice = (Choice)object;				
 				
-				upButton.setEnabled(arrow.getOrder() > 1);
-				downButton.setEnabled(arrow.getOrder() < arrow.getStart().getOutgoing().size());
-				choiceOrderLabel.setText(arrow.getOrder() + "");	
+				upButton.setEnabled(choice.getOrder() > 1);
+				downButton.setEnabled(choice.getOrder() < choice.getStart().getOutgoing().size());
+				choiceOrderLabel.setText(choice.getOrder() + "");	
 
 				kind = "Choice";
 				isPrompt = false;			
 
 			}
-			//Select box
+			//Select prompt
 			else {
 				upButton.setEnabled(false);
 				downButton.setEnabled(false);
@@ -1228,7 +1229,7 @@ public class Editor extends JFrame implements ModelListener {
 			setTitle(TITLE + " - " + asterisk + "New Document");
 
 		saveItem.setEnabled(model.isDirty());
-		boolean prompt = object instanceof Box;
+		boolean prompt = object instanceof Prompt;
 
 		switch(event) {
 		case CREATE: 
@@ -1260,8 +1261,8 @@ public class Editor extends JFrame implements ModelListener {
 			break;		
 		case ORDER_EARLIER:
 		case ORDER_LATER: {
-			Arrow arrow = (Arrow) model.getSelected();
-			choiceOrderLabel.setText("" + arrow.getOrder());
+			Choice choice = (Choice) model.getSelected();
+			choiceOrderLabel.setText("" + choice.getOrder());
 			statusLabel.setText("Choice shifted to " + (event == Model.Event.ORDER_EARLIER ? "earlier" : "later" ) + " position");			 
 			break;
 		}	
