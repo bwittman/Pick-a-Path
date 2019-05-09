@@ -162,7 +162,7 @@ public class Box extends CanvasObject {
 		if( result.isEmpty() )
 			return null;
 		else
-			return result;
+			return "<html>" + result.replaceAll("\\n", "<br/>") + "</html>";
 	}
 	
 	

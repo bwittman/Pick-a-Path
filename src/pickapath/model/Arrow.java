@@ -371,34 +371,34 @@ public class Arrow extends CanvasObject {
 
 		if( gainedItems.size() > 0 ) {
 			if( builder.length() > 0 )
-				builder.append("<br/>");
+				builder.append("\n");
 			builder.append("Gained items: ").append(toString(gainedItems));
 		}
 
 		if( lostItems.size() > 0 ) {
 			if( builder.length() > 0 )
-				builder.append("<br/>");
+				builder.append("\n");
 			builder.append("Lost items: ").append(toString(lostItems));
 		}
 
 		if( expression != null ) {
 			if( builder.length() > 0 )
-				builder.append("<br/>");
+				builder.append("\n");
 			builder.append("Must have: ").append(expression.getToolTipText());
 		}
 
 		if( currencyChange > 0 ) {
 			if( builder.length() > 0 )
-				builder.append("<br/>");
+				builder.append("\n");
 			builder.append("Currency gained: " + currencyChange);
 		}
 		else if( currencyChange > 0 ) {
 			if( builder.length() > 0 )
-				builder.append("<br/>");
+				builder.append("\n");
 			builder.append("Currency lost: " + -currencyChange);
 		}		
 
-		if( builder.indexOf("<br/>") > -1 ) {
+		if( builder.indexOf("\n") > -1 ) {
 			builder.insert(0, "<html>");
 			builder.append("</html>");
 		}
@@ -407,7 +407,7 @@ public class Arrow extends CanvasObject {
 		if( result.isEmpty() )
 			return null;
 		else
-			return result;
+			return result.replaceAll("\\n", "<br/>");
 	}
 
 

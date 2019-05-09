@@ -1146,38 +1146,38 @@ public class Editor extends JFrame implements ModelListener {
 		else {
 			textArea.setText(object.getText());
 			String kind;
+			boolean isPrompt;
 
 			//Select arrow
 			if( object instanceof Arrow ) {				
-				Arrow arrow = (Arrow)object;
-				beginChoiceButton.setEnabled(false);
-				beginChoiceItem.setEnabled(false);
-				recolorPromptButton.setEnabled(false);
-				recolorPromptItem.setEnabled(false);
-				deletePromptButton.setEnabled(false);
-				deleteChoiceButton.setEnabled(true);
-				detailsButton.setEnabled(true);
-				detailsItem.setEnabled(true);
-
+				Arrow arrow = (Arrow)object;				
+				
 				upButton.setEnabled(arrow.getOrder() > 1);
 				downButton.setEnabled(arrow.getOrder() < arrow.getStart().getOutgoing().size());
 				choiceOrderLabel.setText(arrow.getOrder() + "");	
 
-				kind = "Choice";				
+				kind = "Choice";
+				isPrompt = false;			
+
 			}
 			//Select box
 			else {
-				beginChoiceButton.setEnabled(true);
-				beginChoiceItem.setEnabled(true);
-				recolorPromptButton.setEnabled(true);
-				recolorPromptItem.setEnabled(true);
-				deletePromptButton.setEnabled(true);
-				deleteChoiceButton.setEnabled(false);
-				detailsButton.setEnabled(false);
-				detailsItem.setEnabled(false);
+				upButton.setEnabled(false);
+				downButton.setEnabled(false);
+				choiceOrderLabel.setText("");
 
 				kind = "Prompt";
+				isPrompt = true;
 			}
+			
+			beginChoiceButton.setEnabled(isPrompt);
+			beginChoiceItem.setEnabled(isPrompt);
+			recolorPromptButton.setEnabled(isPrompt);
+			recolorPromptItem.setEnabled(isPrompt);
+			deletePromptButton.setEnabled(isPrompt);
+			deleteChoiceButton.setEnabled(!isPrompt);
+			detailsButton.setEnabled(!isPrompt);
+			detailsItem.setEnabled(!isPrompt);
 
 			if( isNew )
 				statusLabel.setText(kind + " created");
@@ -1268,10 +1268,10 @@ public class Editor extends JFrame implements ModelListener {
 		case NEW:
 			loading = true;
 			saveFile = null;
+			titleField.setText("");	
 			currencyField.setText("");
-			titleField.setText("");		
-			loading = false;
 			statusLabel.setText("Created new project");
+			loading = false;
 			break;
 		case SAVE:
 			statusLabel.setText("Successfully saved to file " + saveFile.getName());

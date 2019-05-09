@@ -330,7 +330,7 @@ public class PlayerModeGUI extends JFrame {
 		promptArea.setText(state.getPrompt().getText());
 		ButtonGroup group = new ButtonGroup();
 		for (Arrow arrow : choices) {			
-			JRadioButton button = new JRadioButton(arrow.getText());
+			JRadioButton button = new JRadioButton("<html>" + arrow.getText().replaceAll("\\n", "<br/>") + "</html>");
 			group.add(button);
 			buttonList.add(button);
 			choicePanel.add(button);			
