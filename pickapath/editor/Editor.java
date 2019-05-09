@@ -609,19 +609,17 @@ public class Editor extends JFrame implements ModelListener {
 	private JPanel createNorthPanel() {		
 		//Panel for whole north area
 		JPanel panel = new JPanel(new BorderLayout());
-
-		//Panel for title and currency labels
-		JPanel labelPanel = new JPanel(new GridLayout(2,1, GAP, GAP));
-		labelPanel.setBorder(border());
+		panel.setBorder(border());		
+		
+		JPanel labelAndFieldsPanel = new JPanel(new GridLayout(1,2, GAP*2, GAP*2));
+		labelAndFieldsPanel.setBorder(border());
+		
+		//Panel for title label and field
+		JPanel titlePanel = new JPanel();
+		titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.X_AXIS));
 		JLabel titleLabel = new JLabel("Title:");
-		titleLabel.setHorizontalAlignment(JLabel.RIGHT);
-		labelPanel.add(titleLabel);
-		labelPanel.add(new JLabel("Currency:"));		
-		panel.add(labelPanel, BorderLayout.WEST);
-
-		//Panel for title and currency fields
-		JPanel fieldPanel = new JPanel(new GridLayout(2, 1, GAP, GAP));
-		fieldPanel.setBorder(border());
+		titlePanel.add(titleLabel);
+		titlePanel.add(javax.swing.Box.createHorizontalStrut(GAP));
 		titleField = new JTextField();
 		titleField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -643,6 +641,16 @@ public class Editor extends JFrame implements ModelListener {
 				model.setTitle(titleField.getText().trim());
 			}
 		});		
+		
+		titlePanel.add(titleField);
+		
+		labelAndFieldsPanel.add(titlePanel);		
+
+		//Panel for currency label and field
+		JPanel currencyPanel = new JPanel();
+		currencyPanel.setLayout(new BoxLayout(currencyPanel, BoxLayout.X_AXIS));
+		currencyPanel.add(new JLabel("Currency:"));		
+		currencyPanel.add(javax.swing.Box.createHorizontalStrut(GAP));	
 
 		currencyField = new JTextField();
 		currencyField.getDocument().addDocumentListener(new DocumentListener() {
@@ -665,9 +673,10 @@ public class Editor extends JFrame implements ModelListener {
 				model.setCurrencyName(currencyField.getText().trim());
 			}
 		});
-		fieldPanel.add(titleField);
-		fieldPanel.add(currencyField);		
-		panel.add(fieldPanel, BorderLayout.CENTER);
+		currencyPanel.add(currencyField);		
+		labelAndFieldsPanel.add(currencyPanel);
+		
+		panel.add(labelAndFieldsPanel, BorderLayout.NORTH);
 
 		//Zoom slider		
 		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
@@ -1018,7 +1027,6 @@ public class Editor extends JFrame implements ModelListener {
 
 		mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-
 		//Save or cancel buttons at the bottom
 		JPanel saveOrCancelPanel = new JPanel(new GridLayout(1,2, GAP, GAP));//south
 		saveOrCancelPanel.setMinimumSize(new Dimension(300,100));
@@ -1026,14 +1034,11 @@ public class Editor extends JFrame implements ModelListener {
 		saveOrCancelPanel.setBorder(border());
 		JButton saveClose = new JButton("Save and Close");
 		saveOrCancelPanel.add(saveClose);
-		saveClose.setToolTipText("Evaluates the expression in the Items Players Must Have to Make this Choice field. "
-				+ "If the expression is valid then it saves it to the choice.");
-		//Listener for check button in the item window
+		saveClose.setToolTipText("Evaluates all the fields and saves them to the choice, unless there are errors.");
 		saveClose.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// read from text, convert to number, look through list,get it, then evaluate
 				String text = mustHaveTextArea.getText().trim();
 
 				if( !text.isEmpty() ) {
@@ -1063,7 +1068,7 @@ public class Editor extends JFrame implements ModelListener {
 
 		JButton cancel = new JButton("Cancel");
 		saveOrCancelPanel.add(cancel);
-		cancel.setToolTipText("Close the Details window without saving any changes made.");
+		cancel.setToolTipText("Close the Details window without saving any changes.");
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -1204,10 +1209,6 @@ public class Editor extends JFrame implements ModelListener {
 
 		return true;
 	}	
-
-	public Canvas getCanvas() {
-		return canvas;
-	}
 
 	private static Border border(String title) {
 		return BorderFactory.createCompoundBorder(border(), BorderFactory.createTitledBorder(title));
