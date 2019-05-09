@@ -101,12 +101,12 @@ public class Editor extends JFrame implements ModelListener {
 	private Model model = new Model();
 	private File saveFile = null;
 	private Random random = new Random();
-	private boolean listening = true;
+	private boolean loading = false;
 
 	//Constants
 	private static final int MAX_SLIDER = 5;
 	private static final int MIN_SLIDER = 1;
-	private static final int GAP = 5;
+	public static final int GAP = 5;
 	private static final String TITLE = "Pick-a-Path";	
 
 
@@ -255,12 +255,7 @@ public class Editor extends JFrame implements ModelListener {
 			try {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(saveFile));
 				model.read(in);
-				in.close();
-
-				listening = false;
-				titleField.setText(model.getTitle());
-				currencyField.setText(model.getCurrencyName());
-				listening = true;
+				in.close();				
 			} 
 			catch (IOException | ClassNotFoundException e) {
 			}
@@ -638,7 +633,8 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 			private void update() {
-				model.setTitle(titleField.getText().trim());
+				if( !loading )
+					model.setTitle(titleField.getText().trim());
 			}
 		});		
 		
@@ -853,7 +849,8 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 			private void update() {
-				model.setText(textArea.getText());
+				if( !loading )
+					model.setText(textArea.getText());
 			}
 		});
 
@@ -1210,17 +1207,17 @@ public class Editor extends JFrame implements ModelListener {
 		return true;
 	}	
 
-	private static Border border(String title) {
+	public static Border border(String title) {
 		return BorderFactory.createCompoundBorder(border(), BorderFactory.createTitledBorder(title));
 	}	
 
-	private static Border border() {	
+	public static Border border() {	
 		return BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP);
 	}
 
 	@Override
 	public void updateModel(Model.Event event, CanvasObject object) {
-		if( !listening )
+		if( loading )
 			return;	
 
 		String asterisk = model.isDirty() ? "*" : "";
@@ -1271,8 +1268,12 @@ public class Editor extends JFrame implements ModelListener {
 			statusLabel.setText("Successfully saved to file " + saveFile.getName());
 			break;
 		case LOAD:
+			loading = true;
 			select(null, false);
+			titleField.setText(model.getTitle());
+			currencyField.setText(model.getCurrencyName());
 			statusLabel.setText("Successfully loaded from file " + saveFile.getName());
+			loading = false;
 			break;
 		}	
 	}

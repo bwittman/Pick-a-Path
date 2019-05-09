@@ -18,10 +18,12 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -35,6 +37,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
 
+import pickapath.editor.Editor;
 import pickapath.model.Arrow;
 import pickapath.model.InvalidStartingBoxException;
 import pickapath.model.Item;
@@ -48,8 +51,11 @@ public class PlayerModeGUI extends JFrame {
 	private JTextArea promptArea;
 	private JTextArea inventoryArea;
 	private List<JRadioButton> buttonList;
-	private JFrame frame;
+	private JFrame editor;
 	private State state;
+	private JLabel currencyLabel = new JLabel();
+	private JLabel currencyNameLabel = new JLabel();
+	private JButton submitButton;
 
 
 	public static void main(String[] args) {
@@ -121,6 +127,7 @@ public class PlayerModeGUI extends JFrame {
 				if( selectedFile.toString().toLowerCase().endsWith(".ppp")) {
 					state.readProgress(stream);
 					setTitle(state.getModel().getTitle());
+					setCurrencyLabels();					
 					return true;
 				}
 				else {
@@ -145,6 +152,15 @@ public class PlayerModeGUI extends JFrame {
 		return false;
 	}
 	
+	private void setCurrencyLabels() {		
+		if( !state.getModel().getCurrencyName().isEmpty() )
+			currencyNameLabel.setText(state.getModel().getCurrencyName() + ": ");
+		else
+			currencyNameLabel.setText("");
+		
+		currencyLabel.setText("" + state.getCurrency());		
+	}
+
 	public PlayerModeGUI() {
 		if( loadGame() ) {
 			setTitle(state.getModel().getTitle());
@@ -153,35 +169,49 @@ public class PlayerModeGUI extends JFrame {
 	}
 	
 
-	private void setup() {
-		buttonList = new ArrayList<JRadioButton>();
-		choicePanel = new JPanel();
+	private void setup() {		
 		
+		//Prompt
 		promptArea = new JTextArea("Prompt");
 		promptArea.setEditable(false);
-		promptArea.setLineWrap(true);
+		promptArea.setLineWrap(true);		
 		
-		inventoryArea = new JTextArea("");
-		inventoryArea.setEditable(false);
-
 		JScrollPane scrolling = new JScrollPane(promptArea);
-
-		scrolling.setPreferredSize(new Dimension(400, 200));		
-		scrolling.setMaximumSize(new Dimension(2048, 400));
+		scrolling.setBorder(Editor.border("Prompt"));
+		scrolling.setPreferredSize(new Dimension(800, 300));		
 		add(scrolling, BorderLayout.NORTH);
 		
 		
+		JPanel centerPanel = new JPanel(new GridLayout(1, 2, Editor.GAP, Editor.GAP));
+		centerPanel.setPreferredSize(new Dimension(800, 400));
 
+		//Choices
+		choicePanel = new JPanel();
+		choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
+		scrolling = new JScrollPane(choicePanel);
+		scrolling.setBorder(Editor.border("Choices"));
+		buttonList = new ArrayList<JRadioButton>();		
+		centerPanel.add(scrolling);
+		
+		//Inventory
+		inventoryArea = new JTextArea("");
+		inventoryArea.setEditable(false);
 		scrolling = new JScrollPane(inventoryArea);
-		add(scrolling, BorderLayout.EAST);
+		scrolling.setBorder(Editor.border("Inventory"));
+		centerPanel.add(scrolling);
 
+		
+		add(centerPanel, BorderLayout.CENTER);
+		
+		
+		JPanel bottomPanel = new JPanel(new GridLayout(1, 2, Editor.GAP, Editor.GAP));
+		bottomPanel.setBorder(Editor.border());
 
-
-		JPanel bottom = new JPanel(new FlowLayout());
-		JPanel center = new JPanel(new FlowLayout());
-
-
-		JButton submitButton = new JButton("Submit");
+		
+		//Submit
+		JPanel submitPanel = new JPanel(new FlowLayout());
+		submitPanel.setBorder(Editor.border());
+		submitButton = new JButton("Submit");
 		submitButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -200,11 +230,13 @@ public class PlayerModeGUI extends JFrame {
 						for(Item item : state.getInventory())
 							text += item.getName() + "\n";
 						inventoryArea.setText(text);
+						
+						currencyLabel.setText("" + state.getCurrency());	
 						populateChoices();
 					}
 				} else {
-					if( frame != null )
-						frame.setVisible(true);
+					if( editor != null )
+						editor.setVisible(true);
 					setVisible(false);
 					dispose();
 				}
@@ -212,18 +244,26 @@ public class PlayerModeGUI extends JFrame {
 			}
 
 		});
-		bottom.add(submitButton);
-		add(bottom, BorderLayout.SOUTH);
-		center.add(choicePanel);
-		add(center, BorderLayout.CENTER);
-
+		submitPanel.add(submitButton);
+		bottomPanel.add(submitPanel);
+		
+		//Currency
+		JPanel currencyPanel = new JPanel(new FlowLayout());
+		currencyPanel.setBorder(Editor.border());
+		currencyPanel.add(currencyNameLabel);
+		currencyPanel.add(currencyLabel);
+		bottomPanel.add(currencyPanel);
+		
+		add(bottomPanel, BorderLayout.SOUTH);
+		
+		
 		JMenuBar bar = new JMenuBar(); // menu bar
 		JMenu file = new JMenu("File"); // file button
 
 		bar.add(file);
-		JMenuItem save = new JMenuItem("Save");
+		JMenuItem save = new JMenuItem("Save As...");
 		JMenuItem open = new JMenuItem("Open");
-		if( frame != null )
+		if( editor != null )
 			open.setEnabled(false);
 		file.add(save);
 		file.add(open);
@@ -231,19 +271,19 @@ public class PlayerModeGUI extends JFrame {
 		
 		setJMenuBar(bar);
 		KeyStroke keyStrokeToSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK); 
-		save.setAccelerator(keyStrokeToSave); //hotkey to save a project
+		save.setAccelerator(keyStrokeToSave); //hotkey to save a game
 		save.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				saveGame();
 
 			}
 		});
 		KeyStroke keyStrokeToOpen = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK); 
-		open.setAccelerator(keyStrokeToOpen); //hotkey to open a project
+		open.setAccelerator(keyStrokeToOpen); //hotkey to open a game
 		open.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				loadGame();
 				setTitle(state.getModel().getTitle());
 				populateChoices();
@@ -253,14 +293,12 @@ public class PlayerModeGUI extends JFrame {
 
 
 
-		setSize(800, 700);
-		setMinimumSize(new Dimension(350,350));
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				if( frame != null )
-					frame.setVisible(true);
+				if( editor != null )
+					editor.setVisible(true);
 				setVisible(false);
 				dispose();
 			}
@@ -268,14 +306,18 @@ public class PlayerModeGUI extends JFrame {
 
 
 		populateChoices();
+		setMinimumSize(getPreferredSize());
+		pack();
+		
+		setLocationRelativeTo(null); //starts the GUI centered
 		setVisible(true);		
 	}
 
-	public PlayerModeGUI(State state, JFrame frame) {
+	public PlayerModeGUI(State state, JFrame editor) {
 		super(state.getModel().getTitle());
 		this.state = state;
-		this.frame = frame;
-		
+		this.editor = editor;
+		setCurrencyLabels();		
 		setup();		
 	}
 
@@ -283,7 +325,6 @@ public class PlayerModeGUI extends JFrame {
 		buttonList.clear();
 		choicePanel.removeAll();
 		List<Arrow> choices = state.getChoices();
-		choicePanel.setLayout(new GridLayout(choices.size(), 1));
 		promptArea.setText(state.getPrompt().getText());
 		ButtonGroup group = new ButtonGroup();
 		for (Arrow arrow : choices) {			
@@ -292,10 +333,14 @@ public class PlayerModeGUI extends JFrame {
 			buttonList.add(button);
 			choicePanel.add(button);			
 		}
-
-		promptArea.setMaximumSize(new Dimension(2048, 400));
-		validate();
-		pack();
+		
+		choicePanel.add(javax.swing.Box.createVerticalGlue());
+		choicePanel.revalidate();
+		choicePanel.repaint();
+		
+		if( choices.size() == 0)
+			submitButton.setText("End");
+			
 	}
 }
 
