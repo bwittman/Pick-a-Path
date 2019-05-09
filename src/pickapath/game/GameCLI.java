@@ -1,4 +1,4 @@
-package pickapath.player;
+package pickapath.game;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +15,7 @@ import pickapath.model.Item;
 import pickapath.model.Model;
 import pickapath.model.State;
 
-public class PlayerModeCLI {
+public class GameCLI {
 
 	private State state;
 
@@ -60,12 +60,12 @@ public class PlayerModeCLI {
 	public static void main(String[] args) {
 		System.out.println("Welcome to Pick a Path!");	
 
-		new PlayerModeCLI();
+		new GameCLI();
 	}
 
 
 	//Console mode
-	public PlayerModeCLI() {
+	public GameCLI() {
 		Scanner in = new Scanner(System.in);
 
 		loadGame(in);

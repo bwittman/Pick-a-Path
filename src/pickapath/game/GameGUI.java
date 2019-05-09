@@ -1,4 +1,4 @@
-package pickapath.player;
+package pickapath.game;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -45,7 +45,7 @@ import pickapath.model.Model;
 import pickapath.model.State;
 
 @SuppressWarnings("serial")
-public class PlayerModeGUI extends JFrame {
+public class GameGUI extends JFrame {
 
 	private JPanel choicePanel;
 	private JTextArea promptArea;
@@ -65,7 +65,7 @@ public class PlayerModeGUI extends JFrame {
 		} catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException
 				| IllegalAccessException e) {}
 
-		new PlayerModeGUI();
+		new GameGUI();
 	}
 
 	private void saveGame() {   //save current work to a file
@@ -163,7 +163,7 @@ public class PlayerModeGUI extends JFrame {
 		currencyLabel.setText("" + state.getCurrency());		
 	}
 
-	public PlayerModeGUI() {
+	public GameGUI() {
 		if( loadGame() ) {
 			setTitle(state.getModel().getTitle());
 			setup();
@@ -315,7 +315,7 @@ public class PlayerModeGUI extends JFrame {
 		setVisible(true);		
 	}
 
-	public PlayerModeGUI(State state, JFrame editor) {
+	public GameGUI(State state, JFrame editor) {
 		super(state.getModel().getTitle());
 		this.state = state;
 		this.editor = editor;

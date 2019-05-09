@@ -56,6 +56,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicArrowButton;
 
+import pickapath.game.GameGUI;
 import pickapath.model.Arrow;
 import pickapath.model.BooleanExpression;
 import pickapath.model.BooleanExpressionException;
@@ -65,7 +66,6 @@ import pickapath.model.InvalidStartingBoxException;
 import pickapath.model.Model;
 import pickapath.model.ModelListener;
 import pickapath.model.State;
-import pickapath.player.PlayerModeGUI;
 
 @SuppressWarnings("serial")
 public class Editor extends JFrame implements ModelListener {
@@ -389,7 +389,7 @@ public class Editor extends JFrame implements ModelListener {
 
 				try{					
 					setVisible(false);
-					new PlayerModeGUI(new State(model), Editor.this);
+					new GameGUI(new State(model), Editor.this);
 				} catch(InvalidStartingBoxException e) {
 					JOptionPane.showMessageDialog(Editor.this,
 							"You must have exactly one prompt with no incoming choices to make the game playable.", "Game Not Playable!", JOptionPane.ERROR_MESSAGE);
