@@ -298,9 +298,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 	@Override
 	public void updateModel(Model.Event event, CanvasObject object) {
-		if(event == Model.Event.LOAD || event == Model.Event.MOVE || event == Model.Event.DELETE ) {
+		if(event == Model.Event.LOAD || event == Model.Event.MOVE || event == Model.Event.DELETE || event == Model.Event.NEW )
 			resetBounds();
-		}
 
 		if( event == Model.Event.MOVE && object instanceof Box ) {
 			JViewport viewport = scrollPane.getViewport();

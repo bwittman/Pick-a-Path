@@ -39,6 +39,7 @@ public class Model implements TableModel {
 		DETAILS_CHANGE,
 		ORDER_EARLIER,
 		ORDER_LATER,
+		NEW,
 		SAVE,
 		LOAD
 	}
@@ -94,7 +95,7 @@ public class Model implements TableModel {
 		}
 	}
 
-	public void clear() {
+	private void clear() {
 		boxes.clear();
 		arrows.clear();
 
@@ -110,8 +111,6 @@ public class Model implements TableModel {
 		selected = null;
 		
 		dirty = false;
-		
-		updateListeners(Event.SELECT, null, false);
 	}
 
 	public void deselect() {
@@ -261,6 +260,11 @@ public class Model implements TableModel {
 		dirty = false;
 
 		updateListeners(Event.SAVE, null, false);
+	}
+	
+	public void newProject() {
+		clear();
+		updateListeners(Event.NEW, null, false);
 	}
 
 

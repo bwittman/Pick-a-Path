@@ -70,6 +70,7 @@ public class PlayerModeGUI extends JFrame {
 
 	private void saveGame() {   //save current work to a file
 		JFileChooser fileSelect = new JFileChooser();
+		fileSelect.setDialogTitle("Save Game");
 		fileSelect.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
@@ -106,6 +107,7 @@ public class PlayerModeGUI extends JFrame {
 	}
 	private boolean loadGame() {
 		JFileChooser fileSelect = new JFileChooser();
+		fileSelect.setDialogTitle("Open Game");
 		fileSelect.setFileFilter(new FileFilter() {
 
 			@Override
@@ -156,7 +158,7 @@ public class PlayerModeGUI extends JFrame {
 		if( !state.getModel().getCurrencyName().isEmpty() )
 			currencyNameLabel.setText(state.getModel().getCurrencyName() + ": ");
 		else
-			currencyNameLabel.setText("");
+			currencyNameLabel.setText("Money: ");
 		
 		currencyLabel.setText("" + state.getCurrency());		
 	}

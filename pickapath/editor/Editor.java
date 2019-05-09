@@ -189,7 +189,7 @@ public class Editor extends JFrame implements ModelListener {
 	}
 
 
-	private boolean save() {
+	private boolean saveProject() {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(saveFile));
 			model.write(out);
@@ -202,9 +202,10 @@ public class Editor extends JFrame implements ModelListener {
 		return true;
 	}
 
-	private boolean saveAs() {
+	private boolean saveProjectAs() {
 
 		JFileChooser fileSelect = new JFileChooser();
+		fileSelect.setDialogTitle("Save Project");
 		fileSelect.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
@@ -229,14 +230,15 @@ public class Editor extends JFrame implements ModelListener {
 
 			saveFile = file;
 
-			return save();
+			return saveProject();
 		}
 		return false;
 	}
 
 
-	private void openFile() {  //open a saved file
+	private void openProject() {  //open a saved file
 		JFileChooser fileSelect = new JFileChooser();
+		fileSelect.setDialogTitle("Open Project");
 		fileSelect.setFileFilter(new FileFilter() {
 
 			@Override
@@ -274,8 +276,7 @@ public class Editor extends JFrame implements ModelListener {
 		newProject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if( saveIfNeeded("starting a new project") ) {
-					saveFile = null;
-					model.clear();
+					model.newProject();
 				}
 			}
 		});
@@ -287,7 +288,7 @@ public class Editor extends JFrame implements ModelListener {
 		openProject.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if( saveIfNeeded("opening another project") ) {					
-					openFile();
+					openProject();
 				}
 			}
 		});
@@ -300,9 +301,9 @@ public class Editor extends JFrame implements ModelListener {
 		saveItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if( saveFile == null )
-					saveAs();
+					saveProjectAs();
 				else
-					save();
+					saveProject();
 			}
 		});
 		saveItem.setEnabled(false);
@@ -311,7 +312,7 @@ public class Editor extends JFrame implements ModelListener {
 		file.add(saveAs);
 		saveAs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveAs();
+				saveProjectAs();
 			}
 		});
 
@@ -1196,9 +1197,9 @@ public class Editor extends JFrame implements ModelListener {
 					JOptionPane.YES_NO_CANCEL_OPTION);
 			if (ask == JOptionPane.YES_OPTION) {
 				if( saveFile == null )
-					return saveAs(); 
+					return saveProjectAs(); 
 				else
-					return save();
+					return saveProject();
 			}
 			else if(ask == JOptionPane.CANCEL_OPTION)
 				return false;					
@@ -1263,7 +1264,15 @@ public class Editor extends JFrame implements ModelListener {
 			choiceOrderLabel.setText("" + arrow.getOrder());
 			statusLabel.setText("Choice shifted to " + (event == Model.Event.ORDER_EARLIER ? "earlier" : "later" ) + " position");			 
 			break;
-		}		
+		}	
+		case NEW:
+			loading = true;
+			saveFile = null;
+			currencyField.setText("");
+			titleField.setText("");		
+			loading = false;
+			statusLabel.setText("Created new project");
+			break;
 		case SAVE:
 			statusLabel.setText("Successfully saved to file " + saveFile.getName());
 			break;
