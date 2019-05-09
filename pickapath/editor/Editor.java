@@ -666,7 +666,8 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 			private void update() {
-				model.setCurrencyName(currencyField.getText().trim());
+				if( !loading )
+					model.setCurrencyName(currencyField.getText().trim());
 			}
 		});
 		currencyPanel.add(currencyField);		
@@ -849,8 +850,7 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 			private void update() {
-				if( !loading )
-					model.setText(textArea.getText());
+				model.setText(textArea.getText());
 			}
 		});
 
