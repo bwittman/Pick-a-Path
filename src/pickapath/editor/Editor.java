@@ -38,6 +38,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -58,14 +59,14 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import pickapath.game.GameGUI;
-import pickapath.model.Choice;
 import pickapath.model.BooleanExpression;
 import pickapath.model.BooleanExpressionException;
-import pickapath.model.Prompt;
 import pickapath.model.CanvasObject;
+import pickapath.model.Choice;
 import pickapath.model.InvalidStartingPromptException;
 import pickapath.model.Model;
 import pickapath.model.ModelListener;
+import pickapath.model.Prompt;
 import pickapath.model.State;
 
 @SuppressWarnings("serial")
@@ -127,14 +128,13 @@ public class Editor extends JFrame implements ModelListener {
 		super(TITLE + " - New Document");		
 		model.addModelListener(this);
 
-		createDetailsDialog();
-
-		add(createNorthPanel(), BorderLayout.NORTH);
-		add(createSouthPanel(), BorderLayout.SOUTH);
-		add(createEastPanel(), BorderLayout.EAST);
-
 		createMenus();
-
+		createDetailsDialog();
+		
+		JPanel topPanel = new JPanel(new BorderLayout());
+		topPanel.add(createNorthPanel(), BorderLayout.NORTH);
+		topPanel.add(createEastPanel(), BorderLayout.EAST);
+		
 		canvas = new Canvas(model, this);
 		JScrollPane scrollPane = new JScrollPane(canvas); //adding the scrollpane to our canvas
 		JViewport viewport = scrollPane.getViewport();
@@ -158,7 +158,7 @@ public class Editor extends JFrame implements ModelListener {
 				}				
 			});
 		}
-		add(scrollPane, BorderLayout.CENTER);
+		topPanel.add(scrollPane, BorderLayout.CENTER);
 
 
 		scrollPane.addComponentListener(new ComponentAdapter() {
@@ -169,8 +169,11 @@ public class Editor extends JFrame implements ModelListener {
 				canvas.resetBounds();  
 			}
 		});
+		
+		JPanel bottomPanel = createSouthPanel();
 
-
+		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topPanel, bottomPanel);
+		add(splitPane, BorderLayout.CENTER);
 
 		pack();
 		setMinimumSize(getPreferredSize());
@@ -598,7 +601,7 @@ public class Editor extends JFrame implements ModelListener {
 		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
 		scrolling.setBorder(border("Text"));
 
-		panel.add(scrolling, BorderLayout.SOUTH);
+		panel.add(scrolling, BorderLayout.CENTER);
 
 		return panel;
 	}
