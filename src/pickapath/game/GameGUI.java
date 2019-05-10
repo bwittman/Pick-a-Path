@@ -32,6 +32,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
@@ -179,32 +180,30 @@ public class GameGUI extends JFrame {
 		promptArea.setEditable(false);
 		promptArea.setLineWrap(true);		
 		
-		JScrollPane scrolling = new JScrollPane(promptArea);
-		scrolling.setBorder(Editor.border("Prompt"));
-		scrolling.setPreferredSize(new Dimension(800, 300));		
-		add(scrolling, BorderLayout.NORTH);
+		JScrollPane promptScroll = new JScrollPane(promptArea);
+		promptScroll.setBorder(Editor.border("Prompt"));
+		promptScroll.setPreferredSize(new Dimension(800, 200));		
 		
-		
-		JPanel centerPanel = new JPanel(new GridLayout(1, 2, Editor.GAP, Editor.GAP));
-		centerPanel.setPreferredSize(new Dimension(800, 400));
-
+	
 		//Choices
 		choicePanel = new JPanel();
 		choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
-		scrolling = new JScrollPane(choicePanel);
-		scrolling.setBorder(Editor.border("Choices"));
+		JScrollPane choiceScroll = new JScrollPane(choicePanel);
+		choiceScroll.setBorder(Editor.border("Choices"));
+		choiceScroll.setPreferredSize(new Dimension(400, 400));
 		buttonList = new ArrayList<JRadioButton>();		
-		centerPanel.add(scrolling);
 		
 		//Inventory
 		inventoryArea = new JTextArea("");
 		inventoryArea.setEditable(false);
-		scrolling = new JScrollPane(inventoryArea);
-		scrolling.setBorder(Editor.border("Inventory"));
-		centerPanel.add(scrolling);
-
+		JScrollPane inventoryScroll = new JScrollPane(inventoryArea);
+		inventoryScroll.setBorder(Editor.border("Inventory"));
+		inventoryScroll.setPreferredSize(new Dimension(400, 400));
 		
-		add(centerPanel, BorderLayout.CENTER);
+		JSplitPane choiceInventorySplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, choiceScroll, inventoryScroll);
+		JSplitPane topBottomSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, promptScroll, choiceInventorySplit);
+		
+		add(topBottomSplit, BorderLayout.CENTER);
 		
 		
 		JPanel bottomPanel = new JPanel(new GridLayout(1, 2, Editor.GAP, Editor.GAP));
