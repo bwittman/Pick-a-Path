@@ -2,7 +2,6 @@ package pickapath.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -99,15 +99,16 @@ public class Editor extends JFrame implements ModelListener {
 	private JMenuItem recolorPromptItem;
 
 	//Functional members
-	private Font[] fonts;
 	private Model model = new Model();
 	private File saveFile = null;
 	private Random random = new Random();
 	private boolean loading = false;
 
 	//Constants
-	private static final int MAX_SLIDER = 5;
-	private static final int MIN_SLIDER = 1;
+	private static final int SLIDER_MAX = 150;
+	private static final int SLIDER_MIN = 25;
+	private static final int SLIDER_MAJOR_TICK = 25;
+	private static final int SLIDER_MINOR_TICK = 5;
 	public static final int GAP = 5;
 	private static final String TITLE = "Pick-a-Path";	
 
@@ -681,22 +682,26 @@ public class Editor extends JFrame implements ModelListener {
 		panel.add(labelAndFieldsPanel, BorderLayout.NORTH);
 
 		//Zoom slider		
-		slider = new JSlider(JSlider.HORIZONTAL, MIN_SLIDER, MAX_SLIDER, 1);
+		slider = new JSlider(JSlider.HORIZONTAL, SLIDER_MIN, SLIDER_MAX, 100);
 		slider.setPaintTicks(true);
-		slider.setMajorTickSpacing(1);
+		slider.setMajorTickSpacing(SLIDER_MAJOR_TICK);
+		slider.setMinorTickSpacing(SLIDER_MINOR_TICK);
+		slider.setSnapToTicks(true);
+		
+		Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+		for( int i = SLIDER_MIN; i <= SLIDER_MAX; i += SLIDER_MAJOR_TICK )
+			labelTable.put(i, new JLabel(i + "%"));
+		
+		slider.setLabelTable(labelTable);
 
 		//Set up different fonts for different slider settings
-		fonts = new Font[MAX_SLIDER - MIN_SLIDER + 1];
-		fonts[0] = new JLabel().getFont();
-		for (int i = 1; i < fonts.length; ++i)
-			fonts[i] = fonts[0].deriveFont(fonts[0].getSize() / ((i + MIN_SLIDER + 1) / 2.0f));
-
+	
 		slider.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				canvas.setZoom(1.0 / ((slider.getValue() + 1) / 2.0), fonts[slider.getValue() - MIN_SLIDER]);
-				statusLabel.setText("Zoom changed to " + (slider.getValue() + 0.0));
+				canvas.setZoom(slider.getValue()/ 100.0);
+				statusLabel.setText("Zoom changed to " + slider.getValue()  + "%");
 			}
 		});	
 
@@ -716,12 +721,13 @@ public class Editor extends JFrame implements ModelListener {
 				if( e.isControlDown() ) {
 					int value = slider.getValue();
 					if( e.getWheelRotation() > 0 ) {
-						if( value < slider.getMaximum() )
-							slider.setValue(value + 1);
+						if( value > slider.getMinimum() )
+							slider.setValue(value - SLIDER_MINOR_TICK);
 					}
 					else if( e.getWheelRotation() < 0 ) {
-						if( value > slider.getMinimum() )
-							slider.setValue(value - 1);
+						if( value < slider.getMaximum() )
+							slider.setValue(value + SLIDER_MINOR_TICK);
+						
 					}	
 				}
 			}

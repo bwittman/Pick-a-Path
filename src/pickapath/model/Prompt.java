@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -134,8 +133,6 @@ public class Prompt extends CanvasObject {
 		
 		//Draws text characters in the prompt
 		g.setColor(Color.BLACK);
-		Shape oldClip = g.getClip();
-		g.setClip(x, y, width, height);
 		int textX = getX(zoom);
 		int textY = getY(zoom);
 		FontMetrics metrics;
@@ -153,8 +150,7 @@ public class Prompt extends CanvasObject {
 			text = text.substring(0, Math.min(space < 0 ? text.length() : space,10))+ "...";
 			stringLength = metrics.stringWidth(text);
 		}
-		g.drawString(text, textX - stringLength/2, textY + stringHeight/2);
-		g.setClip(oldClip);	
+		g.drawString(text, textX - stringLength/2, textY + stringHeight/2);	
 	}
 	
 	public String getToolTipText() {

@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -35,8 +36,9 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private boolean arrowCheck;
 	private double zoom = 1.0;
 	private RenderingHints hints;
-	private Font font = null;
 	private JScrollPane scrollPane = null;
+	private final Font NORMAL_FONT = new JLabel().getFont();
+	private Font font = NORMAL_FONT;
 
 	public static int MIN_WIDTH = 640;
 	public static int MIN_HEIGHT = 480;
@@ -60,10 +62,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 
 		hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-
-		//setPreferredSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));		
+		hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);	
 	}
 
 	public void setScrollPane(JScrollPane scrollPane) {
@@ -246,16 +245,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		return zoom;
 	}
 
-	public void setZoom(double zoom, Font font) {
+	public void setZoom(double zoom) {
 
 		Point position = scrollPane.getViewport().getViewPosition();
 		double x = position.x / this.zoom;
 		double y = position.y / this.zoom;
 
 		this.zoom = zoom;
-		this.font = font;
-
-
+		font = NORMAL_FONT.deriveFont(NORMAL_FONT.getSize() * (float)zoom);
 		scrollPane.getViewport().setViewPosition(new Point((int)Math.round(x * zoom), (int)Math.round(y * zoom)));
 
 		resetBounds();
