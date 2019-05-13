@@ -61,7 +61,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import pickapath.game.GameGUI;
 import pickapath.model.BooleanExpression;
 import pickapath.model.BooleanExpressionException;
-import pickapath.model.CanvasObject;
+import pickapath.model.Element;
 import pickapath.model.Choice;
 import pickapath.model.InvalidStartingPromptException;
 import pickapath.model.Model;
@@ -97,12 +97,14 @@ public class Editor extends JFrame implements ModelListener {
 	private JMenuItem beginChoiceItem;
 	private JMenuItem detailsItem;
 	private JMenuItem recolorPromptItem;
+	private JMenuItem undoItem;
+	private JMenuItem redoItem;
 
 	//Functional members
 	private Model model = new Model();
 	private File saveFile = null;
 	private Random random = new Random();
-	private boolean loading = false;
+	private boolean listening = true;
 
 	//Constants
 	private static final int SLIDER_MAX = 150;
@@ -335,6 +337,31 @@ public class Editor extends JFrame implements ModelListener {
 		});	
 
 		JMenu editMenu = new JMenu("Edit"); // edit menu
+		
+		undoItem = new JMenuItem("Undo");
+		undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK)); //hotkey to undo
+		editMenu.add(undoItem);
+		undoItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				model.undo();
+			}
+		});		
+		undoItem.setEnabled(false);
+		
+		redoItem = new JMenuItem("Redo");
+		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK)); //hotkey to redo
+		editMenu.add(redoItem);
+		redoItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				model.redo();
+			}
+		});
+		redoItem.setEnabled(false);
+		
+		editMenu.addSeparator();		
+		
 		JMenuItem makePromptItem = new JMenuItem("Make Prompt"); //another way to make prompt
 		makePromptItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new prompt
 		editMenu.add(makePromptItem);
@@ -478,7 +505,7 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				model.removePrompt();
+				model.removeElement();
 			}
 		});
 		deletePromptButton.setEnabled(false);
@@ -512,7 +539,7 @@ public class Editor extends JFrame implements ModelListener {
 		upButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				model.makeArrowEarlier();
+				model.changeChoiceOrder(-1);
 			}
 		});		
 		upButton.setEnabled(false);
@@ -526,7 +553,7 @@ public class Editor extends JFrame implements ModelListener {
 		downButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {				
-				model.makeArrowLater();
+				model.changeChoiceOrder(1);
 			}
 
 		});		
@@ -541,7 +568,7 @@ public class Editor extends JFrame implements ModelListener {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {				
-				model.removeArrow();			}
+				model.removeElement();			}
 
 		});
 		deleteChoiceButton.setEnabled(false);
@@ -595,9 +622,13 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 			private void update() {
-				model.setText(textArea.getText());
+				if( listening )
+					model.setText(textArea.getText());
 			}
 		});
+		textArea.setEnabled(false);
+		
+		
 		JScrollPane scrolling = new JScrollPane(textArea);
 		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
 		scrolling.setBorder(border("Text"));
@@ -639,7 +670,7 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 			private void update() {
-				if( !loading )
+				if( listening )
 					model.setTitle(titleField.getText().trim());
 			}
 		});		
@@ -672,7 +703,7 @@ public class Editor extends JFrame implements ModelListener {
 			}
 
 			private void update() {
-				if( !loading )
+				if( listening )
 					model.setCurrencyName(currencyField.getText().trim());
 			}
 		});
@@ -843,31 +874,7 @@ public class Editor extends JFrame implements ModelListener {
 		JScrollPane scrolling = new JScrollPane(textArea);
 		scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 	
 		scrolling.setBorder(border("Choice Text"));
-
-		textArea.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void changedUpdate(DocumentEvent arg0) {
-				update();
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent arg0) {
-				update();
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent arg0) {
-				update();
-			}
-
-			private void update() {
-				model.setText(textArea.getText());
-			}
-		});
-
 		mainPanel.add(scrolling, BorderLayout.NORTH);	
-
-
 
 		JPanel centerPanel = new JPanel(new GridLayout(2, 2, GAP, GAP));
 
@@ -1075,8 +1082,7 @@ public class Editor extends JFrame implements ModelListener {
 				else
 					model.setCurrencyChange(0);
 				
-				model.saveDetails();
-				Editor.this.textArea.setText(model.getSelected().getText());
+				model.saveDetails(textArea.getText());
 				detailsDialog.setVisible(false);				
 			}
 		});
@@ -1141,7 +1147,7 @@ public class Editor extends JFrame implements ModelListener {
 		model.restoreSnapShot();
 	}
 
-	private void select(CanvasObject object, boolean isNew) {
+	private void select(Element object, boolean isNew) {
 		//Deselect
 		if( object == null ) {
 			textArea.setText("");
@@ -1156,7 +1162,9 @@ public class Editor extends JFrame implements ModelListener {
 
 			upButton.setEnabled(false);
 			downButton.setEnabled(false);
-			choiceOrderLabel.setText("");		
+			choiceOrderLabel.setText("");			
+			
+			textArea.setEnabled(false);
 
 			statusLabel.setText("");
 		}
@@ -1195,6 +1203,8 @@ public class Editor extends JFrame implements ModelListener {
 			deleteChoiceButton.setEnabled(!isPrompt);
 			detailsButton.setEnabled(!isPrompt);
 			detailsItem.setEnabled(!isPrompt);
+						
+			textArea.setEnabled(true);
 
 			if( isNew )
 				statusLabel.setText(kind + " created");
@@ -1234,8 +1244,8 @@ public class Editor extends JFrame implements ModelListener {
 	}
 
 	@Override
-	public void updateModel(Model.Event event, CanvasObject object) {
-		if( loading )
+	public void updateModel(Model.Event event, Element object, boolean undoOrRedo) {
+		if( !listening )
 			return;	
 
 		String asterisk = model.isDirty() ? "*" : "";
@@ -1246,6 +1256,9 @@ public class Editor extends JFrame implements ModelListener {
 
 		saveItem.setEnabled(model.isDirty());
 		boolean prompt = object instanceof Prompt;
+		
+		if( undoOrRedo )
+			listening = false;
 
 		switch(event) {
 		case CREATE: 
@@ -1265,42 +1278,76 @@ public class Editor extends JFrame implements ModelListener {
 			break;
 		case TEXT_CHANGE:
 			statusLabel.setText((prompt ? "Prompt" : "Choice") + " text changed");
+			if( undoOrRedo )
+				textArea.setText(object.getText());
 			break;		
 		case TITLE_CHANGE:
 			statusLabel.setText("Title changed to \"" + model.getTitle() + "\"");
+			if( undoOrRedo )
+				titleField.setText(model.getTitle());
 			break;
 		case CURRENCY_CHANGE:
 			statusLabel.setText("Currency name changed to \"" + model.getCurrencyName() + "\"");
+			if( undoOrRedo )
+				currencyField.setText(model.getCurrencyName());
 			break;
 		case DETAILS_CHANGE: 
-			statusLabel.setText("Choice details updated");			
+			statusLabel.setText("Choice details updated");	
+			if( object != null  ) {
+				listening = false;
+				textArea.setText(object.getText());
+				listening = true;
+			}
 			break;		
-		case ORDER_EARLIER:
-		case ORDER_LATER: {
+		case ORDER_CHANGE: {
 			Choice choice = (Choice) model.getSelected();
 			choiceOrderLabel.setText("" + choice.getOrder());
-			statusLabel.setText("Choice shifted to " + (event == Model.Event.ORDER_EARLIER ? "earlier" : "later" ) + " position");			 
+			statusLabel.setText("Choice shifted to position " + choice.getOrder());			 
 			break;
 		}	
 		case NEW:
-			loading = true;
+			listening = false;
 			saveFile = null;
 			titleField.setText("");	
 			currencyField.setText("");
 			statusLabel.setText("Created new project");
-			loading = false;
+			textArea.setText("");
+			listening = true;
 			break;
 		case SAVE:
 			statusLabel.setText("Successfully saved to file " + saveFile.getName());
 			break;
 		case LOAD:
-			loading = true;
+			listening = false;
 			select(null, false);
 			titleField.setText(model.getTitle());
 			currencyField.setText(model.getCurrencyName());
 			statusLabel.setText("Successfully loaded from file " + saveFile.getName());
-			loading = false;
+			listening = true;
 			break;
-		}	
+		}
+		
+		if( undoOrRedo )
+			listening = true;
+		
+		if( model.canUndo() ) {
+			undoItem.setText("Undo " + model.getUndoDescription());
+			undoItem.setEnabled(true);
+		}
+		else {
+			undoItem.setText("Undo");
+			undoItem.setEnabled(false);
+		}
+		
+		if( model.canRedo() ) {
+			redoItem.setText("Redo " + model.getRedoDescription());
+			redoItem.setEnabled(true);
+		}
+		else {
+			redoItem.setText("Redo");
+			redoItem.setEnabled(false);
+		}
+			
+		
 	}
 }

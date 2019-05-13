@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Choice extends CanvasObject {
+public class Choice extends Element {
 
 	private Prompt start;
 	private Prompt end;
@@ -419,34 +419,27 @@ public class Choice extends CanvasObject {
 		return false;
 	}
 
-	//Package private
-	void makeEarlier() {
+	//Package-private
+	void changeOrder(int steps) {
 		int index = order - 1;
 		List<Choice> choices = start.getOutgoing();
-		if( index > 0 ) {
-			Choice swap = choices.get(index - 1);
-			swap.order++;
-			order--;
+		if( index + steps >= 0 && index + steps < start.getOutgoing().size() ) {
+			Choice swap = choices.get(index + steps);
+			int temp = swap.order;
+			swap.order = order;
+			order = temp;
 			choices.set(index, swap);
-			choices.set(index - 1, this);
+			choices.set(index + steps, this);
 		}
-	}
-
-	//Package private
-	void makeLater() {
-		int index = order - 1;
-		List<Choice> choices = start.getOutgoing();
-		if( index < choices.size() - 1 ) {
-			Choice swap = choices.get(index + 1);
-			swap.order--;
-			order++;
-			choices.set(index, swap);
-			choices.set(index + 1, this);
-		}		
 	}
 
 	public int getOrder() {
 		return order;
+	}
+	
+	//Package-private
+	void setOrder(int order) {
+		this.order = order;
 	}
 
 	private static String toString(Set<Item> items) {

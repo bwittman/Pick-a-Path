@@ -1,11 +1,13 @@
 package pickapath.model;
 
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +26,15 @@ public class Model implements TableModel {
 	private List<ModelListener> modelListeners = new ArrayList<ModelListener>();
 	private ArrayList<TableModelListener> tableListeners = new ArrayList<>();
 	private int itemIdCount = 1;
-	private CanvasObject selected = null;
+	private Element selected = null;
 	private SnapShot snapShot = null;
+	
+	private static final int UNDO_LIMIT = 32;
+
+	//Undo stuff
+	private List<Action> actions = new LinkedList<Action>();
+	private int actionIndex = -1;
+	private boolean undoOrRedo = false;
 
 	public enum Event {
 		CREATE,
@@ -37,61 +46,377 @@ public class Model implements TableModel {
 		TITLE_CHANGE,
 		CURRENCY_CHANGE,
 		DETAILS_CHANGE,
-		ORDER_EARLIER,
-		ORDER_LATER,
+		ORDER_CHANGE,
 		NEW,
 		SAVE,
 		LOAD
 	}
-	
+
 	private class SnapShot {
 		List<Prompt> prompts;
 		List<Choice> choices;
 		List<Item> items;
 		boolean dirty;
 		int itemIdCount;
-		CanvasObject selected = null;
-		
+		Element selected;
+
 		public SnapShot() {
 			Model model = Model.this;
-			prompts = new ArrayList<>(model.prompts.size());
-			choices = new ArrayList<>(model.choices.size());
-			items = new ArrayList<>(model.items.size());
-			
-			Map<Prompt, Integer> promptIndexes = new HashMap<>(model.prompts.size() * 2);
-			Map<Item, Integer> itemMap = new HashMap<>(model.items.size() * 2);
-			
-			//Recreate all prompts in order
-			//Make a mapping from old prompts to their indexes in the list
-			for( int i = 0; i < model.prompts.size(); ++i ) {
-				Prompt prompt = model.prompts.get(i);
-				promptIndexes.put(prompt, i);
-				prompts.add(new Prompt(prompt));
-				if( model.selected == prompt )
-					selected = prompts.get(i);
-			}
-			
-			
-			//Recreate all items in order
-			//Make a mapping from old items to their indexes in the list
-			for( int i = 0; i < model.items.size(); ++i ) {
-				Item item = model.items.get(i);
-				itemMap.put(item, i);
-				items.add(new Item(item));
-			}
-			
-			//Recreate all choices
-			//Use the maps from prompts to indexes and items to indexes to put
-			//put the newly created prompts and items in the new choices
-			for( int i = 0; i < model.choices.size(); ++i ) {
-				Choice choice = model.choices.get(i);
-				choices.add(new Choice(choice, promptIndexes, prompts, itemMap, items));
-				if( model.selected == choice )
-					selected = choices.get(i);
-			}
-			
+			prompts = model.prompts;
+			choices = model.choices;
+			items = model.items;
 			dirty = model.dirty;
-			itemIdCount = model.itemIdCount;			
+			itemIdCount = model.itemIdCount;
+			selected = model.selected;
+		}
+
+		public void restore() {
+			Model model = Model.this;
+			model.prompts = prompts;
+			model.choices = choices;
+			model.items = items;
+			model.dirty = dirty;
+			model.itemIdCount = itemIdCount;
+			model.selected = selected;
+		}
+	}
+
+	private abstract class Action {
+		public final Event kind;
+		public Action(Event kind) {
+			this.kind = kind;
+		}
+
+		public abstract void undo();
+		public abstract void redo();
+		public abstract String getDescription();
+	}
+
+	private class CreateAction extends Action {
+		private Element element;
+		private Element previousSelection; 
+		public CreateAction(Element element) {
+			super(Event.CREATE);
+			this.element = element;
+			this.previousSelection = selected;
+		}
+		@Override
+		public void undo() {
+			removeElement(previousSelection);
+		}
+		@Override
+		public void redo() {
+			if( element instanceof Prompt )
+				add((Prompt)element);
+			else if( element instanceof Choice ) {
+				Choice choice = (Choice)element;
+				choice.getStart().addOutgoing(choice);
+				choice.getEnd().addIncoming(choice);	
+				add(choice);			
+			}
+		}
+		@Override
+		public String getDescription() {
+			return "Create " + (element instanceof Prompt ? "Prompt" : "Choice");
+		}
+	}
+
+	private class DeleteAction extends Action {
+		private Element element;
+		public DeleteAction() {
+			super(Event.DELETE);
+			this.element = selected;
+		}
+		@Override
+		public void undo() {
+			if( element instanceof Prompt ) {
+				Prompt prompt = (Prompt)element;
+				prompts.add(0, prompt); //it was selected, so it must have been at the front
+					
+				for(Choice choice: prompt.getIncoming()) {
+					choices.add(choice);
+					
+					//Add choice back to outgoing of start
+					List<Choice> startOutgoing = choice.getStart().getOutgoing();
+					startOutgoing.add(choice.getOrder() - 1, choice);
+					
+					//Then reorder all the choices
+					for( int i = 0; i < startOutgoing.size(); ++i )
+						startOutgoing.get(i).setOrder(i + 1);
+				}
+
+				for(Choice choice: prompt.getOutgoing()) {
+					choices.add(choice);
+					
+					//Add choice back to incoming of end
+					choice.getEnd().getIncoming().add(choice);
+				}
+			}
+			else if( element instanceof Choice ){
+				Choice choice = (Choice)element;
+				choices.add(0, choice); //it was selected, so it must have been at the front
+				//Add choice back to outgoing of start
+				List<Choice> startOutgoing = choice.getStart().getOutgoing();
+				startOutgoing.add(choice.getOrder() - 1, choice);
+				
+				//Then reorder all the choices
+				for( int i = 0; i < startOutgoing.size(); ++i )
+					startOutgoing.get(i).setOrder(i + 1);
+				
+				//Add choice back to incoming of end
+				choice.getEnd().addIncoming(choice);						
+			}
+			
+			selected = element;		
+			updateListeners(Event.CREATE, element, true);
+		}
+		@Override
+		public void redo() {
+			removeElement();
+		}
+		
+		@Override
+		public String getDescription() {
+			return "Delete " + (element instanceof Prompt ? "Prompt" : "Choice");
+		}
+	}
+
+	private class SelectAction extends Action {
+		private Element oldSelection;
+		private Element newSelection;
+		private int index;
+		public SelectAction(Element newSelection, int index) {
+			super(Event.SELECT);
+			oldSelection = selected;
+			this.newSelection = newSelection;
+			this.index = index;
+		}
+		@Override
+		public void undo() {
+			boolean changed = index != 0;
+
+			if( changed ) {
+				if( newSelection instanceof Prompt ) {
+					Prompt prompt = (Prompt) newSelection;
+					prompts.remove(prompt); //should always be at location 0, but we'll be defensive
+					prompts.add(index, prompt);
+				
+				}	
+				else if( newSelection instanceof Choice ) {
+					Choice choice = (Choice) newSelection;	
+					choices.remove(choice); //should always be at location 0, but we'll be defensive
+					choices.add(index, choice);					
+				}
+			}
+			
+			selected = oldSelection;
+			updateListeners(Event.SELECT, oldSelection, changed);
+		}
+		@Override
+		public void redo() {
+			if( newSelection instanceof Prompt )
+				selectPrompt(index);
+			else if( newSelection instanceof Choice )
+				selectChoice(index);
+			else
+				deselect();
+		}
+		
+		@Override
+		public String getDescription() {
+			if( newSelection instanceof Prompt )
+				return "Select Prompt";
+			else if( newSelection instanceof Choice )
+				return "Select Choice";
+			else
+				return "Deselect";
+		}
+	}
+
+	private class MoveAction extends Action {
+		private int oldX;
+		private int oldY;
+		private int newX;
+		private int newY;
+		public MoveAction(int newX, int newY) {
+			super(Event.MOVE);			
+			Prompt prompt = (Prompt) selected;
+			oldX = prompt.getX();
+			oldY = prompt.getY();
+			this.newX = newX;
+			this.newY = newY;
+		}
+		@Override
+		public void undo() {			
+			setPosition(oldX, oldY, 1.0);
+		}
+		@Override
+		public void redo() {
+			setPosition(newX, newY, 1.0);
+		}
+
+		public void update(int x, int y) {
+			newX = x;
+			newY = y;
+		}
+		
+		@Override
+		public String getDescription() {			
+			return "Move Prompt";
+		}		
+	}
+
+	private class ColorAction extends Action {
+		private Color oldColor;
+		private Color newColor;
+		public ColorAction(Color newColor) {
+			super(Event.RECOLOR);
+			Prompt prompt = (Prompt)selected;
+			oldColor = prompt.getColor();
+			this.newColor = newColor;
+		}
+		@Override
+		public void undo() {
+			Prompt prompt = (Prompt)selected;
+			prompt.setColor(oldColor);
+			updateListeners(Event.RECOLOR, prompt, true);
+		}
+		@Override
+		public void redo() {
+			Prompt prompt = (Prompt)selected;
+			prompt.setColor(newColor);
+			updateListeners(Event.RECOLOR, prompt, true);
+		}
+		
+		@Override
+		public String getDescription() {			
+			return "Recolor Prompt";
+		}
+	}
+
+	private class TextAction extends Action {
+		private String oldText;
+		private String newText;
+		public TextAction(String newText) {
+			super(Event.TEXT_CHANGE);
+			oldText = selected.getText();
+			this.newText = newText;
+		}
+		@Override
+		public void undo() {
+			setText(oldText);
+		}
+		@Override
+		public void redo() {
+			setText(newText);
+		}
+
+		public void update(String text) {
+			newText = text;
+		}
+		
+		@Override
+		public String getDescription() {			
+			return  (selected instanceof Prompt ? "Prompt" : "Choice") + " Text Change";
+		}
+	}
+
+	private class TitleAction extends Action {
+		private String oldTitle;
+		private String newTitle;
+		public TitleAction(String newTitle) {
+			super(Event.TITLE_CHANGE);
+			this.oldTitle = title;
+			this.newTitle = newTitle;
+		}
+		@Override
+		public void undo() {
+			setTitle(oldTitle);
+		}
+		@Override
+		public void redo() {
+			setTitle(newTitle);
+		}
+		public void update(String title) {
+			newTitle = title;
+		}
+		
+		@Override
+		public String getDescription() {			
+			return  "Title Change";
+		}
+	}
+
+	private class CurrencyAction extends Action {
+		private String oldCurrency;
+		private String newCurrency;
+		public CurrencyAction(String newCurrency) {
+			super(Event.CURRENCY_CHANGE);
+			this.oldCurrency = currencyName;
+			this.newCurrency = newCurrency;
+		}
+		@Override
+		public void undo() {
+			setCurrencyName(oldCurrency);
+		}
+		@Override
+		public void redo() {
+			setCurrencyName(newCurrency);
+		}
+		public void update(String currency) {
+			newCurrency = currency;
+		}
+		
+		@Override
+		public String getDescription() {			
+			return  "Currency Name Change";
+		}
+	}
+
+	private class DetailsAction extends Action {
+		private SnapShot oldSnapShot;
+		private SnapShot newSnapShot;
+		public DetailsAction(SnapShot oldSnapShot, SnapShot newSnapShot) {
+			super(Event.DETAILS_CHANGE);
+			this.oldSnapShot = oldSnapShot;
+			this.newSnapShot = newSnapShot;
+		}
+		@Override
+		public void undo() {
+			oldSnapShot.restore();
+			updateListeners(Event.DETAILS_CHANGE, selected, true);
+
+		}
+		@Override
+		public void redo() {
+			newSnapShot.restore();
+			updateListeners(Event.DETAILS_CHANGE, selected, true);
+		}
+		
+		@Override
+		public String getDescription() {			
+			return  "Choice Details Change";
+		}
+	}
+
+	private class OrderAction extends Action {
+		private int change;
+		public OrderAction(int change) {
+			super(Event.ORDER_CHANGE);
+			this.change = change;
+		}
+		@Override
+		public void undo() {
+			changeChoiceOrder(-change);			
+		}
+		@Override
+		public void redo() {
+			changeChoiceOrder(change);			
+		}
+		
+		@Override
+		public String getDescription() {			
+			return  "Choice Order " + (change > 0 ? "Increase" : "Decrease");
 		}
 	}
 
@@ -104,21 +429,30 @@ public class Model implements TableModel {
 			items.clear();	
 			for (TableModelListener listener: tableListeners)
 				listener.tableChanged(event);
-			
+
 		}
+		
 		title = "";
 		currencyName = "";
 		selected = null;
-		
+		snapShot = null;
+
 		dirty = false;
+		
+		actions.clear();
+		actionIndex = -1;
 	}
 
 	public void deselect() {
-		selected = null;
-		updateListeners(Event.SELECT, null, false);
+		if( selected != null ) {
+			if( !undoOrRedo )
+				addAction(new SelectAction(null, 0));
+			selected = null;
+			updateListeners(Event.SELECT, null, false);
+		}
 	}
 
-	public CanvasObject getSelected() {
+	public Element getSelected() {
 		return selected;
 	}
 
@@ -131,65 +465,124 @@ public class Model implements TableModel {
 	}
 
 	public void add(Prompt prompt) {
-		prompts.add(prompt);
+		if( !undoOrRedo )
+			addAction(new CreateAction(prompt));
+		prompts.add(0, prompt);
 		selected = prompt;
 		updateListeners(Event.CREATE, prompt, true);
 	}
 
 	public void add(Choice choice) {
-		choices.add(choice);
+		if( !undoOrRedo )
+			addAction(new CreateAction(choice));
+		choices.add(0, choice);
 		selected = choice;
 		updateListeners(Event.CREATE, choice, true);
 	}
 
-	public void removePrompt() {		
-		if( selected instanceof Prompt) {
-			Prompt prompt = (Prompt)selected;
-			if( prompts.remove(prompt) ) {
-				for(Choice choice: prompt.getIncoming()) 
-					choices.remove(choice);
+	private void addAction(Action action) {
+		//All future updates are lost
+		if( actionIndex >= 0 && actionIndex < actions.size() - 1 )
+			actions = actions.subList(0, actionIndex + 1);
 
-				for(Choice choice: prompt.getOutgoing())
-					choices.remove(choice);
+		//Combining actions
+		if( actionIndex >= 0 && action.kind == actions.get(actionIndex).kind &&
+				( action.kind == Event.MOVE || action.kind == Event.TEXT_CHANGE || action.kind == Event.TITLE_CHANGE || action.kind == Event.CURRENCY_CHANGE ) ) {
 
-				updateListeners(Event.DELETE, prompt, true);
+			Action lastAction = actions.get(actionIndex);
+			if( action.kind == Event.MOVE ) {
+				MoveAction oldMove = (MoveAction)lastAction;
+				MoveAction newMove = (MoveAction)action;
+				oldMove.update(newMove.newX, newMove.newY);
 			}
+			else if( action.kind == Event.TEXT_CHANGE ) {
+				TextAction oldText = (TextAction)lastAction;
+				TextAction newText = (TextAction)action;
+				oldText.update(newText.newText);
+			}
+			else if( action.kind == Event.TITLE_CHANGE ) {
+				TitleAction oldTitle = (TitleAction)lastAction;
+				TitleAction newTitle = (TitleAction)action;
+				oldTitle.update(newTitle.newTitle);
+			}
+			else if( action.kind == Event.CURRENCY_CHANGE ) {
+				CurrencyAction oldCurrency = (CurrencyAction)lastAction;
+				CurrencyAction newCurrency = (CurrencyAction)action;
+				oldCurrency.update(newCurrency.newCurrency);
+			}
+		}
+		else {
+			actions.add(action);
+			
+			if( actions.size() > UNDO_LIMIT )
+				actions = actions.subList(actions.size() - UNDO_LIMIT, actions.size());
+			
+			actionIndex = actions.size() - 1;
 		}
 	}
 
-	public void removeArrow() {	
-		if( selected instanceof Choice) {
+	private void removeElement(Element previousSelection) {
+		if( selected instanceof Prompt) {
+			Prompt prompt = (Prompt)selected;
+			if( prompts.remove(prompt) ) {
+				for(Choice choice: prompt.getIncoming()) {
+					choices.remove(choice);
+					List<Choice> startOutgoing = choice.getStart().getOutgoing();
+					choice.getStart().getOutgoing().remove(choice);
+					
+					//Then reorder all the choices
+					for( int i = 0; i < startOutgoing.size(); ++i )
+						startOutgoing.get(i).setOrder(i + 1);
+				}
+
+				for(Choice choice: prompt.getOutgoing()) {
+					choices.remove(choice);
+					choice.getEnd().getIncoming().remove(choice);
+				}
+
+				selected = previousSelection;
+				updateListeners(Event.DELETE, prompt, true);
+			}
+		}
+		else if( selected instanceof Choice) {
 			Choice choice = (Choice)selected;
 			if( choices.remove(choice) ) {
+				List<Choice> startOutgoing = choice.getStart().getOutgoing();
 				choice.getStart().getOutgoing().remove(choice);
-				choice.getEnd().getIncoming().remove(choice);
+				
+				//Then reorder all the choices
+				for( int i = 0; i < startOutgoing.size(); ++i )
+					startOutgoing.get(i).setOrder(i + 1);
+				
+				choice.getEnd().getIncoming().remove(choice);		
 
+				selected = previousSelection;
 				updateListeners(Event.DELETE, choice, true);
 			}
 		}
 	}
 
-	public void makeArrowEarlier() {
+	public void removeElement() {
+		if( !undoOrRedo )
+			addAction(new DeleteAction());
+		removeElement(null);
+	}
+
+	public void changeChoiceOrder(int steps) {
 		if( selected instanceof Choice) {
+			if( !undoOrRedo )
+				addAction(new OrderAction(steps));
 			Choice choice = (Choice)selected;
-			choice.makeEarlier();
-			updateListeners(Event.ORDER_EARLIER, choice, true);
+			choice.changeOrder(steps);
+			updateListeners(Event.ORDER_CHANGE, choice, true);
 		}
 	}
 
-	public void makeArrowLater() {
-		if( selected instanceof Choice) {
-			Choice choice = (Choice)selected;
-			choice.makeLater();
-			updateListeners(Event.ORDER_LATER, choice, true);
-		}
-	}
-
-	public Choice getArrow(int index) {
+	public Choice getChoice(int index) {
 		return choices.get(index);
 	}
 
-	public int arrowCount() {
+	public int choiceCount() {
 		return choices.size();
 	}
 
@@ -215,6 +608,8 @@ public class Model implements TableModel {
 	}
 
 	public void setTitle(String title) {
+		if( !undoOrRedo )
+			addAction(new TitleAction(title));
 		this.title = title;
 		updateListeners(Event.TITLE_CHANGE, null, true);
 	}
@@ -224,6 +619,8 @@ public class Model implements TableModel {
 	}
 
 	public void setCurrencyName(String currencyName) {
+		if( !undoOrRedo )
+			addAction(new CurrencyAction(currencyName));
 		this.currencyName = currencyName;
 		updateListeners(Event.CURRENCY_CHANGE, null, true);
 	}
@@ -236,7 +633,7 @@ public class Model implements TableModel {
 		Map<Prompt, Integer> promptIndexes = new HashMap<>();
 		Map<Item, Integer> itemIndexes = new HashMap<>();
 
-		
+
 		out.writeInt(prompts.size());
 		for(int i = 0; i < prompts.size(); ++i ) {
 			Prompt prompt = prompts.get(i);
@@ -256,12 +653,12 @@ public class Model implements TableModel {
 		for (Prompt prompt: prompts)
 			for( Choice choice: prompt.getOutgoing() )
 				choice.write(out, promptIndexes, itemIndexes);
-		
+
 		dirty = false;
 
 		updateListeners(Event.SAVE, null, false);
 	}
-	
+
 	public void newProject() {
 		clear();
 		updateListeners(Event.NEW, null, false);
@@ -315,45 +712,56 @@ public class Model implements TableModel {
 
 	public void selectPrompt(int index) {
 		Prompt prompt = prompts.get(index);
-		selected = prompt;
-		if( index != 0 ) {			
-			prompts.remove(index);
-			prompts.add(0, prompt);
-			updateListeners(Event.SELECT, prompt, true);
+		if( selected != prompt ) {
+			if( !undoOrRedo )
+				addAction(new SelectAction(prompt, index));
+			selected = prompt;
+			if( index != 0 ) {			
+				prompts.remove(index);
+				prompts.add(0, prompt);
+				updateListeners(Event.SELECT, prompt, true);
+			}
+			else
+				updateListeners(Event.SELECT, prompt, false);
 		}
-		else
-			updateListeners(Event.SELECT, prompt, false);
 	}
 
 	public void recolorPrompt() {
 		if( selected instanceof Prompt ) {
 			Prompt prompt = (Prompt) selected;
-			prompt.recolor();
+			Color newColor = Prompt.generateColor();
+			if( !undoOrRedo )
+				addAction(new ColorAction(newColor));
+			prompt.setColor(newColor);
 			updateListeners(Event.RECOLOR, prompt, true);
 		}
 	}
 
-	public void selectArrow(int index) {
-		Choice choice = choices.get(index);
-		selected = choice;
-		if( index != 0 ) {			
-			choices.remove(index);
-			choices.add(0, choice);
-			updateListeners(Event.SELECT, choice, true);
+	public void selectChoice(int index) {
+		Choice choice = choices.get(index);		
+		if( selected != choice ) {			
+			if( !undoOrRedo)
+				addAction(new SelectAction(choice, index));
+			selected = choice;
+			if( index != 0 ) {			
+				choices.remove(index);
+				choices.add(0, choice);
+				updateListeners(Event.SELECT, choice, true);
+			}
+			else
+				updateListeners(Event.SELECT, choice, false);
 		}
-		else
-			updateListeners(Event.SELECT, choice, false);
 	}
 
 	public void addModelListener(ModelListener listener) {
 		modelListeners.add(listener);
 	}
 
-	private void updateListeners(Event event, CanvasObject object, boolean makeDirty) {
+	private void updateListeners(Event event, Element object, boolean makeDirty) {
 		dirty = dirty || makeDirty;
 
 		for( ModelListener listener : modelListeners )
-			listener.updateModel(event, object);
+			listener.updateModel(event, object, undoOrRedo);
 	}
 
 	protected List<Prompt> getStartingPrompts() {
@@ -366,14 +774,21 @@ public class Model implements TableModel {
 		return startingPrompts;
 	}
 
-	public void setPosition(Prompt prompt, int x, int y, double zoom) {
-		prompt.setX(x, zoom);
-		prompt.setY(y, zoom);
-		updateListeners(Event.MOVE, prompt, true);
+	public void setPosition(int x, int y, double zoom) {
+		if( selected instanceof Prompt ) {
+			if( !undoOrRedo )
+				addAction(new MoveAction((int)Math.round(x / zoom), (int)Math.round(y / zoom)));
+			Prompt prompt = (Prompt) selected;
+			prompt.setX(x, zoom);
+			prompt.setY(y, zoom);
+			updateListeners(Event.MOVE, prompt, true);
+		}
 	}
 
 	public void setText(String text) {
 		if( selected != null ) {
+			if( !undoOrRedo && !selected.getText().equals(text) )
+				addAction(new TextAction(text));
 			selected.setText(text);
 			updateListeners(Event.TEXT_CHANGE, selected, true);
 		}
@@ -507,11 +922,50 @@ public class Model implements TableModel {
 			updateListeners(Event.DETAILS_CHANGE, choice, true);
 		}		
 	}
-	
+
 	public void makeSnapShot() {
-		snapShot = new SnapShot();
+		snapShot = new SnapShot();		
+
+		prompts = new ArrayList<>(snapShot.prompts.size());
+		choices = new ArrayList<>(snapShot.choices.size());
+		items = new ArrayList<>(snapShot.items.size());
+
+		Map<Prompt, Integer> promptIndexes = new HashMap<>(snapShot.prompts.size() * 2);
+		Map<Item, Integer> itemMap = new HashMap<>(snapShot.items.size() * 2);
+
+		//Recreate all prompts in order
+		//Make a mapping from old prompts to their indexes in the list
+		for( int i = 0; i < snapShot.prompts.size(); ++i ) {
+			Prompt prompt = snapShot.prompts.get(i);
+			promptIndexes.put(prompt, i);
+			prompts.add(new Prompt(prompt));
+			if( snapShot.selected == prompt )
+				selected = prompts.get(i);
+		}
+
+
+		//Recreate all items in order
+		//Make a mapping from old items to their indexes in the list
+		for( int i = 0; i < snapShot.items.size(); ++i ) {
+			Item item = snapShot.items.get(i);
+			itemMap.put(item, i);
+			items.add(new Item(item));
+		}
+
+		//Recreate all choices
+		//Use the maps from prompts to indexes and items to indexes to put
+		//put the newly created prompts and items in the new choices
+		for( int i = 0; i < snapShot.choices.size(); ++i ) {
+			Choice choice = snapShot.choices.get(i);
+			choices.add(new Choice(choice, promptIndexes, prompts, itemMap, items));
+			if( snapShot.selected == choice )
+				selected = choices.get(i);
+		}
+
+		dirty = snapShot.dirty;
+		itemIdCount = snapShot.itemIdCount;
 	}
-	
+
 	public void restoreSnapShot() {
 		int rows = items.size();
 		if( rows > 0 ) {
@@ -519,34 +973,80 @@ public class Model implements TableModel {
 			for (TableModelListener listener: tableListeners)
 				listener.tableChanged(event);
 		}
-		
-		prompts = snapShot.prompts;
-		choices = snapShot.choices;
-		items = snapShot.items;
-		dirty = snapShot.dirty;
-		itemIdCount = snapShot.itemIdCount;
-		selected = snapShot.selected;
-		
+
+		snapShot.restore();
+
 		rows = items.size();
 		if( rows > 0 ) {
 			TableModelEvent event = new TableModelEvent(this, 0, rows - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT);
 			for (TableModelListener listener: tableListeners)
 				listener.tableChanged(event);
 		}
+		
+		updateListeners(Event.DETAILS_CHANGE, selected, true);
 	}
 
-	public void saveDetails() {
-		// TODO Use to support undos for details changes
+	public void saveDetails(String text) {
+		// Supports undos for details changes
 		if( selected instanceof Choice) {
-			Choice choice = (Choice)selected;
-			updateListeners(Event.DETAILS_CHANGE, choice, true);
+			selected.setText(text);
+			if( !undoOrRedo )
+				addAction(new DetailsAction(snapShot, new SnapShot()));
+
+			updateListeners(Event.DETAILS_CHANGE, selected, true);
 		}
 	}
 
 	public void setCurrencyChange(int change) {
-		if( selected instanceof Choice) {
+		if( selected instanceof Choice ) {
 			Choice choice = (Choice)selected;
 			choice.setCurrencyChange(change);
 		}		
+	}
+
+	public boolean canUndo() {
+		return actionIndex >= 0 && actionIndex < actions.size();
+	}
+	
+	public String getUndoDescription() {
+		if( canUndo() ) {
+			Action action = actions.get(actionIndex);
+			return action.getDescription();
+		}
+		
+		return "";
+	}
+
+	public boolean canRedo() {
+		return actionIndex >= -1 && actionIndex < actions.size() - 1;
+	}
+	
+	public String getRedoDescription() {
+		if( canRedo() ) {
+			Action action = actions.get(actionIndex + 1);
+			return action.getDescription();
+		}
+		
+		return "";
+	}
+
+	public void undo() {
+		if( canUndo() ) {
+			undoOrRedo = true;
+			Action action = actions.get(actionIndex);
+			actionIndex--;
+			action.undo();
+			undoOrRedo = false;
+		}
+	}
+
+	public void redo() {
+		if( canRedo() ) {
+			undoOrRedo = true;
+			actionIndex++;
+			Action action = actions.get(actionIndex);
+			action.redo();
+			undoOrRedo = false;
+		}
 	}
 }

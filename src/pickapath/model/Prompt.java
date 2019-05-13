@@ -12,7 +12,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Prompt extends CanvasObject {
+public class Prompt extends Element {
 	private int x;
 	private int y;
 	public static int WIDTH = 100;
@@ -52,9 +52,14 @@ public class Prompt extends CanvasObject {
 		out.writeObject(color);
 	}	
 	
-	//Package private
-	void recolor() {
-		color = Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
+	//Package-private
+	static Color generateColor() {
+		return Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
+	}
+	
+	//Package-private
+	void setColor(Color color) {
+		this.color = color;
 	}
 	
 	public int getX() {
@@ -65,12 +70,12 @@ public class Prompt extends CanvasObject {
 		return (int)Math.round(x * zoom);
 	}
 	
-	//Package private
+	//Package-private
 	void setX(int x) {
 		this.x = x;
 	}
 	
-	//Package private
+	//Package-private
 	void setX(int x, double zoom) {
 		setX((int)Math.round(x / zoom));
 	}
@@ -83,12 +88,12 @@ public class Prompt extends CanvasObject {
 		return (int)Math.round(y * zoom);
 	}
 	
-	//Package private
+	//Package-private
 	void setY(int y) {
 		this.y = y;
 	}
 	
-	//Package private
+	//Package-private
 	void setY(int y, double zoom) {
 		setY((int)Math.round(y / zoom));
 	}
@@ -97,10 +102,13 @@ public class Prompt extends CanvasObject {
 		return color;
 	}
 
-	public void addIncoming(Choice choice) {
+	//Package-private
+	void addIncoming(Choice choice) {
 		incoming.add(choice);
 	}
-	public void addOutgoing(Choice choice) {
+	
+	//Package-private
+	void addOutgoing(Choice choice) {
 		outgoing.add(choice);
 	}
 	public List<Choice> getIncoming(){

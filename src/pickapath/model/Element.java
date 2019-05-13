@@ -6,15 +6,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public abstract class CanvasObject {
+public abstract class Element {
 	
 	private String text;
 	
-	protected CanvasObject(String text) {
+	protected Element(String text) {
 		this.text = text;
 	}
 	
-	protected CanvasObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	protected Element(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		text = (String)in.readObject();
 	}
 	

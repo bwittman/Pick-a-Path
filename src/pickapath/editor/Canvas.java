@@ -22,7 +22,7 @@ import javax.swing.ToolTipManager;
 
 import pickapath.model.Choice;
 import pickapath.model.Prompt;
-import pickapath.model.CanvasObject;
+import pickapath.model.Element;
 import pickapath.model.Model;
 import pickapath.model.ModelListener;
 
@@ -83,8 +83,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 		graphics.addRenderingHints(hints);
 
 		//Draw choices back to front
-		for( int i = model.arrowCount() - 1; i >= 0; --i ) {
-			Choice choice = model.getArrow(i);
+		for( int i = model.choiceCount() - 1; i >= 0; --i ) {
+			Choice choice = model.getChoice(i);
 			choice.draw(graphics, choice == model.getSelected(), font, zoom);
 		}
 
@@ -99,17 +99,14 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	@Override
 	//Determines if a mouse is inside a prompt based on its area and coordinates
 	public void mouseDragged(MouseEvent e) {
-		CanvasObject selected = model.getSelected();
-		if( selected instanceof Prompt ) {
-			Prompt selectedPrompt = (Prompt) selected;
+
 			int x = e.getX();
 			int y = e.getY();
 			int deltaX =  x - startXDrag;
 			int deltaY = y - startYDrag;
 			int xMin = (int)Math.round((SPACING + Prompt.WIDTH /2)*zoom);
 			int yMin = (int)Math.round((SPACING + Prompt.HEIGHT /2)*zoom);
-			model.setPosition(selectedPrompt, Math.max(startXPrompt + deltaX, xMin), Math.max(startYPrompt + deltaY, yMin), zoom);
-		}
+			model.setPosition(Math.max(startXPrompt + deltaX, xMin), Math.max(startYPrompt + deltaY, yMin), zoom);
 	}
 	
 	@Override
@@ -151,8 +148,8 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 				return prompt.getToolTipText();		
 		}		
 
-		for(int i = 0; i < model.arrowCount(); ++i) {
-			Choice choice = model.getArrow(i);
+		for(int i = 0; i < model.choiceCount(); ++i) {
+			Choice choice = model.getChoice(i);
 			if (choice.contains(mouseX, mouseY, zoom))
 				return choice.getToolTipText();			
 		}
@@ -224,10 +221,10 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 					return;
 				}
 			}			
-			for( int i = 0; i < model.arrowCount(); ++i ) {
-				Choice choice = model.getArrow(i);
+			for( int i = 0; i < model.choiceCount(); ++i ) {
+				Choice choice = model.getChoice(i);
 				if (choice.contains(mouseX, mouseY, zoom)) {
-					model.selectArrow(i);
+					model.selectChoice(i);
 					return;
 				}
 			}
@@ -294,7 +291,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	}
 
 	@Override
-	public void updateModel(Model.Event event, CanvasObject object) {
+	public void updateModel(Model.Event event, Element object, boolean undoOrRedo) {
 		if(event == Model.Event.LOAD || event == Model.Event.MOVE || event == Model.Event.DELETE || event == Model.Event.NEW )
 			resetBounds();
 
