@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -192,11 +193,12 @@ public class Editor extends JFrame implements ModelListener {
 		});		
 		
 		List<Image> icons = new ArrayList<Image>();
-		icons.add(new ImageIcon("icon16x16.png").getImage());
-		icons.add(new ImageIcon("icon32x32.png").getImage());
-		icons.add(new ImageIcon("icon64x64.png").getImage());
-		icons.add(new ImageIcon("icon128x128.png").getImage());
-		icons.add(new ImageIcon("icon256x256.png").getImage());		
+		
+		icons.add(new ImageIcon(getClass().getResource("/images/icon16x16.png")).getImage());
+		icons.add(new ImageIcon(getClass().getResource("/images/icon32x32.png")).getImage());
+		icons.add(new ImageIcon(getClass().getResource("/images/icon64x64.png")).getImage());
+		icons.add(new ImageIcon(getClass().getResource("/images/icon128x128.png")).getImage());
+		icons.add(new ImageIcon(getClass().getResource("/images/icon256x256.png")).getImage());		
 		
 		setIconImages(icons);		
 
