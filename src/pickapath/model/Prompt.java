@@ -28,7 +28,7 @@ public class Prompt extends Element {
 		color = Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
 	}
 	
-	//Copies everything from another Prompt, except for the choices
+	// Copies everything from another Prompt, except for the choices
 	public Prompt(Prompt other) {
 		super(other.getText());
 		x = other.x;
@@ -36,7 +36,7 @@ public class Prompt extends Element {
 		color = other.color;
 	}
 
-	//Read in prompt info from a file
+	// Read in prompt info from a file
 	public Prompt(ObjectInputStream in) throws IOException, ClassNotFoundException {	
 		super(in);
 		x = in.readInt();
@@ -44,7 +44,7 @@ public class Prompt extends Element {
 		color = (Color)in.readObject();
 	}
 	
-	//Write out prompt info to a file
+	// Write out prompt info to a file
 	public void write(ObjectOutputStream out) throws IOException {	
 		super.write(out);
 		out.writeInt(x);
@@ -52,12 +52,12 @@ public class Prompt extends Element {
 		out.writeObject(color);
 	}	
 	
-	//Package-private
+	// Package-private
 	static Color generateColor() {
 		return Color.getHSBColor((float)Math.random(), 0.35f, 1.0f);
 	}
 	
-	//Package-private
+	// Package-private
 	void setColor(Color color) {
 		this.color = color;
 	}
@@ -70,12 +70,12 @@ public class Prompt extends Element {
 		return (int)Math.round(x * zoom);
 	}
 	
-	//Package-private
+	// Package-private
 	void setX(int x) {
 		this.x = x;
 	}
 	
-	//Package-private
+	// Package-private
 	void setX(int x, double zoom) {
 		setX((int)Math.round(x / zoom));
 	}
@@ -88,12 +88,12 @@ public class Prompt extends Element {
 		return (int)Math.round(y * zoom);
 	}
 	
-	//Package-private
+	// Package-private
 	void setY(int y) {
 		this.y = y;
 	}
 	
-	//Package-private
+	// Package-private
 	void setY(int y, double zoom) {
 		setY((int)Math.round(y / zoom));
 	}
@@ -102,12 +102,12 @@ public class Prompt extends Element {
 		return color;
 	}
 
-	//Package-private
+	// Package-private
 	void addIncoming(Choice choice) {
 		incoming.add(choice);
 	}
 	
-	//Package-private
+	// Package-private
 	void addOutgoing(Choice choice) {
 		outgoing.add(choice);
 	}
@@ -139,7 +139,7 @@ public class Prompt extends Element {
 		}
 		
 		
-		//Draws text characters in the prompt
+		// Draws text characters in the prompt
 		g.setColor(Color.BLACK);
 		int textX = getX(zoom);
 		int textY = getY(zoom);
@@ -167,11 +167,9 @@ public class Prompt extends Element {
 			return null;
 		else
 			return "<html>" + result.replaceAll("\\n", "<br/>") + "</html>";
-	}
-	
+	}	
 	
 	public boolean contains(int x, int y, double zoom) {
-	 return (x >= zoom*(this.x-(WIDTH/2)) && x <= zoom*(this.x + (WIDTH/2)) && y >= zoom*(this.y - (HEIGHT/2)) && y <= zoom*(this.y + (HEIGHT/2)));
-		
+		return (x >= zoom*(this.x-(WIDTH/2)) && x <= zoom*(this.x + (WIDTH/2)) && y >= zoom*(this.y - (HEIGHT/2)) && y <= zoom*(this.y + (HEIGHT/2)));		
 	}
 }

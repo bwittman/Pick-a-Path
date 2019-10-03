@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author jimer
- * This is to create the jTable and HashMap for the creation of in game items.
+ * This class is used to hold the ID and name for in-game items.
  */
 public class Item {
 	private final int id;
@@ -45,6 +45,4 @@ public class Item {
 		out.writeInt(id);
 		out.writeObject(name);
 	}
-
-
 }

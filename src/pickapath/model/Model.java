@@ -659,7 +659,7 @@ public class Model implements TableModel {
 		updateListeners(Event.SAVE, null, false);
 	}
 
-	public void newProject() {
+	public void newFlowchart() {
 		clear();
 		updateListeners(Event.NEW, null, false);
 	}

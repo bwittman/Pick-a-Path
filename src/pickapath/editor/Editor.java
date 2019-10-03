@@ -3,6 +3,7 @@ package pickapath.editor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -18,13 +19,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -61,8 +65,8 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import pickapath.game.GameGUI;
 import pickapath.model.BooleanExpression;
 import pickapath.model.BooleanExpressionException;
-import pickapath.model.Element;
 import pickapath.model.Choice;
+import pickapath.model.Element;
 import pickapath.model.InvalidStartingPromptException;
 import pickapath.model.Model;
 import pickapath.model.ModelListener;
@@ -72,7 +76,7 @@ import pickapath.model.State;
 @SuppressWarnings("serial")
 public class Editor extends JFrame implements ModelListener {
 
-	//Editor window widgets
+	// Editor window widgets
 	private JTextField titleField;
 	private JTextField currencyField;
 	private Canvas canvas;
@@ -89,10 +93,10 @@ public class Editor extends JFrame implements ModelListener {
 	private JLabel choiceOrderLabel;
 	private JLabel statusLabel;
 
-	//Details dialog widgets
+	// Details dialog widgets
 	private JDialog detailsDialog;
 
-	//Menu items
+	// Menu items
 	private JMenuItem saveItem;
 	private JMenuItem beginChoiceItem;
 	private JMenuItem detailsItem;
@@ -100,13 +104,13 @@ public class Editor extends JFrame implements ModelListener {
 	private JMenuItem undoItem;
 	private JMenuItem redoItem;
 
-	//Functional members
+	// Functional members
 	private Model model = new Model();
 	private File saveFile = null;
 	private Random random = new Random();
 	private boolean listening = true;
 
-	//Constants
+	// Constants
 	private static final int SLIDER_MAX = 150;
 	private static final int SLIDER_MIN = 25;
 	private static final int SLIDER_MAJOR_TICK = 25;
@@ -168,7 +172,6 @@ public class Editor extends JFrame implements ModelListener {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				viewport.setViewSize(scrollPane.getSize());
-				//viewport.setSize(scrollPane.getSize());
 				canvas.resetBounds();  
 			}
 		});
@@ -186,17 +189,24 @@ public class Editor extends JFrame implements ModelListener {
 			public void windowClosing(WindowEvent e) {
 				exit();
 			}
-		});
+		});		
+		
+		List<Image> icons = new ArrayList<Image>();
+		icons.add(new ImageIcon("icon16x16.png").getImage());
+		icons.add(new ImageIcon("icon32x32.png").getImage());
+		icons.add(new ImageIcon("icon64x64.png").getImage());
+		icons.add(new ImageIcon("icon128x128.png").getImage());
+		icons.add(new ImageIcon("icon256x256.png").getImage());		
+		
+		setIconImages(icons);		
 
-		setLocationRelativeTo(null); //starts the GUI centered (when not maximized)
-		setVisible(true); // allows the GUI to start as visible
-		setExtendedState(JFrame.MAXIMIZED_BOTH); //maximizes GUI
-
-
+		setLocationRelativeTo(null); // Starts the GUI centered (when not maximized)
+		setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximizes GUI
+		setVisible(true); // Starts GUI visible		
 	}
 
 
-	private boolean saveProject() {
+	private boolean saveFlowchart() {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(saveFile));
 			model.write(out);
@@ -209,10 +219,10 @@ public class Editor extends JFrame implements ModelListener {
 		return true;
 	}
 
-	private boolean saveProjectAs() {
+	private boolean saveFlowchartAs() {
 
 		JFileChooser fileSelect = new JFileChooser();
-		fileSelect.setDialogTitle("Save Project");
+		fileSelect.setDialogTitle("Save Flowchart");
 		fileSelect.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
@@ -237,15 +247,16 @@ public class Editor extends JFrame implements ModelListener {
 
 			saveFile = file;
 
-			return saveProject();
+			return saveFlowchart();
 		}
 		return false;
 	}
 
 
-	private void openProject() {  //open a saved file
+	// Open a saved flowchart file
+	private void openFlowchart() {
 		JFileChooser fileSelect = new JFileChooser();
-		fileSelect.setDialogTitle("Open Project");
+		fileSelect.setDialogTitle("Open Flowchart");
 		fileSelect.setFileFilter(new FileFilter() {
 
 			@Override
@@ -273,61 +284,61 @@ public class Editor extends JFrame implements ModelListener {
 
 
 	private void createMenus() {
-		JMenuBar bar = new JMenuBar(); // menu bar
+		JMenuBar bar = new JMenuBar();
 
-		JMenu file = new JMenu("File"); // file menu
+		// File menu
+		JMenu file = new JMenu("File"); 
 		bar.add(file);
-		JMenuItem newProject = new JMenuItem("New Project"); // new project menu item
-		newProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new project
-		file.add(newProject);
-		newProject.addActionListener(new ActionListener() {
+		JMenuItem newFlowchart = new JMenuItem("New Flowchart");
+		newFlowchart.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+		file.add(newFlowchart);
+		newFlowchart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if( saveIfNeeded("starting a new project") ) {
-					model.newProject();
+				if( saveIfNeeded("starting a new flowchart") ) {
+					model.newFlowchart();
 				}
 			}
 		});
 
-		JMenuItem openProject = new JMenuItem("Open Project..."); // open project menu item		
-		//hotkey to open a project
-		openProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK)); 
-		file.add(openProject);
-		openProject.addActionListener(new ActionListener() {
+		JMenuItem openFlowchart = new JMenuItem("Open Flowchart...");
+		openFlowchart.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK)); 
+		file.add(openFlowchart);
+		openFlowchart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if( saveIfNeeded("opening another project") ) {					
-					openProject();
+				if( saveIfNeeded("opening another flowchart") ) {					
+					openFlowchart();
 				}
 			}
 		});
 		file.addSeparator();
 
-		saveItem = new JMenuItem("Save"); // save menu
+		saveItem = new JMenuItem("Save");
 		KeyStroke keyStrokeToSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK); 
-		saveItem.setAccelerator(keyStrokeToSave); //hotkey to save a project
+		saveItem.setAccelerator(keyStrokeToSave);
 		file.add(saveItem);
 		saveItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if( saveFile == null )
-					saveProjectAs();
+					saveFlowchartAs();
 				else
-					saveProject();
+					saveFlowchart();
 			}
 		});
 		saveItem.setEnabled(false);
 
-		JMenuItem saveAs = new JMenuItem("Save As..."); // save button		 
+		JMenuItem saveAs = new JMenuItem("Save As...");		 
 		file.add(saveAs);
 		saveAs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveProjectAs();
+				saveFlowchartAs();
 			}
 		});
 
 		file.addSeparator();
 
-		JMenuItem exit = new JMenuItem("Exit"); // exit button
-		KeyStroke keyStrokeToExit = KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK); 
-		exit.setAccelerator(keyStrokeToExit); //hotkey for exiting
+		JMenuItem exit = new JMenuItem("Exit");
+		KeyStroke keyStrokeToExit = KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.ALT_DOWN_MASK); 
+		exit.setAccelerator(keyStrokeToExit);
 		file.add(exit);
 		exit.addActionListener(new ActionListener() {
 			@Override
@@ -336,7 +347,8 @@ public class Editor extends JFrame implements ModelListener {
 			}
 		});	
 
-		JMenu editMenu = new JMenu("Edit"); // edit menu
+		// Edit menu
+		JMenu editMenu = new JMenu("Edit"); 
 		
 		undoItem = new JMenuItem("Undo");
 		undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK)); //hotkey to undo
@@ -350,7 +362,7 @@ public class Editor extends JFrame implements ModelListener {
 		undoItem.setEnabled(false);
 		
 		redoItem = new JMenuItem("Redo");
-		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK)); //hotkey to redo
+		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK));
 		editMenu.add(redoItem);
 		redoItem.addActionListener(new ActionListener() {
 			@Override
@@ -362,8 +374,9 @@ public class Editor extends JFrame implements ModelListener {
 		
 		editMenu.addSeparator();		
 		
-		JMenuItem makePromptItem = new JMenuItem("Make Prompt"); //another way to make prompt
-		makePromptItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new prompt
+		// Menu item to make a prompt
+		JMenuItem makePromptItem = new JMenuItem("Make Prompt");
+		makePromptItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK));
 		editMenu.add(makePromptItem);
 		makePromptItem.addActionListener(new ActionListener() {
 			@Override
@@ -371,8 +384,10 @@ public class Editor extends JFrame implements ModelListener {
 				addPrompt();
 			}
 		});
-		beginChoiceItem = new JMenuItem("Begin Choice..."); //another way to make a choice
-		beginChoiceItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK)); //hotkey to start a new choice
+		
+		// Menu item to make a choice
+		beginChoiceItem = new JMenuItem("Begin Choice...");
+		beginChoiceItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK));
 		editMenu.add(beginChoiceItem);
 		beginChoiceItem.addActionListener(new ActionListener() {
 			@Override
@@ -394,9 +409,6 @@ public class Editor extends JFrame implements ModelListener {
 		});		
 		recolorPromptItem.setEnabled(false);
 
-
-
-
 		detailsItem = new JMenuItem("Choice Details...");
 		detailsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, KeyEvent.CTRL_DOWN_MASK)); //hotkey to create a new prompt
 		editMenu.add(detailsItem);
@@ -410,19 +422,20 @@ public class Editor extends JFrame implements ModelListener {
 
 		bar.add(editMenu);
 
-
-		JMenu mode = new JMenu("Game"); // game menu
-		JMenuItem playerModeItem = new JMenuItem("Play Game");		 
-		//hotkey to get to game mode
-		playerModeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK)); 
-		playerModeItem.addActionListener(new ActionListener() {
+		// Game menu
+		JMenu gameMenu = new JMenu("Game"); 
+		
+		JMenuItem playGameItem = new JMenuItem("Play Game");
+		playGameItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK)); 
+		playGameItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				try{					
-					setVisible(false);
 					new GameGUI(new State(model), Editor.this);
-				} catch(InvalidStartingPromptException e) {
+					setVisible(false);
+				} 
+				catch(InvalidStartingPromptException e) {					
 					JOptionPane.showMessageDialog(Editor.this,
 							"You must have exactly one prompt with no incoming choices to make the game playable.", "Game Not Playable!", JOptionPane.ERROR_MESSAGE);
 				};
@@ -430,8 +443,19 @@ public class Editor extends JFrame implements ModelListener {
 
 		});
 
-		mode.add(playerModeItem);
-		bar.add(mode);
+		gameMenu.add(playGameItem);
+		bar.add(gameMenu);
+		
+		// Help menu
+		JMenu helpMenu = new JMenu("Help");
+		JMenuItem helpItem = new JMenuItem("Help");
+		helpItem.addActionListener(e -> {new HelpDialog(Editor.this);});
+		helpMenu.add(helpItem);		
+		
+		JMenuItem aboutItem = new JMenuItem("About");
+		aboutItem.addActionListener(e -> {JOptionPane.showMessageDialog(Editor.this, "Pick-a-Path is open-source software developed at Otterbein University.\r\n\r\nDevelopers:\r\nJames Erpenbeck, Pranaya Kalidindi, Olivia Langley,\r\nLogan Murphy, Lucia Ristea, and Barry Wittman\r\n\r\nThis software is provided \"as-is\" with no warranty of any kind,\r\nexpress or implied, including but not limited to any warranty\r\nof merchantability or fitness for a particular purpose.\r\n\r\n", "About Pick-a-Path", JOptionPane.INFORMATION_MESSAGE);});
+		helpMenu.add(aboutItem);
+		bar.add(helpMenu);
 
 		setJMenuBar(bar);	
 	}
@@ -1148,7 +1172,7 @@ public class Editor extends JFrame implements ModelListener {
 	}
 
 	private void select(Element object, boolean isNew) {
-		//Deselect
+		// Deselect
 		if( object == null ) {
 			textArea.setText("");
 			beginChoiceButton.setEnabled(false);
@@ -1224,9 +1248,9 @@ public class Editor extends JFrame implements ModelListener {
 					JOptionPane.YES_NO_CANCEL_OPTION);
 			if (ask == JOptionPane.YES_OPTION) {
 				if( saveFile == null )
-					return saveProjectAs(); 
+					return saveFlowchartAs(); 
 				else
-					return saveProject();
+					return saveFlowchart();
 			}
 			else if(ask == JOptionPane.CANCEL_OPTION)
 				return false;					
@@ -1266,6 +1290,7 @@ public class Editor extends JFrame implements ModelListener {
 			break;
 		case DELETE:			
 			statusLabel.setText((prompt ? "Prompt" : "Choice") + " deleted");
+			select(null, false);
 			break;
 		case SELECT: 
 			select(object, false);
@@ -1310,7 +1335,7 @@ public class Editor extends JFrame implements ModelListener {
 			saveFile = null;
 			titleField.setText("");	
 			currencyField.setText("");
-			statusLabel.setText("Created new project");
+			statusLabel.setText("Created new flowchart");
 			textArea.setText("");
 			listening = true;
 			break;

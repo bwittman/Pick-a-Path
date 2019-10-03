@@ -26,11 +26,11 @@ public class Choice extends Element {
 	private int currencyChange;
 	private int order;
 
-	//Used to avoid reallocating arrays
+	// Used to avoid reallocating arrays
 	private int[] xPoints = new int[3];
 	private int[] yPoints = new int[3];	
 
-	//Constructor for choices
+	// Constructor for choices
 	public Choice(Prompt start, Prompt end, String text) {
 		super(text);
 		this.start = start;
@@ -42,7 +42,7 @@ public class Choice extends Element {
 		order = start.getOutgoing().size();		
 	}
 
-	//Package-private
+	// Package-private
 	Choice(Choice other, Map<Prompt, Integer> promptIndexes, List<Prompt> prompts, Map<Item, Integer> itemMap, List<Item> items ) {
 		super(other.getText());
 		start = prompts.get(promptIndexes.get(other.start));
@@ -101,7 +101,7 @@ public class Choice extends Element {
 		return currencyChange;
 	}
 	
-	//Package-private
+	// Package-private
 	void setCurrencyChange(int change) {
 		currencyChange = change;
 	}
@@ -128,8 +128,8 @@ public class Choice extends Element {
 		return builder.toString();
 	}
 
-	//Write arrow information to a file
-	//Package private
+	// Write arrow information to a file
+	// Package private
 	void write(ObjectOutputStream out, Map<Prompt, Integer> promptIndexes, Map<Item, Integer> itemIndexes) throws IOException {	
 		super.write(out);
 		int startIndex = promptIndexes.get(start);
@@ -221,7 +221,7 @@ public class Choice extends Element {
 		double cX = xPoints[2];
 		double cY = yPoints[2];
 
-		//Use dot product and barycentric coordinates to make the triangle on the line 
+		// Use dot product and barycentric coordinates to make the triangle on the line 
 		double d00 = dot(bX - aX, bY - aY, bX - aX, bY - aY); 
 		double d01 = dot(bX - aX, bY - aY, cX - aX, cY - aY);
 		double d11 = dot(cX - aX, cY - aY,  cX - aX, cY - aY);
@@ -250,7 +250,7 @@ public class Choice extends Element {
 		return lostItems;
 	}
 
-	//Package private
+	// Package private
 	void deleteItem(Item item) {
 		gainedItems.remove(item);
 		lostItems.remove(item);
@@ -258,12 +258,12 @@ public class Choice extends Element {
 			expression = expression.removeItem(item);
 	}
 
-	//Package private
+	// Package private
 	void addGainedItem(Item item) {
 		gainedItems.add(item);
 	}
 
-	//Package private
+	// Package private
 	void removeGainedItem(Item item) {
 		gainedItems.remove(item);
 	}
@@ -273,7 +273,7 @@ public class Choice extends Element {
 		lostItems.add(item);
 	}
 
-	//Package private
+	// Package private
 	void removeLostItem(Item item) {
 		lostItems.remove(item);
 	}
@@ -437,7 +437,7 @@ public class Choice extends Element {
 		return order;
 	}
 	
-	//Package-private
+	// Package-private
 	void setOrder(int order) {
 		this.order = order;
 	}

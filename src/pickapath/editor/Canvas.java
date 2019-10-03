@@ -47,7 +47,7 @@ public class Canvas extends JPanel implements MouseMotionListener, MouseListener
 	private int width = MIN_WIDTH;
 	private int height = MIN_HEIGHT;
 
-	//Canvas constructor 
+	// Canvas constructor 
 	public Canvas(Model model, Editor main) {
 		this.model = model;
 		model.addModelListener(this);

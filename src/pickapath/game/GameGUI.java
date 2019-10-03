@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -21,6 +22,7 @@ import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -311,7 +313,17 @@ public class GameGUI extends JFrame {
 		setMinimumSize(getPreferredSize());
 		pack();
 		
-		setLocationRelativeTo(null); //starts the GUI centered
+		
+		List<Image> icons = new ArrayList<Image>();
+		icons.add(new ImageIcon("icon16x16.png").getImage());
+		icons.add(new ImageIcon("icon32x32.png").getImage());
+		icons.add(new ImageIcon("icon64x64.png").getImage());
+		icons.add(new ImageIcon("icon128x128.png").getImage());
+		icons.add(new ImageIcon("icon256x256.png").getImage());		
+		
+		setIconImages(icons);	
+		
+		setLocationRelativeTo(null); // Starts the GUI centered
 		setVisible(true);		
 	}
 

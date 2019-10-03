@@ -95,7 +95,7 @@ public class State {
 		if( index >= 0 && index < choices.size() ) {
 			Choice choice = choices.get(index);
 			
-			//remove items first
+			// Remove items first
 			inventory.removeAll(choice.getLostItems());
 			inventory.addAll(choice.getGainedItems());
 			currency += choice.getCurrencyChange();
